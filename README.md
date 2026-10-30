@@ -5,6 +5,178 @@ Every baseline (nearest-dose, adjacent-dose mixtures, WRF regression, scVIDR, FM
 FM+fraction loss, ...) is scored by the same code against the same frozen spec:
 `sciplex_eval` + `artifacts/eval_spec_v1`.
 
+## chemCPA baseline
+
+`sciplex_baselines` integrates the [paper-era chemCPA model](https://github.com/theislab/chemCPA/tree/a4a4ded0c3b949c64ff1ea51033be1b7c301c36b)
+with the frozen panel and evaluation code. This **chemCPA-Morgan** adaptation uses
+2048-bit radius-2 chemical fingerprints, a learned perturbation encoder and amortized
+dose network, and adversarial basal-state disentanglement. It trains from scratch on
+train/control cells. The baseline has no WRF auxiliary loss; a variant trained with the
+proposal's response-fraction loss is [below](#chemcpa-nb--response-fraction-loss).
+See [source provenance and adaptations](sciplex_baselines/vendor/chemCPA_NOTICE.md).
+Result tables, figures and the sweep log are in [`docs/chemcpa/`](docs/chemcpa/README.md).
+
+Two likelihoods are trained with otherwise identical [settings](configs/chemcpa_nb_v1.json):
+
+- **`gauss_v1`**: the paper-era Gaussian decoder over log1p(CP10K). Its samples are dense,
+  with no zero or low-UMI program cells. The v1 thresholds fall exactly on those cells, so
+  this variant predicts WRF = 100% for every condition. It is reported as the upstream
+  likelihood, not as a usable WRF predictor.
+- **`nb_v1`** (primary): CPA's negative binomial over raw UMIs. The decoder predicts gene
+  proportions, which are multiplied by the source control cell's library size. One extra
+  feature holds all other human UMIs, so generated counts are normalized by their
+  generated total exactly as real cells are. Treatment-induced library-size shifts are
+  not modelled (treated medians are 0 to 20% above controls).
+
+Everything runs as SLURM jobs. The submitter only calls `sbatch`. From `lov4`:
+
+```bash
+uv pip install -r requirements-chemcpa.txt          # once
+slurm/chemcpa/submit.sh                             # data -> train (GPU array) -> evaluate (CPU array) -> report (CPU)
+slurm/chemcpa/submit.sh REBUILD_DATA=1              # also set processed/ aside and rebuild it from the GEO download
+slurm/chemcpa/submit.sh SKIP_DATA=1 VARIANTS=nb_v1 SEEDS="0 1 2 3 4"
+# a validation-only sweep, compared in results/chemcpa/sweep1_val_s0/
+slurm/chemcpa/submit.sh SKIP_DATA=1 EVALS="val 0" COMPARE_NAME=sweep1 VARIANTS="nbwrf_l10_h0.5 nbwrf_l100_h0.5 nb_v1"
+```
+
+Defaults (data directory, variants, seeds, evaluations) live in
+[`slurm/chemcpa/defaults.sh`](slurm/chemcpa/defaults.sh). Override them as `VAR=value`
+arguments. Each submission writes its resolved configuration to
+`results/chemcpa/submissions/<timestamp>.env` and passes that file to every job.
+Logs go to `results/chemcpa/logs/`, and every log starts with the host, GPU and
+resource request.
+
+| stage | partition | does |
+|---|---|---|
+| `data.sbatch` | cpu | verifies the GEO download checksums, builds the raw-count h5ad and panel (skipping outputs that exist); `build_panel.py` refuses to write unless it reproduces the frozen spec and split |
+| `train.sbatch` | legacy, RTX 2080 Ti (gpu15 excluded: tasks hung there in CUDA start-up) | one task per (variant, seed): 100 epochs; keeps the checkpoint with the lowest validation MMD² |
+| `evaluate.sbatch` | cpu | generates held-out-dose cells from permitted controls; scores val, test, and test with a second sampling seed |
+| `report.sbatch` | cpu | per-variant reports and a cross-variant comparison, from saved artefacts only |
+
+Training and evaluation skip finished work, so a job that hits its time limit is
+simply resubmitted. A finished seed trained with a different config is refused, not
+reused. Each seed saves its selected checkpoint, history, configuration, versions,
+input hashes and chemical structures. Each evaluation saves the generated `.h5ad`
+cells, shared per-condition and per-well metrics, and control-reconstruction
+diagnostics. Reports add seed variability, a condition bootstrap, vehicle and
+replicate references, CSV tables and figures. They also add a **supplementary
+threshold-sensitivity** table: WRF error at control quantiles q = 0.1 … 0.975, using
+the same r(x) and τ rule as the frozen spec. It is not used for model selection.
+The bootstrap does not represent uncertainty across independent biological experiments.
+
+`--generation mean` (evaluation and reporting) gives a separately labelled decoder-mean
+diagnostic from the same checkpoints. No posthoc response calibration is performed.
+The model verifies the frozen condition split and well isolation, uses only permitted
+controls for counterfactual generation, and refuses a mismatched panel/spec at reload.
+`python -m pytest tests` covers both likelihoods and the fraction loss (training updates,
+checkpoints, resume, NB normalization, the analytic NB expectation against count
+sampling, molecular conditioning, held-out-expression isolation).
+
+### chemCPA results (spec v1, 3 seeds, submission `20261030-165655`)
+
+Test split (17 withheld-dose conditions). Model rows are mean ± seed SD; lower is better.
+
+| | WRF err q0.9 | **q0.95** | q0.975 | W1(r) | MMD² | RMSE DEG50 | RMSE program |
+|---|---|---|---|---|---|---|---|
+| chemCPA-NB | 14.3 ± 1.0 | **7.1 ± 0.5** | 5.6 ± 0.4 | 0.59 | 0.049 | 0.393 | 0.102 |
+| chemCPA-Gauss | 19.4 ± 0.1 | **9.3 ± 0.0** | 7.4 ± 0.0 | 0.60 | 0.033 | 0.308 | 0.072 |
+| vehicle cells as the prediction | 9.9 | **4.9** | 3.5 | 0.48 | 0.059 | 0.436 | 0.099 |
+| replicate well (noise floor) | 6.9 | **3.8** | 2.6 | 0.27 | 0.008 | 0.245 | 0.086 |
+
+Validation (9 conditions) agrees: NB 7.4 ± 0.3, Gaussian 9.5, vehicle 5.7, replicate 3.5 pp at q0.95.
+A second sampling seed changes the test numbers by ≤ 0.05 pp. Reports, per-condition and
+per-well tables and figures are in `results/chemcpa/{nb_v1,gauss_v1}/report_*` and
+`results/chemcpa/compare_*`.
+
+- **Neither variant beats the no-drug-effect prediction on WRF.** NB chemCPA's predicted
+  fractions span only 95.9–98.5% while the measured fractions span 74.3–97.2%. Across conditions,
+  predicted and measured WRF have Pearson r = 0.02.
+- **Gaussian chemCPA: good average expression, wrong fractions.** It beats vehicle on
+  DEG50 RMSE (0.31 vs 0.44) and MMD², yet every generated population is 100% weak
+  responders.
+- **NB chemCPA: the control tail is lost.** Reconstructing controls with no drug gives
+  WRF 97.8–98.9% instead of 95.0%, with W1(r) 0.18–0.25. Per-gene means are fine (program
+  RMSE 0.02–0.03) and MMD² is 0.001, below the replicate floor. The autoencoder smooths
+  away the low-program (G1-like) cells that the v1 threshold counts.
+- **Threshold sensitivity** (supplementary, from the same predictions): at mid thresholds
+  (q 0.5–0.7) Gaussian chemCPA tracks the shift better than vehicle (12–15 vs 22–24 pp
+  error). NB stays close to vehicle at every q. Both remain far above the replicate floor.
+
+### chemCPA-NB + response-fraction loss
+
+[`sciplex_baselines/fraction_loss.py`](sciplex_baselines/fraction_loss.py) implements the
+proposal's loss (eqs. 2–3) for count generators. A config's `fraction_loss` block adds
+λ · mean over sampled training conditions and spec τs of (f̃(generated) − f̃(measured))² to
+chemCPA's autoencoder objective. Here f̃ is the mean of σ((τ − r)/h). Measured targets come
+from training doses and vehicle only. For generated cells, the indicator is averaged
+exactly over each cell's negative-binomial program-UMI distribution (program total
+moment-matched to one NB, library = source cell's), so the loss is differentiable
+without sampling counts.
+
+The protocol was fixed before any sweep result
+([sweep log](docs/chemcpa/wrf_sweep_log.md), with every configuration tried):
+
+- Iterate on validation only, keeping the baseline's checkpoint rule (minimum validation MMD²).
+- Count it as positive if validation WRF error at q0.95 falls ≥ 1 pp below chemCPA-NB, with
+  MMD² and DEG50 RMSE no more than 10% worse.
+- Score test once, for the single chosen configuration.
+
+Round 1 (λ ∈ {10, 100, 1000} × h ∈ {0.1, 0.5}, 3 seeds each) produced exactly one
+configuration meeting all criteria: **λ = 10, h = 0.5**
+([config](configs/chemcpa_nbwrf_l10_h0.5.json)). Validation WRF was 4.95 ± 0.04 vs
+7.44 ± 0.27, MMD² 0.025 vs 0.027, DEG50 0.339 vs 0.322. Iteration stopped there.
+
+Test (17 conditions, scored once):
+
+| | WRF err q0.9 | **q0.95** | q0.975 | W1(r) | MMD² | RMSE DEG50 | RMSE program |
+|---|---|---|---|---|---|---|---|
+| chemCPA-NB + WRF loss | 7.9 ± 0.9 | **5.3 ± 0.5** | 4.1 ± 0.2 | 0.51 | 0.049 | 0.420 | 0.135 |
+| chemCPA-NB | 14.3 ± 1.0 | **7.1 ± 0.5** | 5.6 ± 0.4 | 0.59 | 0.049 | 0.393 | 0.102 |
+| vehicle cells as the prediction | 9.9 | **4.9** | 3.5 | 0.48 | 0.059 | 0.436 | 0.099 |
+
+- **The loss helps chemCPA on held-out doses.** All three seeds beat all three baseline
+  seeds (4.7–5.6 vs 6.9–7.7 pp), and 12 of 17 conditions improve. Predicted fractions now
+  track measured ones (Pearson r 0.52 vs 0.02). With 17 conditions the paired condition
+  bootstrap is not conclusive: −1.9 pp, 95% CI [−4.7, +0.7].
+- **It does not beat the no-drug-effect prediction on test** (+0.4 pp, CI [−2.4, +2.8]),
+  although it did on validation.
+- **Costs:** program-gene mean RMSE 0.135 vs 0.102, and DEG50 RMSE 7% worse. In the
+  threshold-sensitivity curve, error is near the replicate floor at q ≥ 0.85 but 16–17 pp
+  at q ≤ 0.4, worse than every other method. The loss matched the supervised fractions
+  partly by distorting the rest of the response-score distribution.
+
+**Round 2** was run after seeing the round-1 test result, and was motivated by the same
+distortion on validation (21 pp at q = 0.1). It supervised 13 control quantiles,
+q = 0.1 … 0.975, instead of the three spec τs (`"quantiles"` in the config). One criterion
+was added: mean validation WRF error over those 13 thresholds no worse than chemCPA-NB's.
+The best passing configuration was **λ = 10, h = 0.25**
+([config](configs/chemcpa_nbwrfgrid_l10_h0.25.json)), with validation q0.95 4.78 ± 0.75 and
+a 13-threshold mean of 9.3 vs 15.9. Its single test run, against the same baselines
+("13-τ mean" = mean WRF error over the 13 thresholds):
+
+| test | WRF err q0.95 | 13-τ mean | W1(r) | MMD² | RMSE DEG50 | RMSE program |
+|---|---|---|---|---|---|---|
+| round 2: 13 τs, λ=10, h=0.25 | 6.6 ± 0.2 | **9.9** | **0.44** | **0.039** | 0.404 | 0.145 |
+| round 1: 3 τs, λ=10, h=0.5 | **5.3 ± 0.5** | 12.9 | 0.51 | 0.049 | 0.420 | 0.135 |
+| chemCPA-NB | 7.1 ± 0.5 | 16.2 | 0.59 | 0.049 | 0.393 | 0.102 |
+| vehicle cells as the prediction | 4.9 | 15.1 | 0.48 | 0.059 | 0.436 | 0.099 |
+| replicate well (noise floor) | 3.8 | 8.0 | 0.27 | 0.008 | 0.245 | 0.086 |
+
+- **At the frozen primary threshold, round 2 gives no clear gain** over chemCPA-NB (−0.6 pp,
+  95% CI [−2.7, +1.6]). It is worse than round 1 (+1.3 pp, CI [+0.4, +2.4]). Validation
+  overstated it (4.8 → 6.6).
+- **Across the whole response distribution it is the best model:** best 13-τ mean, W1(r) and
+  MMD² of all models and both references except the replicate floor. Error at q 0.5–0.8 is
+  10–11.5 pp, against 20–24 for vehicle, about at the replicate floor. Predicted-vs-measured
+  WRF correlation at q0.95 is 0.63.
+- **The trade-off is real:** three supervised τs do best at the primary threshold, and many
+  τs do best everywhere else. Because the v1 primary threshold is nearly insensitive (see
+  the open issue below), this argues for settling the threshold question before the FM
+  experiments.
+- Iteration stopped after two rounds. Any further round would be tuned with knowledge of
+  two test results.
+
+
 ## Setup
 
 ```bash
@@ -20,7 +192,9 @@ Data (Babel paths; pass your own `DATA_DIR` elsewhere):
 | A549 HDACi panel | `python -I scripts/build_panel.py --data-dir DATA_DIR` | `processed/a549_hdaci_v1.h5ad` (24,786 x 2,085, 12 MB) |
 
 On Babel everything is already built under `/data/user_data/yixiz/sciplex3/processed/`.
-The panel is small enough to copy. If you rebuild it, `build_panel.py` checks that it
+On the autonlab cluster it is under `/zfsauton/scratch/yixiz/sciplex3/processed/`, rebuilt
+from GEO by `slurm/chemcpa/data.sbatch`. The full rebuild takes about 10 minutes on a CPU node
+(job 91130 reproduced the earlier build exactly), which is quicker than a transfer. If you rebuild it, `build_panel.py` checks that it
 reproduces the frozen spec and split in this repo, and then writes only the panel.
 
 ## Panel and split (v1, *proposed*: confirm as a team before any test run)

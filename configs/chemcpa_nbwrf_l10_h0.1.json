@@ -1,0 +1,39 @@
+{
+  "likelihood": "nb",
+  "epochs": 100,
+  "validate_every": 10,
+  "batch_size": 256,
+  "n_prediction_cells": 1024,
+  "generation": "sample",
+  "selection_metric": "mmd2",
+  "hparams": {
+    "dim": 64,
+    "autoencoder_width": 256,
+    "autoencoder_depth": 2,
+    "adversary_width": 64,
+    "adversary_depth": 2,
+    "embedding_encoder_width": 128,
+    "embedding_encoder_depth": 1,
+    "dosers_width": 64,
+    "dosers_depth": 2,
+    "reg_adversary": 5,
+    "penalty_adversary": 3,
+    "reg_adversary_cov": 0,
+    "reg_multi_task": 0,
+    "adversary_steps": 3,
+    "autoencoder_lr": 0.001,
+    "adversary_lr": 0.0003,
+    "dosers_lr": 0.001,
+    "autoencoder_wd": 1e-06,
+    "adversary_wd": 0.0001,
+    "dosers_wd": 1e-07,
+    "step_size_lr": 45
+  },
+  "fraction_loss": {
+    "weight": 10.0,
+    "h": 0.1,
+    "conditions_per_step": 8,
+    "cells_per_condition": 64,
+    "max_count": 256
+  }
+}

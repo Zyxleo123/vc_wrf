@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 import numpy as np
 import pandas as pd
@@ -10,7 +11,7 @@ from sciplex_eval.metrics import summarize
 from sciplex_eval.spec import program_activity
 
 REPO = Path(__file__).resolve().parents[1]
-PANEL = Path("/data/user_data/yixiz/sciplex3/processed/a549_hdaci_v1.h5ad")
+PANEL = Path(os.environ.get("SCIPLEX_PANEL", "/data/user_data/yixiz/sciplex3/processed/a549_hdaci_v1.h5ad"))
 
 
 def toy_spec(score_type="log_sum", G=6):
