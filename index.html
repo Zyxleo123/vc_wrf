@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weak-responder fraction — figure guide</title>
+<style>
+  :root {
+    --ink: #1c1b19;
+    --muted: #5e5c56;
+    --line: #e3e0d8;
+    --bg: #f4f2ec;
+    --paper: #fffcf7;
+    --blue: #2a78d6;
+    --orange: #eb6834;
+    --green: #1baf7a;
+    --gold: #c48a00;
+    --side: 250px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--bg);
+    font: 17px/1.55 "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
+  }
+  a { color: #1a4f8b; }
+  .layout { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); }
+  nav {
+    position: sticky; top: 0; align-self: start;
+    height: 100vh; overflow: auto;
+    padding: 22px 16px 32px;
+    background: #ebe8e0;
+    border-right: 1px solid var(--line);
+  }
+  nav p { margin: 0 0 12px; font: 600 13px/1.3 system-ui, sans-serif; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+  nav a {
+    display: block; margin: 0 0 6px;
+    font: 14px/1.35 system-ui, sans-serif;
+    text-decoration: none; color: var(--ink);
+  }
+  nav a:hover { text-decoration: underline; }
+  main { max-width: 920px; padding: 36px 40px 80px; }
+  h1 { font-size: 34px; line-height: 1.15; margin: 0 0 12px; font-weight: 600; }
+  h2 { font-size: 26px; margin: 36px 0 8px; font-weight: 600; }
+  h3 { font-size: 20px; margin: 0 0 10px; font-weight: 600; }
+  h4 {
+    margin: 14px 0 4px;
+    font: 600 13px/1.3 system-ui, sans-serif;
+    letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted);
+  }
+  .deck { font-size: 19px; color: #333; }
+  .lede { color: #333; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 14px 0 6px; padding: 0; list-style: none; }
+  .swatches li { font: 14px/1.3 system-ui, sans-serif; display: flex; align-items: center; gap: 6px; }
+  .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+  article.fig {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 18px 8px;
+    margin: 18px 0 22px;
+  }
+  article.fig img { width: 100%; height: auto; display: block; background: white; }
+  dl { margin: 0 0 8px; }
+  dt { font: 600 15px/1.35 system-ui, sans-serif; margin-top: 8px; }
+  dd { margin: 2px 0 0 0; }
+  .glossary {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 4px 18px 12px;
+    margin: 16px 0 8px;
+  }
+  .glossary dt { margin-top: 12px; }
+  footer { margin-top: 28px; color: var(--muted); font: 14px/1.45 system-ui, sans-serif; }
+  @media (max-width: 860px) {
+    .layout { display: block; }
+    nav { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+    main { padding: 22px 16px 64px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <p>Figures</p>
+  <a href="#how">How to read a score</a>
+  <a href="#density">Response densities</a>
+  <a href="#ecdf">One curve per dose</a>
+  <a href="#overview">Averages</a>
+  <a href="#waterfall">Which doses moved</a>
+  <a href="#bias">Signed error</a>
+  <a href="#threshold">Every threshold</a>
+  <a href="#heat">Error grids</a>
+  <a href="#expr">Expression</a>
+  <a href="#forest">Uncertainty</a>
+  <a href="#lambda">Penalty weight</a>
+  <a href="#baseline">Interpolation and noise</a>
+</nav>
+<main>
+<h1>Weak-responder fraction</h1>
+<p class="deck">Every plot from the chemCPA and CellFlow comparison, with the axes and the marks written out. Test numbers below are means over the 17 held-out doses. Model numbers are then means over three seeds.</p>
+<p>At the primary threshold, chemCPA’s absolute error is 7.1 percentage points with no weak-responder penalty, 5.3 with three thresholds, and 6.6 with thirteen. CellFlow is 5.3, 4.9, and 4.9 on the same three settings. Log-dose interpolation, which predicts only the fraction, is lower than all of them. The plots below are what those averages leave out: which dose moved, whether the body of the score moved, and whether expression outside the proliferation genes paid for the fraction.</p>
+
+<section id="how">
+<h2>How to read a score</h2>
+<div class="glossary">
+<dl>
+<dt>Response score, r or t</dt>
+<dd>How far a cell’s proliferation-program activity sits below the vehicle mean, in vehicle standard deviations. The program is the Tirosh 2016 S and G2/M gene set, 97 genes. Activity is the log of one plus the sum of the unlogged program counts. Larger score means stronger suppression of that program. The vehicle mean and scale are fixed from control cells, so every condition uses the same ruler.</dd>
+<dt>Threshold τ</dt>
+<dd>A vertical cut on that ruler. A weak responder is a cell to the left of the cut. The primary cut is the 0.95 quantile of vehicle scores, τ ≈ 1.74. Two other cuts used in training sit at the 0.90 and 0.975 vehicle quantiles. The thirteen-threshold runs use a wider grid of vehicle quantiles.</dd>
+<dt>The spike near 3.52</dt>
+<dd>Cells with zero counts on every program gene. That is the strongest suppression the score can record, and it sits to the right of every training threshold. A model can change the fraction below τ by creating this spike while leaving the rest of the cells where they were.</dd>
+<dt>Weak-responder fraction</dt>
+<dd>The share of cells with score below τ. Absolute error is the absolute gap between the predicted share and the measured share, in percentage points. Signed error is predicted share minus measured share, also in percentage points. Positive signed error means too many cells were placed below the cut.</dd>
+<dt>Held-out dose</dt>
+<dd>The test split is 17 drug–dose pairs, one dose per drug, either 100 nM or 1000 nM. Validation is a separate 9 doses and is used only for the penalty-weight plots and the matched three-versus-thirteen comparison.</dd>
+</dl>
+</div>
+<ul class="swatches">
+  <li><span class="swatch" style="background:#2a78d6"></span>No weak-responder penalty</li>
+  <li><span class="swatch" style="background:#eb6834"></span>Penalty at 3 thresholds</li>
+  <li><span class="swatch" style="background:#1baf7a"></span>Penalty at 13 thresholds</li>
+  <li><span class="swatch" style="background:#eda100"></span>MMD penalty (CellFlow only)</li>
+  <li><span class="swatch" style="background:#52514e"></span>A reference that is not a trained model</li>
+</ul>
+<p>chemCPA checkpoints are the epoch with the lowest validation MMD². CellFlow’s baseline and MMD runs were chosen from checkpoints between step 500 and 30,000. The CellFlow weak-responder runs were chosen only from steps 5,000 to 30,000. That difference in the candidate range sits inside every CellFlow comparison.</p>
+</section>
+<section id="density"><h2>Response densities</h2><div class="lede"><p>These three panels are chemCPA on the test split. Each panel is one held-out dose. The three rows stay together because they are the same measured cells under three training losses. Grey is the measurement. The colored line is generated cells, pooled over three seeds. Each row has its own vertical scale: the bottom row runs higher because the spike is taller, so spike height should be read against that row’s axis.</p></div>
+<article class="fig" id="density-cudc">
+  <h3>CUDC-907, 100 nM</h3>
+  <img src="panels/density-cudc.png" alt="CUDC-907, 100 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score r. Larger means stronger proliferation suppression relative to vehicle. The axis label also names the dashed cuts: vehicle quantiles 0.90, 0.95, and 0.975.</dd><dt>Vertical</dt><dd>Density: share of cells per unit of response score. A measured well of roughly 100–300 cells and a pool of generated cells can sit on one axis. Each of the three rows has its own vertical range.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Grey bars</dt><dd>Measured cells in this dose.</dd><dt>Blue line, top row</dt><dd>chemCPA with no weak-responder penalty.</dd><dt>Orange line, middle row</dt><dd>chemCPA trained with the penalty at three thresholds, λ = 10, bandwidth 0.5.</dd><dt>Green line, bottom row</dt><dd>chemCPA trained with the penalty at thirteen thresholds, λ = 10, bandwidth 0.25.</dd><dt>Dashed vertical lines</dt><dd>The three vehicle-quantile thresholds. The primary evaluation cut is the 0.95 line, near 1.74. The spike near 3.5 is zero program counts and sits to the right of all three cuts.</dd><dt>Text in the corner</dt><dd>μ is the mean response score, measured then generated. v is the variance of the response score, measured then generated. WRF is the weak-responder fraction at the primary cut, measured then generated.</dd><dt>Title line under the drug name</dt><dd>Where this dose sits in the chemCPA three-threshold comparison: largest gain, largest loss, or the strongest measured response, and the change in absolute error.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This is the dose where the three-threshold loss cuts absolute error the most, from about 22 points to about 5. The generated mass that produces the match is the spike at the right edge. The body of the colored line stays left of the grey histogram.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="density-dacinostat">
+  <h3>Dacinostat, 1000 nM</h3>
+  <img src="panels/density-dacinostat.png" alt="Dacinostat, 1000 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score r. Larger means stronger proliferation suppression relative to vehicle. The axis label also names the dashed cuts: vehicle quantiles 0.90, 0.95, and 0.975.</dd><dt>Vertical</dt><dd>Density: share of cells per unit of response score. A measured well of roughly 100–300 cells and a pool of generated cells can sit on one axis. Each of the three rows has its own vertical range.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Grey bars</dt><dd>Measured cells in this dose.</dd><dt>Blue line, top row</dt><dd>chemCPA with no weak-responder penalty.</dd><dt>Orange line, middle row</dt><dd>chemCPA trained with the penalty at three thresholds, λ = 10, bandwidth 0.5.</dd><dt>Green line, bottom row</dt><dd>chemCPA trained with the penalty at thirteen thresholds, λ = 10, bandwidth 0.25.</dd><dt>Dashed vertical lines</dt><dd>The three vehicle-quantile thresholds. The primary evaluation cut is the 0.95 line, near 1.74. The spike near 3.5 is zero program counts and sits to the right of all three cuts.</dd><dt>Text in the corner</dt><dd>μ is the mean response score, measured then generated. v is the variance of the response score, measured then generated. WRF is the weak-responder fraction at the primary cut, measured then generated.</dd><dt>Title line under the drug name</dt><dd>Where this dose sits in the chemCPA three-threshold comparison: largest gain, largest loss, or the strongest measured response, and the change in absolute error.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The baseline is already close to the measured fraction. Both penalties move the fraction the wrong way, by building the same right-hand spike and lowering the predicted weak-responder fraction from about 97% to about 84%.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="density-quisinostat">
+  <h3>Quisinostat, 100 nM</h3>
+  <img src="panels/density-quisinostat.png" alt="Quisinostat, 100 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score r. Larger means stronger proliferation suppression relative to vehicle. The axis label also names the dashed cuts: vehicle quantiles 0.90, 0.95, and 0.975.</dd><dt>Vertical</dt><dd>Density: share of cells per unit of response score. A measured well of roughly 100–300 cells and a pool of generated cells can sit on one axis. Each of the three rows has its own vertical range.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Grey bars</dt><dd>Measured cells in this dose.</dd><dt>Blue line, top row</dt><dd>chemCPA with no weak-responder penalty.</dd><dt>Orange line, middle row</dt><dd>chemCPA trained with the penalty at three thresholds, λ = 10, bandwidth 0.5.</dd><dt>Green line, bottom row</dt><dd>chemCPA trained with the penalty at thirteen thresholds, λ = 10, bandwidth 0.25.</dd><dt>Dashed vertical lines</dt><dd>The three vehicle-quantile thresholds. The primary evaluation cut is the 0.95 line, near 1.74. The spike near 3.5 is zero program counts and sits to the right of all three cuts.</dd><dt>Text in the corner</dt><dd>μ is the mean response score, measured then generated. v is the variance of the response score, measured then generated. WRF is the weak-responder fraction at the primary cut, measured then generated.</dd><dt>Title line under the drug name</dt><dd>Where this dose sits in the chemCPA three-threshold comparison: largest gain, largest loss, or the strongest measured response, and the change in absolute error.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose has the highest measured weak-responder fraction in the test split, about 97%. The baseline error is already small. Both penalties increase it. A tail penalty has little useful work once almost every measured cell is already a strong responder.</p>
+    
+  </div>
+</article>
+</section><section id="ecdf"><h2>One cumulative curve per held-out dose</h2><div class="lede"><p>Horizontal axis is the response score t. Vertical axis is the fraction of cells with score below t, so the curve is the weak-responder fraction at every threshold. The grey dashed vertical line is the primary cut, τ at the vehicle 0.95 quantile. The black curve is the measurement. Blue is CellFlow with no weak-responder penalty, orange is CellFlow with three thresholds, green is CellFlow with thirteen. Each colored curve is the mean over three seeds, drawn through the thirteen published thresholds. CellFlow’s MMD run is not on these plots. Full generated-cell histograms for CellFlow are not in this report; these curves are the distribution view that the published tables support.</p>
+<p>A curve that matches only at the dashed line can still be far from the black curve everywhere else. That is why each dose is separate: the average mixes a 20-point miss with a 1-point miss.</p></div>
+<article class="fig" id="ecdf-cudc-907-100-nm">
+  <h3>CUDC-907, 100 nM</h3>
+  <img src="panels/ecdf-cudc-907-100-nm.png" alt="CUDC-907, 100 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 74.3% (175 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 22.5 / 5.4 / 13.3. CellFlow in the same order: 21.2 / 19.2 / 20.6.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-trichostatin-a-1000-nm">
+  <h3>Trichostatin A, 1000 nM</h3>
+  <img src="panels/ecdf-trichostatin-a-1000-nm.png" alt="Trichostatin A, 1000 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 81.9% (215 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 16.4 / 13.8 / 12.1. CellFlow in the same order: 13.6 / 11.4 / 12.7.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-abexinostat-100-nm">
+  <h3>Abexinostat, 100 nM</h3>
+  <img src="panels/ecdf-abexinostat-100-nm.png" alt="Abexinostat, 100 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 83.3% (209 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 15.0 / 6.4 / 8.2. CellFlow in the same order: 12.1 / 10.4 / 11.5.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-pracinostat-100-nm">
+  <h3>Pracinostat, 100 nM</h3>
+  <img src="panels/ecdf-pracinostat-100-nm.png" alt="Pracinostat, 100 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 85.0% (193 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 12.5 / 4.4 / 5.3. CellFlow in the same order: 10.5 / 9.0 / 9.8.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-cudc-101-1000-nm">
+  <h3>CUDC-101, 1000 nM</h3>
+  <img src="panels/ecdf-cudc-101-1000-nm.png" alt="CUDC-101, 1000 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 87.5% (216 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 10.9 / 4.1 / 6.9. CellFlow in the same order: 7.8 / 6.8 / 7.3.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-divalproex-sodium-1000-nm">
+  <h3>Divalproex Sodium, 1000 nM</h3>
+  <img src="panels/ecdf-divalproex-sodium-1000-nm.png" alt="Divalproex Sodium, 1000 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 89.6% (134 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 7.1 / 4.9 / 7.9. CellFlow in the same order: 5.9 / 5.3 / 5.1.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-panobinostat-100-nm">
+  <h3>Panobinostat, 100 nM</h3>
+  <img src="panels/ecdf-panobinostat-100-nm.png" alt="Panobinostat, 100 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 90.0% (130 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 6.8 / 10.6 / 10.8. CellFlow in the same order: 4.9 / 4.1 / 4.5.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-entinostat-1000-nm">
+  <h3>Entinostat, 1000 nM</h3>
+  <img src="panels/ecdf-entinostat-1000-nm.png" alt="Entinostat, 1000 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 93.6% (265 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 5.0 / 3.8 / 6.0. CellFlow in the same order: 2.0 / 2.3 / 1.3.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-pci-34051-1000-nm">
+  <h3>PCI-34051, 1000 nM</h3>
+  <img src="panels/ecdf-pci-34051-1000-nm.png" alt="PCI-34051, 1000 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 93.8% (195 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 4.7 / 3.0 / 3.6. CellFlow in the same order: 1.6 / 1.3 / 1.0.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-itsa-1-100-nm">
+  <h3>ITSA-1, 100 nM</h3>
+  <img src="panels/ecdf-itsa-1-100-nm.png" alt="ITSA-1, 100 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 93.9% (196 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 3.5 / 3.0 / 4.3. CellFlow in the same order: 1.6 / 1.2 / 0.8.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-resminostat-100-nm">
+  <h3>Resminostat, 100 nM</h3>
+  <img src="panels/ecdf-resminostat-100-nm.png" alt="Resminostat, 100 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 93.9% (231 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 4.2 / 3.6 / 4.7. CellFlow in the same order: 1.6 / 1.2 / 1.0.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-dacinostat-1000-nm">
+  <h3>Dacinostat, 1000 nM</h3>
+  <img src="panels/ecdf-dacinostat-1000-nm.png" alt="Dacinostat, 1000 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 94.8% (115 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 2.5 / 11.1 / 11.1. CellFlow in the same order: 1.0 / 2.9 / 0.9.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-tucidinostat-1000-nm">
+  <h3>Tucidinostat, 1000 nM</h3>
+  <img src="panels/ecdf-tucidinostat-1000-nm.png" alt="Tucidinostat, 1000 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 95.0% (221 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 2.9 / 2.7 / 2.0. CellFlow in the same order: 1.1 / 1.2 / 0.9.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-sodium-phenylbutyrate-100-nm">
+  <h3>Sodium Phenylbutyrate, 100 nM</h3>
+  <img src="panels/ecdf-sodium-phenylbutyrate-100-nm.png" alt="Sodium Phenylbutyrate, 100 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 95.4% (237 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 2.5 / 3.3 / 3.4. CellFlow in the same order: 1.1 / 1.0 / 1.0.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-valproic-acid-sodium-salt-1000-nm">
+  <h3>Valproic acid sodium salt, 1000 nM</h3>
+  <img src="panels/ecdf-valproic-acid-sodium-salt-1000-nm.png" alt="Valproic acid sodium salt, 1000 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 96.0% (247 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 1.3 / 2.7 / 2.4. CellFlow in the same order: 1.1 / 1.0 / 1.1.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-mc1568-1000-nm">
+  <h3>MC1568, 1000 nM</h3>
+  <img src="panels/ecdf-mc1568-1000-nm.png" alt="MC1568, 1000 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 96.1% (231 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 1.9 / 1.6 / 2.2. CellFlow in the same order: 1.4 / 1.6 / 1.3.</p>
+  </div>
+</article>
+
+<article class="fig" id="ecdf-quisinostat-100-nm">
+  <h3>Quisinostat, 100 nM</h3>
+  <img src="panels/ecdf-quisinostat-100-nm.png" alt="Quisinostat, 100 nM">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Response score t. Larger means stronger proliferation suppression. The plotted range is about −2.2 to 3.7.</dd><dt>Vertical</dt><dd>Fraction of cells whose response score is below t. It runs from 0 to 1. Reading the curves at the dashed line gives the primary weak-responder fraction.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Black curve</dt><dd>Measured cells for this dose.</dd><dt>Blue curve</dt><dd>CellFlow, no weak-responder penalty. Mean over three seeds.</dd><dt>Orange curve</dt><dd>CellFlow trained with the penalty at three thresholds.</dd><dt>Green curve</dt><dd>CellFlow trained with the penalty at thirteen thresholds.</dd><dt>Grey dashed line</dt><dd>Primary threshold, the vehicle 0.95 quantile, r ≈ 1.74.</dd><dt>Legend</dt><dd>The same four series, named on the figure.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>This dose’s cumulative response, which a single mean over 17 doses cannot show. The numbers under the figure are the absolute error at the dashed line.</p>
+    <p>Measured weak-responder fraction at the dashed line: 97.2% (144 cells). Absolute error there, percentage points, chemCPA baseline / 3 thresholds / 13 thresholds: 1.6 / 5.3 / 7.6. CellFlow in the same order: 1.8 / 3.9 / 2.5.</p>
+  </div>
+</article>
+</section><section id="overview"><h2>Where the average sits</h2><div class="lede"><p>Each row is one method. The rows are sorted so the smallest value is at the top. Lower is better on every plot in this section. A small dot is one seed: that seed’s average over the 17 test doses. The large dot is the mean of the seeds. Grey rows are references and have a single dot, because they are not retrained across seeds.</p>
+<p>Log-dose interpolation, the adjacent-dose mixture, the nearest training dose, vehicle cells, and replicate wells appear when the metric is defined for them. Interpolation predicts a fraction from neighboring training doses of the same drug, so it is absent from Wasserstein, MMD, and gene-mean plots. The Gaussian chemCPA decoder is not on these strips. It predicts a weak-responder fraction of 100% on every test dose.</p></div>
+<article class="fig" id="overview-wrf-q95">
+  <h3>Error at the primary threshold</h3>
+  <img src="panels/overview-wrf-q95.png" alt="Error at the primary threshold">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Absolute error in the weak-responder fraction at τ₀.₉₅, in percentage points. Lower is better.</dd><dt>Vertical</dt><dd>Method. Sorted so the best (smallest) mean is at the top.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Small dot</dt><dd>One training seed, averaged over the 17 test doses.</dd><dt>Large dot</dt><dd>Mean of the seeds. References have only the large dot.</dd><dt>Blue</dt><dd>No weak-responder penalty.</dd><dt>Orange</dt><dd>Weak-responder penalty at 3 thresholds.</dd><dt>Green</dt><dd>Weak-responder penalty at 13 thresholds.</dd><dt>Gold</dt><dd>CellFlow MMD penalty.</dd><dt>Grey</dt><dd>A reference: interpolation, adjacent-dose mixture, nearest dose, vehicle cells, or replicate wells, when that quantity exists for it.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The headline number. A model can look acceptable here and still be wrong at every other threshold, which is the next plot.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="overview-wrf-grid">
+  <h3>Error across 13 thresholds</h3>
+  <img src="panels/overview-wrf-grid.png" alt="Error across 13 thresholds">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Mean absolute fraction error over 13 vehicle quantiles, in percentage points. Lower is better.</dd><dt>Vertical</dt><dd>Method. Sorted so the best (smallest) mean is at the top.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Small dot</dt><dd>One training seed, averaged over the 17 test doses.</dd><dt>Large dot</dt><dd>Mean of the seeds. References have only the large dot.</dd><dt>Blue</dt><dd>No weak-responder penalty.</dd><dt>Orange</dt><dd>Weak-responder penalty at 3 thresholds.</dd><dt>Green</dt><dd>Weak-responder penalty at 13 thresholds.</dd><dt>Gold</dt><dd>CellFlow MMD penalty.</dd><dt>Grey</dt><dd>A reference: interpolation, adjacent-dose mixture, nearest dose, vehicle cells, or replicate wells, when that quantity exists for it.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The same comparison after the error has been averaged along the whole response curve. chemCPA’s thirteen-threshold run is the improvement on this axis. The primary-threshold plot ranks the three-threshold run ahead of it.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="overview-w1">
+  <h3>Wasserstein-1 on the response score</h3>
+  <img src="panels/overview-w1.png" alt="Wasserstein-1 on the response score">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Earth-mover distance between the measured and predicted response-score distributions, in vehicle standard deviations. Lower is better.</dd><dt>Vertical</dt><dd>Method. Sorted so the best (smallest) mean is at the top.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Small dot</dt><dd>One training seed, averaged over the 17 test doses.</dd><dt>Large dot</dt><dd>Mean of the seeds. References have only the large dot.</dd><dt>Blue</dt><dd>No weak-responder penalty.</dd><dt>Orange</dt><dd>Weak-responder penalty at 3 thresholds.</dd><dt>Green</dt><dd>Weak-responder penalty at 13 thresholds.</dd><dt>Gold</dt><dd>CellFlow MMD penalty.</dd><dt>Grey</dt><dd>A reference: interpolation, adjacent-dose mixture, nearest dose, vehicle cells, or replicate wells, when that quantity exists for it.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Two models with the same fraction below τ can still sit far apart here, because this distance charges every mismatch along the score, not one cut.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="overview-mmd">
+  <h3>MMD² of the expression distribution</h3>
+  <img src="panels/overview-mmd.png" alt="MMD² of the expression distribution">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Maximum mean discrepancy, squared, in the 50-dimensional PCA used for evaluation of the full expression vector. Lower is better.</dd><dt>Vertical</dt><dd>Method. Sorted so the best (smallest) mean is at the top.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Small dot</dt><dd>One training seed, averaged over the 17 test doses.</dd><dt>Large dot</dt><dd>Mean of the seeds. References have only the large dot.</dd><dt>Blue</dt><dd>No weak-responder penalty.</dd><dt>Orange</dt><dd>Weak-responder penalty at 3 thresholds.</dd><dt>Green</dt><dd>Weak-responder penalty at 13 thresholds.</dd><dt>Gold</dt><dd>CellFlow MMD penalty.</dd><dt>Grey</dt><dd>A reference: interpolation, adjacent-dose mixture, nearest dose, vehicle cells, or replicate wells, when that quantity exists for it.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>A joint-distribution distance on gene expression. Matched gene means can still fail it, and a matched weak-responder fraction says nothing about it.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="overview-deg">
+  <h3>Top 50 treatment-changed genes</h3>
+  <img src="panels/overview-deg.png" alt="Top 50 treatment-changed genes">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Root mean squared error of per-gene mean expression, on the 50 genes that change most versus vehicle. Expression is log1p of counts per 10,000. Lower is better.</dd><dt>Vertical</dt><dd>Method. Sorted so the best (smallest) mean is at the top.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Small dot</dt><dd>One training seed, averaged over the 17 test doses.</dd><dt>Large dot</dt><dd>Mean of the seeds. References have only the large dot.</dd><dt>Blue</dt><dd>No weak-responder penalty.</dd><dt>Orange</dt><dd>Weak-responder penalty at 3 thresholds.</dd><dt>Green</dt><dd>Weak-responder penalty at 13 thresholds.</dd><dt>Gold</dt><dd>CellFlow MMD penalty.</dd><dt>Grey</dt><dd>A reference: interpolation, adjacent-dose mixture, nearest dose, vehicle cells, or replicate wells, when that quantity exists for it.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>CellFlow’s baseline is the best row. Its weak-responder penalties and its MMD penalty all move this number up. The fraction can improve while these genes get worse.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="overview-nonprogram">
+  <h3>Genes outside the proliferation program</h3>
+  <img src="panels/overview-nonprogram.png" alt="Genes outside the proliferation program">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Root mean squared error of per-gene mean expression on the 1,988 genes that are not in the 97-gene program. Lower is better.</dd><dt>Vertical</dt><dd>Method. Sorted so the best (smallest) mean is at the top.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Small dot</dt><dd>One training seed, averaged over the 17 test doses.</dd><dt>Large dot</dt><dd>Mean of the seeds. References have only the large dot.</dd><dt>Blue</dt><dd>No weak-responder penalty.</dd><dt>Orange</dt><dd>Weak-responder penalty at 3 thresholds.</dd><dt>Green</dt><dd>Weak-responder penalty at 13 thresholds.</dd><dt>Gold</dt><dd>CellFlow MMD penalty.</dd><dt>Grey</dt><dd>A reference: interpolation, adjacent-dose mixture, nearest dose, vehicle cells, or replicate wells, when that quantity exists for it.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The check that the fraction was not bought by editing only the program genes. chemCPA’s non-program error rises as more thresholds are added to the penalty.</p>
+    
+  </div>
+</article>
+</section><section id="waterfall"><h2>Which doses moved</h2><div class="lede"><p>Each bar is one held-out dose. The doses are sorted so the largest improvement is at the left. A colored bar improved. A grey bar got worse. The solid horizontal line is zero. The dashed horizontal line is the mean of the 17 bars. There are no uncertainty intervals on these plots; those are in the paired-difference section.</p></div>
+<article class="fig" id="waterfall-chemcpa-3">
+  <h3>chemCPA, 3 thresholds versus none</h3>
+  <img src="panels/waterfall-chemcpa-3.png" alt="chemCPA, 3 thresholds versus none">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Held-out drug and dose. Order is the size of the change, not the dose and not the drug name.</dd><dt>Vertical</dt><dd>Reduction in absolute weak-responder error at τ₀.₉₅, in percentage points. Baseline error minus the new error. Above zero, the new run is closer to the measurement.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Colored bar</dt><dd>This dose improved under the orange three-threshold chemCPA run against chemCPA with no penalty.</dd><dt>Grey bar</dt><dd>This dose got worse.</dd><dt>Solid line at zero</dt><dd>No change in absolute error.</dd><dt>Dashed line</dt><dd>Mean change across the 17 doses. One tall bar can pull this line up while most doses sit near zero or below it.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The per-dose accounting behind the average. A positive mean with a single very tall bar and several grey bars is a different result from a positive mean with every dose a little better.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="waterfall-chemcpa-13">
+  <h3>chemCPA, 13 thresholds versus none</h3>
+  <img src="panels/waterfall-chemcpa-13.png" alt="chemCPA, 13 thresholds versus none">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Held-out drug and dose. Order is the size of the change, not the dose and not the drug name.</dd><dt>Vertical</dt><dd>Reduction in absolute weak-responder error at τ₀.₉₅, in percentage points. Baseline error minus the new error. Above zero, the new run is closer to the measurement.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Colored bar</dt><dd>This dose improved under the green thirteen-threshold chemCPA run against chemCPA with no penalty.</dd><dt>Grey bar</dt><dd>This dose got worse.</dd><dt>Solid line at zero</dt><dd>No change in absolute error.</dd><dt>Dashed line</dt><dd>Mean change across the 17 doses. One tall bar can pull this line up while most doses sit near zero or below it.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The per-dose accounting behind the average. A positive mean with a single very tall bar and several grey bars is a different result from a positive mean with every dose a little better.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="waterfall-cellflow-3">
+  <h3>CellFlow, 3 thresholds versus none</h3>
+  <img src="panels/waterfall-cellflow-3.png" alt="CellFlow, 3 thresholds versus none">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Held-out drug and dose. Order is the size of the change, not the dose and not the drug name.</dd><dt>Vertical</dt><dd>Reduction in absolute weak-responder error at τ₀.₉₅, in percentage points. Baseline error minus the new error. Above zero, the new run is closer to the measurement.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Colored bar</dt><dd>This dose improved under the three-threshold CellFlow run against CellFlow with no penalty.</dd><dt>Grey bar</dt><dd>This dose got worse.</dd><dt>Solid line at zero</dt><dd>No change in absolute error.</dd><dt>Dashed line</dt><dd>Mean change across the 17 doses. One tall bar can pull this line up while most doses sit near zero or below it.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The per-dose accounting behind the average. A positive mean with a single very tall bar and several grey bars is a different result from a positive mean with every dose a little better.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="waterfall-cellflow-13">
+  <h3>CellFlow, 13 thresholds versus none</h3>
+  <img src="panels/waterfall-cellflow-13.png" alt="CellFlow, 13 thresholds versus none">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Held-out drug and dose. Order is the size of the change, not the dose and not the drug name.</dd><dt>Vertical</dt><dd>Reduction in absolute weak-responder error at τ₀.₉₅, in percentage points. Baseline error minus the new error. Above zero, the new run is closer to the measurement.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Colored bar</dt><dd>This dose improved under the thirteen-threshold CellFlow run against CellFlow with no penalty.</dd><dt>Grey bar</dt><dd>This dose got worse.</dd><dt>Solid line at zero</dt><dd>No change in absolute error.</dd><dt>Dashed line</dt><dd>Mean change across the 17 doses. One tall bar can pull this line up while most doses sit near zero or below it.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The per-dose accounting behind the average. A positive mean with a single very tall bar and several grey bars is a different result from a positive mean with every dose a little better.</p>
+    
+  </div>
+</article>
+</section><section id="bias"><h2>Signed error</h2><div class="lede"><p>Signed error is predicted weak-responder fraction minus measured fraction, in percentage points, at τ₀.₉₅. Positive means the model called too many cells weak responders. Absolute error hides this direction: a dose that is 10 points high and a dose that is 10 points low both contribute 10 to the average absolute error and cancel in the signed average.</p></div>
+<article class="fig" id="bias-chemcpa">
+  <h3>chemCPA, one point per dose</h3>
+  <img src="panels/bias-chemcpa.png" alt="chemCPA, one point per dose">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Predicted minus measured weak-responder fraction at τ₀.₉₅, percentage points.</dd><dt>Vertical</dt><dd>Held-out dose, sorted by the measured fraction. The weakest measured response is at the bottom. The strongest is at the top.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Blue points</dt><dd>chemCPA, no weak-responder penalty.</dd><dt>Orange points</dt><dd>chemCPA, 3 thresholds.</dd><dt>Green points</dt><dd>chemCPA, 13 thresholds.</dd><dt>Vertical line at zero</dt><dd>The prediction matches the measured fraction. Points to the right are too high.</dd><dt>Slight vertical offset</dt><dd>The three runs for the same dose are shifted a little so they do not sit on top of each other. They are the same dose.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Whether each run is systematically high or low, and whether that depends on how strong the measured response was. The mean signed error can be near zero while points sit far to both sides.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="bias-cellflow">
+  <h3>CellFlow, one point per dose</h3>
+  <img src="panels/bias-cellflow.png" alt="CellFlow, one point per dose">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Predicted minus measured weak-responder fraction at τ₀.₉₅, percentage points.</dd><dt>Vertical</dt><dd>Held-out dose, sorted by the measured fraction. Weakest measured response at the bottom.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Blue, orange, green</dt><dd>CellFlow with no penalty, with 3 thresholds, and with 13 thresholds. The MMD run is not on this plot.</dd><dt>Vertical line at zero</dt><dd>Unbiased at this dose.</dd><dt>A tight horizontal clump</dt><dd>The run predicts nearly the same fraction for every dose. The signed error then just tracks how far each measured fraction sits from that constant.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>CellFlow’s thirteen-threshold run improves fifteen of seventeen doses by a fraction of a point and predicts almost the same fraction for every drug. This strip is where that constant shift is visible.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="bias-vs-measured">
+  <h3>chemCPA signed error against the measured fraction</h3>
+  <img src="panels/bias-vs-measured.png" alt="chemCPA signed error against the measured fraction">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Measured weak-responder fraction at τ₀.₉₅, in percent.</dd><dt>Vertical</dt><dd>chemCPA signed error at the same threshold, percentage points. Positive means too many weak responders.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Blue, orange, green</dt><dd>No penalty, 3 thresholds, 13 thresholds. Same dose is three points stacked at the same horizontal position.</dd><dt>Horizontal line at zero</dt><dd>Signed error of zero.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Whether the model compresses the ranking of drugs: too many weak responders on the weak doses and too few on the strong doses. The average signed error does not show that slope.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="bias-vs-potency">
+  <h3>chemCPA signed error against training-dose potency</h3>
+  <img src="panels/bias-vs-potency.png" alt="chemCPA signed error against training-dose potency">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Mean response score of this drug at 10 µM. That dose is in the training split, so this is potency the model was allowed to see.</dd><dt>Vertical</dt><dd>Signed error at the held-out dose, τ₀.₉₅, percentage points.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Blue, orange, green</dt><dd>The three chemCPA runs.</dd><dt>Horizontal line at zero</dt><dd>Signed error of zero.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Whether the held-out error tracks how strong the drug already looked at a training dose.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="bias-vs-dose">
+  <h3>chemCPA signed error against the held-out dose</h3>
+  <img src="panels/bias-vs-dose.png" alt="chemCPA signed error against the held-out dose">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>The held-out dose. There are two values, 100 nM and 1000 nM, one per drug.</dd><dt>Vertical</dt><dd>Signed error at τ₀.₉₅, percentage points.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Blue, orange, green</dt><dd>The three chemCPA runs.</dd><dt>Horizontal line at zero</dt><dd>Signed error of zero.</dd><dt>Two columns of points</dt><dd>Every drug contributes one point to exactly one column.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Whether the error is a low-dose problem or a high-dose problem. Each drug is held out at only one of the two doses, so the columns are different drugs, not the same drugs at two doses.</p>
+    
+  </div>
+</article>
+</section><section id="threshold"><h2>Every threshold</h2><div class="lede"><p>The horizontal axis is the vehicle quantile that defines the threshold. Quantile 0.95 is the primary cut. A dot drawn on a colored line marks a quantile that entered that run’s weak-responder loss. A line with no dots was not trained on this fraction. chemCPA is drawn on a fine quantile grid. CellFlow is drawn on the thirteen published quantiles, and its MMD run is included.</p>
+<p>Grey reference lines, where they appear: long dashes are vehicle cells, medium dashes are log-dose interpolation, dots are replicate wells.</p></div>
+<article class="fig" id="thr-chemcpa-error">
+  <h3>chemCPA absolute error at every threshold</h3>
+  <img src="panels/thr-chemcpa-error.png" alt="chemCPA absolute error at every threshold">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold as a quantile of the vehicle response scores, from just above 0 to just below 1.</dd><dt>Vertical</dt><dd>Mean absolute fraction error, percentage points, averaged over the 17 test doses. Each dose was first averaged over seeds.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Blue line</dt><dd>No weak-responder penalty.</dd><dt>Orange line</dt><dd>Penalty at 3 thresholds. Dots sit at quantiles 0.90, 0.95, and 0.975, the cuts in the loss.</dd><dt>Green line</dt><dd>Penalty at 13 thresholds. Dots sit on the quantiles that were in that loss.</dd><dt>Grey long dashes</dt><dd>Predicting every dose with vehicle cells.</dd><dt>Grey medium dashes</dt><dd>Log-dose interpolation of the measured fraction.</dd><dt>Grey dotted line</dt><dd>Disagreement between replicate wells, a measurement-noise floor.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Where along the score the penalty actually helps. The three-threshold loss is best near its three dots and worse than the baseline at low quantiles. The thirteen-threshold loss is flatter through the middle and still loses to the baseline at the far left. Interpolation stays below both neural curves through most of the range.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="thr-chemcpa-bias">
+  <h3>chemCPA signed error at every threshold</h3>
+  <img src="panels/thr-chemcpa-bias.png" alt="chemCPA signed error at every threshold">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold quantile.</dd><dt>Vertical</dt><dd>Mean signed fraction error, percentage points. Positive means too many cells below the cut, averaged over doses.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Blue, orange, green</dt><dd>The three chemCPA runs. This plot has no vehicle, interpolation, or replicate lines.</dd><dt>Horizontal line at zero</dt><dd>The average dose is unbiased at that quantile.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The direction of the error. Absolute error near the supervised tail can look small while the body of the distribution stays positive, which means the generated cells are still too far left.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="thr-chemcpa-gain">
+  <h3>chemCPA gain against its own baseline</h3>
+  <img src="panels/thr-chemcpa-gain.png" alt="chemCPA gain against its own baseline">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold quantile.</dd><dt>Vertical</dt><dd>Reduction in mean absolute error relative to chemCPA with no penalty, percentage points. Positive means the penalty is closer to the data than the baseline.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Orange and green lines</dt><dd>Three-threshold and thirteen-threshold penalties.</dd><dt>Shaded band</dt><dd>95% interval from resampling the 17 doses.</dd><dt>Horizontal line at zero</dt><dd>The penalty matches the baseline.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The quantile ranges where the gain is consistent across doses, rather than a property of one or two drugs. The band crossing zero means the dose-average gain is unsettled at that quantile.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="thr-cellflow-error">
+  <h3>CellFlow absolute error at every published threshold</h3>
+  <img src="panels/thr-cellflow-error.png" alt="CellFlow absolute error at every published threshold">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold quantile, on CellFlow’s 13-point grid.</dd><dt>Vertical</dt><dd>Mean absolute fraction error, percentage points.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Blue, orange, green, gold</dt><dd>No penalty, 3 thresholds, 13 thresholds, and the MMD penalty.</dd><dt>Dots</dt><dd>Quantiles inside that run’s weak-responder loss. The baseline and the MMD run have no such dots.</dd><dt>Grey reference lines</dt><dd>Vehicle, interpolation, and replicate wells, with the same dash patterns as the chemCPA error plot.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The CellFlow runs sit on top of each other through most quantiles. The thirteen-threshold run separates at the extreme tail. A single number at quantile 0.95, where all four runs are near 5 points, does not show that tail.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="thr-cellflow-bias">
+  <h3>CellFlow signed error at every published threshold</h3>
+  <img src="panels/thr-cellflow-bias.png" alt="CellFlow signed error at every published threshold">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold quantile.</dd><dt>Vertical</dt><dd>Mean signed fraction error, percentage points. Positive means too many cells below the cut.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Blue, orange, green, gold</dt><dd>The four CellFlow runs.</dd><dt>Horizontal line at zero</dt><dd>Unbiased on average at that quantile.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The direction of CellFlow’s error along the score. The runs share the same sign through the body of the distribution.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="thr-cellflow-gain">
+  <h3>CellFlow gain against its own baseline</h3>
+  <img src="panels/thr-cellflow-gain.png" alt="CellFlow gain against its own baseline">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold quantile.</dd><dt>Vertical</dt><dd>Reduction in mean absolute error relative to CellFlow with no penalty. Positive means closer to the measurement.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Orange, green, gold</dt><dd>3 thresholds, 13 thresholds, and the MMD penalty, each compared with the baseline.</dd><dt>Shaded band</dt><dd>95% interval from resampling doses.</dd><dt>Horizontal line at zero</dt><dd>No change versus the baseline.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>How large the CellFlow gain is, and at which quantiles the dose-resampling interval stays above zero. The gain is a fraction of a point until the last quantile.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="w1-chemcpa">
+  <h3>chemCPA Wasserstein-1, one point per dose</h3>
+  <img src="panels/w1-chemcpa.png" alt="chemCPA Wasserstein-1, one point per dose">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Training loss: no penalty, 3 thresholds, 13 thresholds.</dd><dt>Vertical</dt><dd>Wasserstein-1 between the measured and generated response scores, in vehicle standard deviations. Lower means the score distributions are closer.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Colored points</dt><dd>One held-out dose. Points in a column are jittered sideways so they can be counted.</dd><dt>Black horizontal stroke</dt><dd>Mean over the 17 doses.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The per-dose version of the Wasserstein average. A dose whose fraction at τ matched can still sit high in its column.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="w1-cellflow">
+  <h3>CellFlow Wasserstein-1, one point per dose</h3>
+  <img src="panels/w1-cellflow.png" alt="CellFlow Wasserstein-1, one point per dose">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Training loss: no penalty, 3 thresholds, 13 thresholds. The MMD run is not in this plot.</dd><dt>Vertical</dt><dd>Wasserstein-1 on the response score. Lower is closer.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Colored points</dt><dd>One held-out dose.</dd><dt>Black horizontal stroke</dt><dd>Mean over doses.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Whether CellFlow’s small change in the fraction shows up as a change in the full response-score distribution, dose by dose.</p>
+    
+  </div>
+</article>
+</section><section id="heat"><h2>The error as a grid</h2><div class="lede"><p>Each cell is the signed fraction error at one dose and one threshold. The color scale runs from −40 to +40 percentage points and is the same on every grid. Red means the predicted fraction is higher than the measured fraction (too many cells below the cut). Blue means the predicted fraction is lower. White is zero. Values beyond ±40 are clipped to the ends of the scale. Rows are held-out doses sorted by the measured weak-responder fraction, weakest at the top and strongest at the bottom. chemCPA grids are a subset of the fine quantile grid (0.1, 0.2, …, 0.9, 0.95, 0.975). CellFlow grids use the thirteen published quantiles.</p></div>
+<article class="fig" id="heat-chemcpa-base">
+  <h3>chemCPA, no penalty</h3>
+  <img src="panels/heat-chemcpa-base.png" alt="chemCPA, no penalty">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold quantile q.</dd><dt>Vertical</dt><dd>Held-out dose. Weakest measured response at the top, strongest at the bottom.</dd><dt>Color</dt><dd>Predicted fraction minus measured fraction, percentage points. Red is too many cells below the cut. Blue is too few. The color bar is the legend, clipped at ±40.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>One cell</dt><dd>One dose at one threshold, seed-averaged.</dd><dt>A red column</dt><dd>Every dose is too high at that quantile.</dd><dt>A red band across the top or bottom</dt><dd>The error depends on how strong the measured response was, which a single curve of averages hides.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The signed error as a field. A flat mean curve can hide a grid that is red on weak drugs and blue on strong drugs.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="heat-chemcpa-3">
+  <h3>chemCPA, 3 thresholds</h3>
+  <img src="panels/heat-chemcpa-3.png" alt="chemCPA, 3 thresholds">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold quantile q.</dd><dt>Vertical</dt><dd>Held-out dose. Weakest measured response at the top, strongest at the bottom.</dd><dt>Color</dt><dd>Predicted fraction minus measured fraction, percentage points. Red is too many cells below the cut. Blue is too few. The color bar is the legend, clipped at ±40.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>One cell</dt><dd>One dose at one threshold, seed-averaged.</dd><dt>A red column</dt><dd>Every dose is too high at that quantile.</dd><dt>A red band across the top or bottom</dt><dd>The error depends on how strong the measured response was, which a single curve of averages hides.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The signed error as a field. A flat mean curve can hide a grid that is red on weak drugs and blue on strong drugs.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="heat-chemcpa-13">
+  <h3>chemCPA, 13 thresholds</h3>
+  <img src="panels/heat-chemcpa-13.png" alt="chemCPA, 13 thresholds">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold quantile q.</dd><dt>Vertical</dt><dd>Held-out dose. Weakest measured response at the top, strongest at the bottom.</dd><dt>Color</dt><dd>Predicted fraction minus measured fraction, percentage points. Red is too many cells below the cut. Blue is too few. The color bar is the legend, clipped at ±40.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>One cell</dt><dd>One dose at one threshold, seed-averaged.</dd><dt>A red column</dt><dd>Every dose is too high at that quantile.</dd><dt>A red band across the top or bottom</dt><dd>The error depends on how strong the measured response was, which a single curve of averages hides.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The signed error as a field. A flat mean curve can hide a grid that is red on weak drugs and blue on strong drugs.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="heat-cellflow-base">
+  <h3>CellFlow, no penalty</h3>
+  <img src="panels/heat-cellflow-base.png" alt="CellFlow, no penalty">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold quantile q.</dd><dt>Vertical</dt><dd>Held-out dose. Weakest measured response at the top, strongest at the bottom.</dd><dt>Color</dt><dd>Predicted fraction minus measured fraction, percentage points. Red is too many cells below the cut. Blue is too few. The color bar is the legend, clipped at ±40.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>One cell</dt><dd>One dose at one threshold, seed-averaged.</dd><dt>A red column</dt><dd>Every dose is too high at that quantile.</dd><dt>A red band across the top or bottom</dt><dd>The error depends on how strong the measured response was, which a single curve of averages hides.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The signed error as a field. A flat mean curve can hide a grid that is red on weak drugs and blue on strong drugs.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="heat-cellflow-3">
+  <h3>CellFlow, 3 thresholds</h3>
+  <img src="panels/heat-cellflow-3.png" alt="CellFlow, 3 thresholds">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold quantile q.</dd><dt>Vertical</dt><dd>Held-out dose. Weakest measured response at the top, strongest at the bottom.</dd><dt>Color</dt><dd>Predicted fraction minus measured fraction, percentage points. Red is too many cells below the cut. Blue is too few. The color bar is the legend, clipped at ±40.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>One cell</dt><dd>One dose at one threshold, seed-averaged.</dd><dt>A red column</dt><dd>Every dose is too high at that quantile.</dd><dt>A red band across the top or bottom</dt><dd>The error depends on how strong the measured response was, which a single curve of averages hides.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The signed error as a field. A flat mean curve can hide a grid that is red on weak drugs and blue on strong drugs.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="heat-cellflow-13">
+  <h3>CellFlow, 13 thresholds</h3>
+  <img src="panels/heat-cellflow-13.png" alt="CellFlow, 13 thresholds">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold quantile q.</dd><dt>Vertical</dt><dd>Held-out dose. Weakest measured response at the top, strongest at the bottom.</dd><dt>Color</dt><dd>Predicted fraction minus measured fraction, percentage points. Red is too many cells below the cut. Blue is too few. The color bar is the legend, clipped at ±40.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>One cell</dt><dd>One dose at one threshold, seed-averaged.</dd><dt>A red column</dt><dd>Every dose is too high at that quantile.</dd><dt>A red band across the top or bottom</dt><dd>The error depends on how strong the measured response was, which a single curve of averages hides.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The signed error as a field. A flat mean curve can hide a grid that is red on weak drugs and blue on strong drugs.</p>
+    
+  </div>
+</article>
+</section><section id="expr"><h2>Expression, which the fraction does not see</h2><div class="lede"><p>The weak-responder fraction is a function of 97 program genes. These plots score the generated expression. Root mean squared error is on per-gene means of log1p counts per 10,000. MMD² is a distance between the distributions of cells, not between the means. The all-gene mean squared error splits exactly into the program genes and the other 1,988 genes, weighted by how many genes are in each set. Interpolation does not appear, because it does not produce expression. The non-program MMD plot is chemCPA only: that distance was computed from local generated cells, which this machine has for chemCPA.</p>
+<p>The strip plots use the same marks as the average section: small dots are seeds, the large dot is their mean, rows are sorted with the smallest value at the top, and lower is better.</p></div>
+<article class="fig" id="expr-all">
+  <h3>All 2,085 evaluated genes</h3>
+  <img src="panels/expr-all.png" alt="All 2,085 evaluated genes">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>RMSE of per-gene mean expression, all evaluated genes. Lower is better.</dd><dt>Vertical</dt><dd>Method, best (smallest) mean at the top. A reference row appears only when this metric exists for it.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Small dot</dt><dd>One seed, averaged over test doses.</dd><dt>Large dot</dt><dd>Mean of the seeds.</dd><dt>Blue, orange, green, gold, grey</dt><dd>No penalty, 3 thresholds, 13 thresholds, CellFlow MMD, and references.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The overall mean-expression error. It can move even when the weak-responder fraction is held fixed, and it mixes the program genes with everything else.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="expr-deg">
+  <h3>50 genes that change most versus vehicle</h3>
+  <img src="panels/expr-deg.png" alt="50 genes that change most versus vehicle">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>RMSE of per-gene mean expression on those 50 genes. Lower is better.</dd><dt>Vertical</dt><dd>Method, best (smallest) mean at the top. A reference row appears only when this metric exists for it.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Small dot</dt><dd>One seed, averaged over test doses.</dd><dt>Large dot</dt><dd>Mean of the seeds.</dd><dt>Blue, orange, green, gold, grey</dt><dd>No penalty, 3 thresholds, 13 thresholds, CellFlow MMD, and references.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Treatment-related genes, a set chosen from the contrast with vehicle rather than from the proliferation program. CellFlow’s baseline leads this plot, and every added penalty spends some of that lead.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="expr-program">
+  <h3>The 97 program genes</h3>
+  <img src="panels/expr-program.png" alt="The 97 program genes">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>RMSE of per-gene mean expression on the genes inside the response score. Lower is better.</dd><dt>Vertical</dt><dd>Method, best (smallest) mean at the top. A reference row appears only when this metric exists for it.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Small dot</dt><dd>One seed, averaged over test doses.</dd><dt>Large dot</dt><dd>Mean of the seeds.</dd><dt>Blue, orange, green, gold, grey</dt><dd>No penalty, 3 thresholds, 13 thresholds, CellFlow MMD, and references.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>These are the genes the score is built from. The spike at a response of about 3.52 is these genes set to zero counts, so a penalty that creates the spike moves this error even when the fraction at τ looks better.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="expr-nonprogram">
+  <h3>The 1,988 genes outside the program</h3>
+  <img src="panels/expr-nonprogram.png" alt="The 1,988 genes outside the program">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>RMSE of per-gene mean expression outside the program. Lower is better.</dd><dt>Vertical</dt><dd>Method, best (smallest) mean at the top. A reference row appears only when this metric exists for it.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Small dot</dt><dd>One seed, averaged over test doses.</dd><dt>Large dot</dt><dd>Mean of the seeds.</dd><dt>Blue, orange, green, gold, grey</dt><dd>No penalty, 3 thresholds, 13 thresholds, CellFlow MMD, and references.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The direct check that a better fraction is not only a better program. chemCPA gets worse on this axis as the penalty covers more thresholds.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="expr-mmd">
+  <h3>MMD² on all evaluated genes</h3>
+  <img src="panels/expr-mmd.png" alt="MMD² on all evaluated genes">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Squared MMD in the PCA of all evaluated genes. Lower is better.</dd><dt>Vertical</dt><dd>Method, best (smallest) mean at the top. A reference row appears only when this metric exists for it.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Small dot</dt><dd>One seed, averaged over test doses.</dd><dt>Large dot</dt><dd>Mean of the seeds.</dd><dt>Blue, orange, green, gold, grey</dt><dd>No penalty, 3 thresholds, 13 thresholds, CellFlow MMD, and references.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The joint distribution of expression. chemCPA’s thirteen-threshold run improves this distance while the non-program gene means get worse. Means and the joint distribution are different claims, and both plots are needed to see that.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="expr-mmd-nonprogram">
+  <h3>MMD² without the program genes</h3>
+  <img src="panels/expr-mmd-nonprogram.png" alt="MMD² without the program genes">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Squared MMD in a 50-component PCA fit on control and training cells, using only genes outside the program. That basis explains about 30% of the variance in those cells. Lower is better.</dd><dt>Vertical</dt><dd>Method, best (smallest) mean at the top. A reference row appears only when this metric exists for it.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Small dot</dt><dd>One seed, averaged over test doses.</dd><dt>Large dot</dt><dd>Mean of the seeds.</dd><dt>Blue, orange, green, gold, grey</dt><dd>No penalty, 3 thresholds, 13 thresholds, CellFlow MMD, and references.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Whether any joint-distribution gain lives outside the proliferation genes. CellFlow is absent because this distance was not in the published tables.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="tradeoff-chemcpa">
+  <h3>chemCPA fraction gain against non-program expression, per dose</h3>
+  <img src="panels/tradeoff-chemcpa.png" alt="chemCPA fraction gain against non-program expression, per dose">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Reduction in absolute weak-responder error at τ₀.₉₅, percentage points. To the right, the fraction improved.</dd><dt>Vertical</dt><dd>Reduction in non-program mean RMSE. Up means gene means outside the program got closer to the measurement. Down means they got worse.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Orange points</dt><dd>Three-threshold chemCPA, one point per held-out dose.</dd><dt>Green points</dt><dd>Thirteen-threshold chemCPA, one point per held-out dose.</dd><dt>Vertical line at zero</dt><dd>No change in the fraction error.</dd><dt>Horizontal line at zero</dt><dd>No change in non-program mean RMSE.</dd><dt>Lower-right region</dt><dd>The fraction improved and expression outside the program got worse.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The tradeoff dose by dose. An average that says the fraction improved and non-program error worsened can still be a few doses, or it can be almost every dose. This scatter is that split.</p>
+    
+  </div>
+</article>
+</section><section id="forest"><h2>Paired uncertainty</h2><div class="lede"><p>Each row is one comparison. The label ends with the number of doses that improved, out of 17 on the test split or 9 on the validation row. The dot is the mean change. The horizontal bar is a 95% interval from resampling doses. The vertical line is zero. Positive means the second method named in the row is closer to the measurement than the first. Color follows that second method: orange for 3 thresholds, green for 13, gold for MMD.</p>
+<p>These intervals are over doses. They are not over seeds. Separately, every chemCPA seed pair for the three-threshold loss is positive at the primary threshold, from about +1.2 to +3.0 points: the seeds agree more than the doses do.</p>
+<p>The validation row is the matched comparison: both chemCPA runs use λ = 10 and bandwidth 0.5, and they differ only in the number of thresholds. The test comparison of 3 versus 13 also changes the bandwidth, from 0.5 to 0.25.</p></div>
+<article class="fig" id="forest-q95">
+  <h3>Primary threshold</h3>
+  <img src="panels/forest-q95.png" alt="Primary threshold">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Change in absolute weak-responder error at τ₀.₉₅, percentage points. Positive means the second named method is closer to the measurement.</dd><dt>Vertical</dt><dd>The comparison. Test doses, except the row that says validation.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Dot</dt><dd>Mean paired difference.</dd><dt>Bar</dt><dd>95% interval from resampling conditions. A bar that crosses the vertical line is a dose-average that includes no change.</dd><dt>Fraction in the label</dt><dd>Doses on which the second method was closer, over the number of doses.</dd><dt>Orange, green, gold</dt><dd>The second method is the 3-threshold run, the 13-threshold run, or the MMD run.</dd><dt>Vertical line</dt><dd>The two methods are equally far from the measurement.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The dose-level uncertainty on the headline number. chemCPA’s three-threshold mean is positive and the interval includes zero. Its thirteen-threshold run is worse than the three-threshold run at this single cut, and that interval stays negative. CellFlow’s thirteen-threshold gain is small and its interval stays positive.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="forest-grid">
+  <h3>Mean over 13 thresholds</h3>
+  <img src="panels/forest-grid.png" alt="Mean over 13 thresholds">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Change in the mean absolute fraction error over 13 thresholds, percentage points. Positive means the second named method is closer to the measurement.</dd><dt>Vertical</dt><dd>The comparison. Test doses, except the row that says validation.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Dot</dt><dd>Mean paired difference.</dd><dt>Bar</dt><dd>95% interval from resampling conditions. A bar that crosses the vertical line is a dose-average that includes no change.</dd><dt>Fraction in the label</dt><dd>Doses on which the second method was closer, over the number of doses.</dd><dt>Orange, green, gold</dt><dd>The second method is the 3-threshold run, the 13-threshold run, or the MMD run.</dd><dt>Vertical line</dt><dd>The two methods are equally far from the measurement.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The same comparisons after the error is averaged along the curve. chemCPA’s ranking flips: thirteen thresholds beat three, on the test split and on the matched validation pair.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="forest-w1">
+  <h3>Wasserstein-1</h3>
+  <img src="panels/forest-w1.png" alt="Wasserstein-1">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Change in response-score Wasserstein-1. Positive means the second method has the smaller earth-mover distance. Positive means the second named method is closer to the measurement.</dd><dt>Vertical</dt><dd>The comparison. Test doses, except the row that says validation.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Dot</dt><dd>Mean paired difference.</dd><dt>Bar</dt><dd>95% interval from resampling conditions. A bar that crosses the vertical line is a dose-average that includes no change.</dd><dt>Fraction in the label</dt><dd>Doses on which the second method was closer, over the number of doses.</dd><dt>Orange, green, gold</dt><dd>The second method is the 3-threshold run, the 13-threshold run, or the MMD run.</dd><dt>Vertical line</dt><dd>The two methods are equally far from the measurement.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Whether the ranking on the full response-score distribution agrees with the ranking on one threshold. It agrees with the thirteen-threshold mean, not with the primary-threshold ranking.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="forest-mmd">
+  <h3>Expression MMD²</h3>
+  <img src="panels/forest-mmd.png" alt="Expression MMD²">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Change in expression MMD². Positive means the second method is closer in the joint expression distribution. Positive means the second named method is closer to the measurement.</dd><dt>Vertical</dt><dd>The comparison. Test doses, except the row that says validation.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Dot</dt><dd>Mean paired difference.</dd><dt>Bar</dt><dd>95% interval from resampling conditions. A bar that crosses the vertical line is a dose-average that includes no change.</dd><dt>Fraction in the label</dt><dd>Doses on which the second method was closer, over the number of doses.</dd><dt>Orange, green, gold</dt><dd>The second method is the 3-threshold run, the 13-threshold run, or the MMD run.</dd><dt>Vertical line</dt><dd>The two methods are equally far from the measurement.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The distributional expression claim with a dose interval. chemCPA’s thirteen-threshold run improves MMD². The three-threshold run does not.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="forest-deg">
+  <h3>Top-50 gene means</h3>
+  <img src="panels/forest-deg.png" alt="Top-50 gene means">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Change in RMSE of the 50 genes that change most versus vehicle. Positive means the second method has the smaller gene-mean error. Positive means the second named method is closer to the measurement.</dd><dt>Vertical</dt><dd>The comparison. Test doses, except the row that says validation.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Dot</dt><dd>Mean paired difference.</dd><dt>Bar</dt><dd>95% interval from resampling conditions. A bar that crosses the vertical line is a dose-average that includes no change.</dd><dt>Fraction in the label</dt><dd>Doses on which the second method was closer, over the number of doses.</dd><dt>Orange, green, gold</dt><dd>The second method is the 3-threshold run, the 13-threshold run, or the MMD run.</dd><dt>Vertical line</dt><dd>The two methods are equally far from the measurement.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Whether a weak-responder gain survives on treatment-related genes. The intervals for the penalties sit on the side of worse gene means.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="forest-nonprogram">
+  <h3>Non-program gene means</h3>
+  <img src="panels/forest-nonprogram.png" alt="Non-program gene means">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Change in RMSE outside the proliferation program. Positive means closer gene means outside the program. Positive means the second named method is closer to the measurement.</dd><dt>Vertical</dt><dd>The comparison. Test doses, except the row that says validation.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Dot</dt><dd>Mean paired difference.</dd><dt>Bar</dt><dd>95% interval from resampling conditions. A bar that crosses the vertical line is a dose-average that includes no change.</dd><dt>Fraction in the label</dt><dd>Doses on which the second method was closer, over the number of doses.</dd><dt>Orange, green, gold</dt><dd>The second method is the 3-threshold run, the 13-threshold run, or the MMD run.</dd><dt>Vertical line</dt><dd>The two methods are equally far from the measurement.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The expression check that is algebraically separate from the program. chemCPA’s intervals lie on the side of worse non-program means.</p>
+    
+  </div>
+</article>
+</section><section id="lambda"><h2>The penalty weight, on validation</h2><div class="lede"><p>These plots are chemCPA on the 9 validation doses. The horizontal axis is λ, the weight on the weak-responder penalty, on a logarithmic scale. The penalty is averaged over the thresholds in the run, so adding thresholds does not by itself multiply λ. h is the bandwidth of that penalty. The vertical bars are the standard deviation across three seeds. A solid line is bandwidth 0.5. A dashed line is another bandwidth. Orange is three thresholds. Green is thirteen. The blue horizontal line is chemCPA with no penalty (λ = 0). The Gaussian decoder is omitted. The test runs reported everywhere else use λ = 10.</p></div>
+<article class="fig" id="lam-q95">
+  <h3>Primary-threshold error</h3>
+  <img src="panels/lam-q95.png" alt="Primary-threshold error">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Penalty weight λ, logarithmic. The tested weights are the dots.</dd><dt>Vertical</dt><dd>Weak-responder error at τ₀.₉₅, percentage points. Validation mean. Lower is better.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Orange solid or dashed</dt><dd>Three thresholds. Solid is bandwidth 0.5. Dashed is another bandwidth, named in the legend as h.</dd><dt>Green solid or dashed</dt><dd>Thirteen thresholds, same bandwidth encoding.</dd><dt>Vertical error bar</dt><dd>Standard deviation across the three seeds.</dd><dt>Blue horizontal line</dt><dd>chemCPA with λ = 0, the no-penalty baseline on the same validation doses.</dd><dt>Legend</dt><dd>Each line is one (number of thresholds, bandwidth) pair.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The primary error stays in a narrow band across λ. Choosing λ from this plot alone would not pick out 10.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="lam-grid">
+  <h3>Error over 13 thresholds</h3>
+  <img src="panels/lam-grid.png" alt="Error over 13 thresholds">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Penalty weight λ, logarithmic. The tested weights are the dots.</dd><dt>Vertical</dt><dd>Mean absolute fraction error over 13 thresholds, percentage points. Validation mean. Lower is better.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Orange solid or dashed</dt><dd>Three thresholds. Solid is bandwidth 0.5. Dashed is another bandwidth, named in the legend as h.</dd><dt>Green solid or dashed</dt><dd>Thirteen thresholds, same bandwidth encoding.</dd><dt>Vertical error bar</dt><dd>Standard deviation across the three seeds.</dd><dt>Blue horizontal line</dt><dd>chemCPA with λ = 0, the no-penalty baseline on the same validation doses.</dd><dt>Legend</dt><dd>Each line is one (number of thresholds, bandwidth) pair.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The curve-wide error, where the number of thresholds and the bandwidth separate more clearly than they do at the single primary cut.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="lam-w1">
+  <h3>Wasserstein-1</h3>
+  <img src="panels/lam-w1.png" alt="Wasserstein-1">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Penalty weight λ, logarithmic. The tested weights are the dots.</dd><dt>Vertical</dt><dd>Response-score Wasserstein-1. Validation mean. Lower is better.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Orange solid or dashed</dt><dd>Three thresholds. Solid is bandwidth 0.5. Dashed is another bandwidth, named in the legend as h.</dd><dt>Green solid or dashed</dt><dd>Thirteen thresholds, same bandwidth encoding.</dd><dt>Vertical error bar</dt><dd>Standard deviation across the three seeds.</dd><dt>Blue horizontal line</dt><dd>chemCPA with λ = 0, the no-penalty baseline on the same validation doses.</dd><dt>Legend</dt><dd>Each line is one (number of thresholds, bandwidth) pair.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The full score distance as λ grows.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="lam-mmd">
+  <h3>Expression MMD²</h3>
+  <img src="panels/lam-mmd.png" alt="Expression MMD²">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Penalty weight λ, logarithmic. The tested weights are the dots.</dd><dt>Vertical</dt><dd>Expression MMD². Validation mean. Lower is better.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Orange solid or dashed</dt><dd>Three thresholds. Solid is bandwidth 0.5. Dashed is another bandwidth, named in the legend as h.</dd><dt>Green solid or dashed</dt><dd>Thirteen thresholds, same bandwidth encoding.</dd><dt>Vertical error bar</dt><dd>Standard deviation across the three seeds.</dd><dt>Blue horizontal line</dt><dd>chemCPA with λ = 0, the no-penalty baseline on the same validation doses.</dd><dt>Legend</dt><dd>Each line is one (number of thresholds, bandwidth) pair.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Joint expression distance. It leaves the baseline once λ is large.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="lam-deg">
+  <h3>Top-50 genes</h3>
+  <img src="panels/lam-deg.png" alt="Top-50 genes">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Penalty weight λ, logarithmic. The tested weights are the dots.</dd><dt>Vertical</dt><dd>RMSE of the 50 genes that change most versus vehicle. Validation mean. Lower is better.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Orange solid or dashed</dt><dd>Three thresholds. Solid is bandwidth 0.5. Dashed is another bandwidth, named in the legend as h.</dd><dt>Green solid or dashed</dt><dd>Thirteen thresholds, same bandwidth encoding.</dd><dt>Vertical error bar</dt><dd>Standard deviation across the three seeds.</dd><dt>Blue horizontal line</dt><dd>chemCPA with λ = 0, the no-penalty baseline on the same validation doses.</dd><dt>Legend</dt><dd>Each line is one (number of thresholds, bandwidth) pair.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Treatment-related gene means. Bandwidth 0.1 at λ = 10 already fails this, and λ = 1000 is far above the baseline.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="lam-program">
+  <h3>Program genes</h3>
+  <img src="panels/lam-program.png" alt="Program genes">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Penalty weight λ, logarithmic. The tested weights are the dots.</dd><dt>Vertical</dt><dd>RMSE of the 97 program-gene means. Validation mean. Lower is better.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Orange solid or dashed</dt><dd>Three thresholds. Solid is bandwidth 0.5. Dashed is another bandwidth, named in the legend as h.</dd><dt>Green solid or dashed</dt><dd>Thirteen thresholds, same bandwidth encoding.</dd><dt>Vertical error bar</dt><dd>Standard deviation across the three seeds.</dd><dt>Blue horizontal line</dt><dd>chemCPA with λ = 0, the no-penalty baseline on the same validation doses.</dd><dt>Legend</dt><dd>Each line is one (number of thresholds, bandwidth) pair.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The genes inside the score. Large λ builds a large program error because the penalty is paid by those genes.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="lam-nonprogram">
+  <h3>Genes outside the program</h3>
+  <img src="panels/lam-nonprogram.png" alt="Genes outside the program">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Penalty weight λ, logarithmic. The tested weights are the dots.</dd><dt>Vertical</dt><dd>RMSE of gene means outside the program. Validation mean. Lower is better.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Orange solid or dashed</dt><dd>Three thresholds. Solid is bandwidth 0.5. Dashed is another bandwidth, named in the legend as h.</dd><dt>Green solid or dashed</dt><dd>Thirteen thresholds, same bandwidth encoding.</dd><dt>Vertical error bar</dt><dd>Standard deviation across the three seeds.</dd><dt>Blue horizontal line</dt><dd>chemCPA with λ = 0, the no-penalty baseline on the same validation doses.</dd><dt>Legend</dt><dd>Each line is one (number of thresholds, bandwidth) pair.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>Expression the score does not directly name. This is the plot that shows λ = 10 as the region that stays near the baseline, while the primary-threshold plot stays flat on both sides of 10.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="pareto-deg">
+  <h3>Validation: fraction error against top-50 genes</h3>
+  <img src="panels/pareto-deg.png" alt="Validation: fraction error against top-50 genes">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Weak-responder error at τ₀.₉₅, percentage points, on the 9 validation doses. Left is better.</dd><dt>Vertical</dt><dd>RMSE of the 50 genes that change most versus vehicle. Down is better.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Filled marker</dt><dd>chemCPA.</dd><dt>Open marker</dt><dd>CellFlow.</dd><dt>Blue, orange, green, gold</dt><dd>No penalty, 3 thresholds, 13 thresholds, MMD. The figure itself has no color legend; the encoding is this list.</dd><dt>A point that moves left and up</dt><dd>The fraction got closer and the gene means got worse, relative to that model’s baseline.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The selection picture for gene means. Test doses are scored once, after a setting is chosen here. There is one point per reported validation run, not one point per dose.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="pareto-mmd">
+  <h3>Validation: curve-wide fraction error against expression MMD²</h3>
+  <img src="panels/pareto-mmd.png" alt="Validation: curve-wide fraction error against expression MMD²">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Mean absolute fraction error over 13 thresholds, on validation. Left is better.</dd><dt>Vertical</dt><dd>Expression MMD². Down is better.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Filled marker</dt><dd>chemCPA.</dd><dt>Open marker</dt><dd>CellFlow.</dd><dt>Blue, orange, green, gold</dt><dd>No penalty, 3 thresholds, 13 thresholds, MMD.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The same selection picture for the joint expression distribution, with the fraction scored across thresholds rather than at one cut.</p>
+    
+  </div>
+</article>
+</section><section id="baseline"><h2>Interpolation and the noise under the metric</h2><div class="lede"><p>Beating the neural baseline is a different claim from beating a fraction copied from the neighboring training doses. The noise plot says how large a gain has to be before it clears experimental disagreement.</p></div>
+<article class="fig" id="interp-vs-model">
+  <h3>Log-dose interpolation against the three-threshold models</h3>
+  <img src="panels/interp-vs-model.png" alt="Log-dose interpolation against the three-threshold models">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Absolute error of log-dose interpolation at τ₀.₉₅, percentage points. Interpolation is a weighted average of the measured fractions at the neighboring training doses of the same drug, with the weight linear in log dose. It predicts the fraction and no expression.</dd><dt>Vertical</dt><dd>Absolute error of the model at the same threshold and the same dose.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Orange circles</dt><dd>chemCPA with the three-threshold penalty. The figure legend says chemCPA. The points are that run, not the baseline and not the thirteen-threshold run.</dd><dt>Blue squares</dt><dd>CellFlow with the three-threshold penalty. The figure legend says CellFlow. Same reading: this series is the three-threshold run.</dd><dt>Grey line</dt><dd>Equal error. A point above the line is a dose where interpolation is closer than the model. A point below the line is a dose the model wins.</dd><dt>One point</dt><dd>One held-out dose.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The cheap fraction estimate, dose by dose. chemCPA’s three-threshold run is about 1.7 points worse than interpolation on average, and the dose interval on that gap excludes zero. It wins 3 of 17 doses.</p>
+    
+  </div>
+</article>
+
+<article class="fig" id="noise-floors">
+  <h3>Measurement noise and model error</h3>
+  <img src="panels/noise-floors.png" alt="Measurement noise and model error">
+  <div class="read">
+    <h4>Axes</h4>
+    <dl><dt>Horizontal</dt><dd>Threshold quantile.</dd><dt>Vertical</dt><dd>Mean absolute difference in the weak-responder fraction, percentage points.</dd></dl>
+    <h4>What the marks mean</h4>
+    <dl><dt>Grey line with crosses</dt><dd>Replicate wells: two measurements of the same condition. This is experimental disagreement, about 3.8 points at quantile 0.95 and about 10 points in the middle of the curve.</dd><dt>Black line</dt><dd>A random split of the same cells. This misses plate and biology noise, so it sits below the replicate line.</dd><dt>Grey dotted line</dt><dd>Binomial fluctuation of a perfect generator that draws 1,024 cells and has the true fraction. A lower bound from counting noise.</dd><dt>Orange solid line</dt><dd>chemCPA, three-threshold penalty, mean absolute error on the test doses.</dd><dt>Blue dashed line</dt><dd>CellFlow, three-threshold penalty, on the thirteen-quantile grid.</dd></dl>
+    <h4>What this plot is for</h4>
+    <p>The scale for every gain in this report. Model error above the replicate curve is misspecification. A CellFlow gain of about 0.4 points is about a tenth of the replicate gap at the primary threshold. Redrawing chemCPA’s cells moves a dose’s fraction by under a point at that threshold, which is small next to the replicate gap and next to the spread across doses.</p>
+    
+  </div>
+</article>
+</section>
+<footer>
+<p>Test split unless a figure title or a row label says validation. chemCPA fractions and expression come from local generated cells. CellFlow fractions, Wasserstein distances, and gene-mean errors come from the published evaluation tables. Adjacent-dose mixtures use real cells from a neighboring dose and can be scored on expression. Interpolation cannot.</p>
+</footer>
+</main>
+</div>
+</body>
+</html>
