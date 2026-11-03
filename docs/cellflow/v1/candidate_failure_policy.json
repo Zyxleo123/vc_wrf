@@ -1,0 +1,10 @@
+{
+  "reason": "Stable-score candidate wrf_l0p1_h0p1 became nonfinite at update3100. Preserve failed candidates and exclude them from validation selection; do not change the completed trial models or search grid.",
+  "chosen_before_test": true,
+  "failure_handling": "Only nonfinite training-loss assertions in seed0 search may be excluded. Other errors and selected-seed failures halt the experiment.",
+  "failed_candidates": [
+    "wrf_l0p1_h0p1",
+    "mmd_l0p1"
+  ],
+  "additional_failure": "mmd_l0p1 nonfinite at update3045; same policy applied."
+}

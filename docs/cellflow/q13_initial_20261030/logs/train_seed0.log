@@ -1,0 +1,74 @@
+[                                        ] | 0% Completed | 384.99 us[########################################] | 100% Completed | 101.48 ms
+[                                        ] | 0% Completed | 251.12 us[################                        ] | 41% Completed | 101.06 ms[########################################] | 100% Completed | 201.74 ms
+[                                        ] | 0% Completed | 243.19 us[########################################] | 100% Completed | 101.94 ms
+PROGRESS wrf_l0p1_h0p3 0 1 mean_loss 0.26759299635887146 seconds 8.7
+PROGRESS wrf_l0p1_h0p3 0 1000 mean_loss 0.2890978305339813 seconds 20.8
+PROGRESS wrf_l0p1_h0p3 0 2000 mean_loss 0.28278196370601655 seconds 32.9
+PROGRESS wrf_l0p1_h0p3 0 3000 mean_loss 0.27237038719654083 seconds 46.3
+PROGRESS wrf_l0p1_h0p3 0 4000 mean_loss 0.8134651913642883 seconds 64.1
+PROGRESS wrf_l0p1_h0p3 0 5000 mean_loss 0.29764200857281686 seconds 87.2
+[                                        ] | 0% Completed | 335.90 us[########################################] | 100% Completed | 101.25 ms
+[                                        ] | 0% Completed | 228.11 us[########################################] | 100% Completed | 101.20 ms
+[                                        ] | 0% Completed | 216.72 us[########################################] | 100% Completed | 100.83 ms
+VALIDATION wrf_l0p1_h0p3 0 5000 primary 5.329405513339669 w1 0.40774840345345326 selected True
+PROGRESS wrf_l0p1_h0p3 0 6000 mean_loss 0.298955423861742 seconds 108.8
+PROGRESS wrf_l0p1_h0p3 0 7000 mean_loss 0.29799914053082466 seconds 124.0
+PROGRESS wrf_l0p1_h0p3 0 8000 mean_loss 0.29881190398335455 seconds 139.1
+PROGRESS wrf_l0p1_h0p3 0 9000 mean_loss 0.2985171605050564 seconds 155.3
+PROGRESS wrf_l0p1_h0p3 0 10000 mean_loss 0.29861316093802454 seconds 171.6
+[                                        ] | 0% Completed | 355.96 us[########################################] | 100% Completed | 101.82 ms
+[                                        ] | 0% Completed | 252.69 us[########################################] | 100% Completed | 100.85 ms
+VALIDATION wrf_l0p1_h0p3 0 10000 primary 5.329405513339669 w1 0.4095129902210526 selected False
+PROGRESS wrf_l0p1_h0p3 0 11000 mean_loss 0.29839362451434137 seconds 193.1
+PROGRESS wrf_l0p1_h0p3 0 12000 mean_loss 0.29923764178156853 seconds 208.3
+PROGRESS wrf_l0p1_h0p3 0 13000 mean_loss 0.2988147916793823 seconds 223.5
+PROGRESS wrf_l0p1_h0p3 0 14000 mean_loss 0.2987329270541668 seconds 238.6
+PROGRESS wrf_l0p1_h0p3 0 15000 mean_loss 0.29736321783065794 seconds 253.7
+PROGRESS wrf_l0p1_h0p3 0 16000 mean_loss 0.2985576054751873 seconds 268.9
+PROGRESS wrf_l0p1_h0p3 0 17000 mean_loss 0.2991907842159271 seconds 284.0
+PROGRESS wrf_l0p1_h0p3 0 18000 mean_loss 0.29790246829390526 seconds 299.2
+PROGRESS wrf_l0p1_h0p3 0 19000 mean_loss 0.2986047959327698 seconds 314.3
+PROGRESS wrf_l0p1_h0p3 0 20000 mean_loss 0.297577258169651 seconds 329.4
+[                                        ] | 0% Completed | 277.56 us[########################################] | 100% Completed | 101.61 ms
+[                                        ] | 0% Completed | 201.26 us[########################################] | 100% Completed | 100.76 ms
+VALIDATION wrf_l0p1_h0p3 0 20000 primary 5.329405513339669 w1 0.4069292405916136 selected True
+PROGRESS wrf_l0p1_h0p3 0 21000 mean_loss 0.29812791469693184 seconds 347.7
+PROGRESS wrf_l0p1_h0p3 0 22000 mean_loss 0.2986853954493999 seconds 365.6
+PROGRESS wrf_l0p1_h0p3 0 23000 mean_loss 0.29747423067688944 seconds 383.1
+PROGRESS wrf_l0p1_h0p3 0 24000 mean_loss 0.2978817166686058 seconds 400.0
+PROGRESS wrf_l0p1_h0p3 0 25000 mean_loss 0.29810912531614303 seconds 415.8
+PROGRESS wrf_l0p1_h0p3 0 26000 mean_loss 0.2968406961262226 seconds 431.0
+PROGRESS wrf_l0p1_h0p3 0 27000 mean_loss 0.2975699930489063 seconds 446.1
+PROGRESS wrf_l0p1_h0p3 0 28000 mean_loss 0.2974183705151081 seconds 461.3
+PROGRESS wrf_l0p1_h0p3 0 29000 mean_loss 0.297197230309248 seconds 476.4
+PROGRESS wrf_l0p1_h0p3 0 30000 mean_loss 0.2971802523136139 seconds 491.5
+[                                        ] | 0% Completed | 320.19 us[########################################] | 100% Completed | 101.41 ms
+[                                        ] | 0% Completed | 210.34 us[########################################] | 100% Completed | 100.80 ms
+VALIDATION wrf_l0p1_h0p3 0 30000 primary 5.329405513339669 w1 0.40791205330790503 selected False
+TRAINING_COMPLETE wrf_l0p1_h0p3 0
+Traceback (most recent call last):
+  File "/ocean/projects/cis260266p/ywang179/response-fraction/experiments/cellflow_q13_20261030/src/run_threshold_comparison.py", line 284, in <module>
+    train(args.run, args.baseline, args.seed)
+  File "/ocean/projects/cis260266p/ywang179/response-fraction/experiments/cellflow_q13_20261030/src/run_threshold_comparison.py", line 114, in train
+    np.testing.assert_allclose(a.total_loss, b.total_loss, atol=5e-6, rtol=1e-5)
+  File "/ocean/projects/cis260266p/ywang179/response-fraction/envs/cellflow/lib/python3.12/site-packages/numpy/testing/_private/utils.py", line 1768, in assert_allclose
+    assert_array_compare(compare, actual, desired, err_msg=str(err_msg),
+  File "/ocean/projects/cis260266p/ywang179/response-fraction/envs/cellflow/lib/python3.12/site-packages/numpy/testing/_private/utils.py", line 983, in assert_array_compare
+    raise AssertionError(msg)
+AssertionError: 
+Not equal to tolerance rtol=1e-05, atol=5e-06
+
+Mismatched elements: 2078 / 3000 (69.3%)
+First 5 mismatches are at indices:
+ [821]: 0.2931199073791504 (ACTUAL), 0.29311126470565796 (DESIRED)
+ [830]: 0.31077882647514343 (ACTUAL), 0.3107527196407318 (DESIRED)
+ [840]: 0.3338366150856018 (ACTUAL), 0.3337908387184143 (DESIRED)
+ [842]: 0.3013048470020294 (ACTUAL), 0.30129581689834595 (DESIRED)
+ [844]: 0.31376248598098755 (ACTUAL), 0.313748836517334 (DESIRED)
+Max absolute difference among violations: 0.02686629
+Max relative difference among violations: 0.089423
+ ACTUAL: array([0.267593, 0.277995, 0.290812, ..., 0.263855, 0.266578, 0.271458],
+      shape=(3000,))
+ DESIRED: array([0.267593, 0.277995, 0.290812, ..., 0.263292, 0.265912, 0.270796],
+      shape=(3000,))
+srun: error: v025: task 0: Exited with exit code 1

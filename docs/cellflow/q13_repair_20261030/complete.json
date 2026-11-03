@@ -1,0 +1,15 @@
+{
+  "status": "complete",
+  "repaired_models": 6,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "training_failures": 0,
+  "full_three_seed_comparison": true,
+  "summaries_verified": true,
+  "test_model_hashes_unchanged": true,
+  "prior_failed_attempts_preserved": true,
+  "no_github_push": true
+}

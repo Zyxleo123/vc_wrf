@@ -1,0 +1,17 @@
+{
+  "seed": 2,
+  "steps": 30000,
+  "elapsed_seconds": 506.4136883057654,
+  "first_1000_loss": 0.2895032847523689,
+  "last_1000_loss": 0.29776921194791794,
+  "all_losses_finite": true,
+  "versions": {
+    "cellflow-tools": "0.0.9",
+    "jax": "0.12.0.1",
+    "jaxlib": "0.12.0.1",
+    "numpy": "2.4.6",
+    "anndata": "0.13.4",
+    "scanpy": "1.12",
+    "scikit-learn": "1.5.1"
+  }
+}

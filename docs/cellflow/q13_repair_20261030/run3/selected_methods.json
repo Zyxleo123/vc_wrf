@@ -1,0 +1,6 @@
+{
+  "methods": {
+    "cellflow_wrf": "wrf_l0p1_h0p3"
+  },
+  "selected_on": "Previously fixed lambda=.1, h=.3; validation-only checkpoint rule."
+}

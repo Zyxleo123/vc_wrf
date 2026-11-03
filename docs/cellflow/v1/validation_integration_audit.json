@@ -1,0 +1,199 @@
+{
+  "split": "val",
+  "seed": 0,
+  "comparison": "64 vs 128 Heun steps, identical controls and conditions",
+  "thresholds": {
+    "mean_fraction_difference_pp": 0.25,
+    "max_fraction_difference_pp": 1.0,
+    "mean_response_w1": 0.01
+  },
+  "methods": {
+    "cellflow": {
+      "mean_fraction_difference_pp": 0.0,
+      "max_fraction_difference_pp": 0.0,
+      "mean_response_w1_between_integrators": 0.0003194689134071915,
+      "passed": true,
+      "conditions": [
+        {
+          "condition": "A549|AR-42|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0003169038591068677,
+          "mean_abs_expression_difference": 0.00023609554045833647
+        },
+        {
+          "condition": "A549|Belinostat (PXD101)|100",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0003078494467000462,
+          "mean_abs_expression_difference": 0.00023034302284941077
+        },
+        {
+          "condition": "A549|Droxinostat|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0002973780856032786,
+          "mean_abs_expression_difference": 0.0002043848653556779
+        },
+        {
+          "condition": "A549|Givinostat (ITF2357)|100",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.00031540488103625885,
+          "mean_abs_expression_difference": 0.000234095350606367
+        },
+        {
+          "condition": "A549|M344|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0003365926263558909,
+          "mean_abs_expression_difference": 0.0002420932869426906
+        },
+        {
+          "condition": "A549|Mocetinostat (MGCD0103)|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0003168077152917798,
+          "mean_abs_expression_difference": 0.0002207289799116552
+        },
+        {
+          "condition": "A549|TMP195|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.00027057520809592667,
+          "mean_abs_expression_difference": 0.00018904257740359753
+        },
+        {
+          "condition": "A549|Tacedinaline (CI994)|100",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0003414942140624057,
+          "mean_abs_expression_difference": 0.0001582223630975932
+        },
+        {
+          "condition": "A549|Tubastatin A HCl|100",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0003722141844122691,
+          "mean_abs_expression_difference": 0.000147535654832609
+        }
+      ]
+    },
+    "cellflow_wrf": {
+      "mean_fraction_difference_pp": 0.021701388888888888,
+      "max_fraction_difference_pp": 0.1953125,
+      "mean_response_w1_between_integrators": 0.0019533018893139256,
+      "passed": true,
+      "conditions": [
+        {
+          "condition": "A549|AR-42|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0015122113054167538,
+          "mean_abs_expression_difference": 0.0002658437879290432
+        },
+        {
+          "condition": "A549|Belinostat (PXD101)|100",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0023560926372580525,
+          "mean_abs_expression_difference": 0.00016316304390784353
+        },
+        {
+          "condition": "A549|Droxinostat|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0016572773847939315,
+          "mean_abs_expression_difference": 0.00014169953647069633
+        },
+        {
+          "condition": "A549|Givinostat (ITF2357)|100",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.002236021441059413,
+          "mean_abs_expression_difference": 0.00019064346270170063
+        },
+        {
+          "condition": "A549|M344|1000",
+          "primary_fraction_difference_pp": 0.1953125,
+          "response_w1_between_integrators": 0.0024726132245303763,
+          "mean_abs_expression_difference": 0.0001829106913646683
+        },
+        {
+          "condition": "A549|Mocetinostat (MGCD0103)|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0025567553940570665,
+          "mean_abs_expression_difference": 0.000166315192473121
+        },
+        {
+          "condition": "A549|TMP195|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0017206356593690835,
+          "mean_abs_expression_difference": 0.0001466497778892517
+        },
+        {
+          "condition": "A549|Tacedinaline (CI994)|100",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0017087331719427999,
+          "mean_abs_expression_difference": 0.00014762506179977208
+        },
+        {
+          "condition": "A549|Tubastatin A HCl|100",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 0.0013593767853978536,
+          "mean_abs_expression_difference": 0.00014169364294502884
+        }
+      ]
+    },
+    "cellflow_mmd": {
+      "mean_fraction_difference_pp": 0.0,
+      "max_fraction_difference_pp": 0.0,
+      "mean_response_w1_between_integrators": 2.996957956275063e-06,
+      "passed": true,
+      "conditions": [
+        {
+          "condition": "A549|AR-42|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 3.0269696540448523e-06,
+          "mean_abs_expression_difference": 2.4816972654662095e-07
+        },
+        {
+          "condition": "A549|Belinostat (PXD101)|100",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 3.0269696540448523e-06,
+          "mean_abs_expression_difference": 2.4816972654662095e-07
+        },
+        {
+          "condition": "A549|Droxinostat|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 2.976847744553804e-06,
+          "mean_abs_expression_difference": 2.4836239731484966e-07
+        },
+        {
+          "condition": "A549|Givinostat (ITF2357)|100",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 2.9809293224278533e-06,
+          "mean_abs_expression_difference": 2.484270282820944e-07
+        },
+        {
+          "condition": "A549|M344|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 3.0018894840491063e-06,
+          "mean_abs_expression_difference": 2.4811328103169217e-07
+        },
+        {
+          "condition": "A549|Mocetinostat (MGCD0103)|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 2.974816226157432e-06,
+          "mean_abs_expression_difference": 2.469333253429795e-07
+        },
+        {
+          "condition": "A549|TMP195|1000",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 2.9534613503230875e-06,
+          "mean_abs_expression_difference": 2.472126539032615e-07
+        },
+        {
+          "condition": "A549|Tacedinaline (CI994)|100",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 3.0283101964823247e-06,
+          "mean_abs_expression_difference": 2.4813203935991623e-07
+        },
+        {
+          "condition": "A549|Tubastatin A HCl|100",
+          "primary_fraction_difference_pp": 0.0,
+          "response_w1_between_integrators": 3.002427974392258e-06,
+          "mean_abs_expression_difference": 2.4823739863677474e-07
+        }
+      ]
+    }
+  },
+  "passed": true
+}

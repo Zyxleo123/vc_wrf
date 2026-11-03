@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/ocean/projects/cis260266p/ywang179/response-fraction/experiments/cellflow_q13_20261030/src/report_threshold_comparison.py", line 74, in <module>
+    training.append(dict(seed=seed, selected_step=selected['step'], seconds=complete['elapsed_seconds'], **check))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: dict() got multiple values for keyword argument 'seed'
+srun: error: v025: task 0: Exited with exit code 1

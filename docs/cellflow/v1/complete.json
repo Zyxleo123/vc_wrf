@@ -1,0 +1,11 @@
+{
+  "status": "complete",
+  "job_id": "50004764",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "test_conditions": 17,
+  "val_conditions": 9
+}

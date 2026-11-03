@@ -1,0 +1,6 @@
+{
+  "methods": {
+    "cellflow_wrf13": "wrf_l0p1_h0p3"
+  },
+  "selected_on": "Fixed existing WRF setting; no hyperparameter search in this experiment."
+}

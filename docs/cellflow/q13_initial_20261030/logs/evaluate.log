@@ -1,0 +1,12 @@
+[                                        ] | 0% Completed | 305.03 us[########################################] | 100% Completed | 101.13 ms
+[                                        ] | 0% Completed | 160.73 us[########################################] | 100% Completed | 101.39 ms
+[                                        ] | 0% Completed | 199.98 us[########################################] | 100% Completed | 100.92 ms
+SCORED cellflow 0 val
+SCORED cellflow 0 test
+SCORED cellflow_wrf 0 val
+SCORED cellflow_wrf 0 test
+SCORED cellflow_mmd 0 val
+SCORED cellflow_mmd 0 test
+SCORED cellflow_wrf13 0 val
+SCORED cellflow_wrf13 0 test
+COMPARISON_EVALUATION_COMPLETE /ocean/projects/cis260266p/ywang179/response-fraction/experiments/cellflow_q13_20261030/run

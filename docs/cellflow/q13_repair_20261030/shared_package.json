@@ -1,0 +1,16 @@
+{
+  "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030",
+  "copied_file_hashes_verified": 296,
+  "access": [
+    "ywang179",
+    "amotwani"
+  ],
+  "original_run": "/ocean/projects/cis260266p/ywang179/response-fraction/experiments/cellflow_q13_repair_20261030/production",
+  "reference_run": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709",
+  "excluded": [
+    "runtime caches",
+    "evaluator symlink (pinned evaluator and baseline already archived)",
+    "active share log"
+  ],
+  "no_github_push": true
+}

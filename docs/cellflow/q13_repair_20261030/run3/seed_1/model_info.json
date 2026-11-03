@@ -1,0 +1,11 @@
+{
+  "n_parameters": 5258277,
+  "gpu": [
+    "cuda:0"
+  ],
+  "seed": 1,
+  "job_id": "50057054",
+  "hostname": "v025.ib.bridges2.psc.edu",
+  "cuda_visible_devices": "0",
+  "slurm_step_gpus": "3"
+}

@@ -1,0 +1,1 @@
+THRESHOLD_PREFLIGHT {"passed": true, "thresholds": 13, "hard_spec_thresholds_unchanged": [0.9, 0.95, 0.975], "soft_fraction_max_error": 5.759422994078278e-08, "finite_nonzero_gradients": true, "loss_averages_over_cutoffs": true, "devices": ["cuda:0"]}

@@ -1,0 +1,14 @@
+{
+  "all_raw_gradients_finite": true,
+  "original_optimizer_gradient_norm": 0.6155409812927246,
+  "independent_float64_gradient_norm": 0.6155410009097322,
+  "max_absolute_raw_gradient": 0.1224437728524208,
+  "all_updates_finite": true,
+  "optimizer_update_norm": 1.26922124883527,
+  "captured_seed": 1,
+  "captured_step": 3180,
+  "loss": 0.3090231716632843,
+  "optimizer_unmodified": true,
+  "no_gradient_replacement": true,
+  "passed": true
+}

@@ -1,0 +1,38 @@
+{
+  "name": "supplementary_grid13_v1",
+  "response_spec": "artifacts/eval_spec_v1",
+  "quantiles": [
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95,
+    0.975
+  ],
+  "taus": [
+    -0.8877745085641865,
+    -0.7079777117266205,
+    -0.557973553694726,
+    -0.4099520374931794,
+    -0.2649979402854896,
+    -0.0951144516838736,
+    0.16823256635560807,
+    0.31463827420891477,
+    0.48189598878627776,
+    0.7581485799579601,
+    1.1095672933460157,
+    1.7442177466402176,
+    3.5204538589651126
+  ],
+  "primary_q": 0.95,
+  "source": "CellFlow October 30 frozen control-derived training/evaluation grid; original three cutoffs preserved.",
+  "seed_aggregation": "absolute fraction error per condition, seed and threshold before averaging",
+  "panel_sha256": "8d07db08aa0323b35b65f2e2742492ac1c71d291e27f6bdce733cacb701cf8ff"
+}

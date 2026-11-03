@@ -1,0 +1,86 @@
+[
+  {
+    "published_path": "experiments/cellflow_v1/source/cellflow_population_loss.py",
+    "original_run_path": "final_source/cellflow_population_loss.py",
+    "sha256": "45a19027ffb3f53c6ea3a0fe286cfa32c6855b2880685d7d85273a94cda5eda8",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/cellflow_v1_config.json",
+    "original_run_path": "final_source/cellflow_v1_config.json",
+    "sha256": "280fab5e7b70fd6436ace7e4f795e9ed8e24b772c213febb7211ccb35fa6e29a",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/cellflow_v1_full.sbatch",
+    "original_run_path": "final_source/cellflow_v1_full.sbatch",
+    "sha256": "a65b2ba47e4d60ad65ced2d54563ab0716ae9773211241bb008e4fd22aae7d64",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/cellflow_worker.py",
+    "original_run_path": "final_source/cellflow_worker.py",
+    "sha256": "e109895049588886a0c38070e8b1e2e7fc1e859751ee2d6892ff1039b6a01566",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/check_population_loss.py",
+    "original_run_path": "final_source/check_population_loss.py",
+    "sha256": "1a0e24a5c3930f6176a2898673a926a08873b2b7b65665a782aa8d147d92fe0d",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/check_validation_integration.py",
+    "original_run_path": "final_source/check_validation_integration.py",
+    "sha256": "3f64f5f55ec9709d9c64b92d1d7137a3e185ed3139be0c1625efc66586f5e989",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/complete_cellflow_evaluation.sh",
+    "original_run_path": "final_source/complete_cellflow_evaluation.sh",
+    "sha256": "ef625d2a9d6c0ebd0643942e239c2a0bbdb150dfa44f58c84e01e9cc9c533384",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/package_cellflow_results.py",
+    "original_run_path": "final_source/package_cellflow_results.py",
+    "sha256": "154f49345b7b7d13a4d7f2d197fdce94cade4173fc5292007aaa30de0fbb22cb",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/report_cellflow_v1.py",
+    "original_run_path": "final_source/report_cellflow_v1.py",
+    "sha256": "d9fe8e54a49e44cb2c4301ae3d6cac2904a08939cd363b350f1d4b6d094f746c",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/resume_cellflow_driver.sh",
+    "original_run_path": "final_source/resume_cellflow_driver.sh",
+    "sha256": "f61c9b83ea275b08bba0cbeade71a5b0dba469060246fa8c8437b47c5338269d",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/run_cellflow_v1.py",
+    "original_run_path": "final_source/run_cellflow_v1.py",
+    "sha256": "e52af678ad8192763c672deb3496688c24efc60c47fd7d691af4dcc9906310db",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/run_cellflow_workers.sh",
+    "original_run_path": "final_source/run_cellflow_workers.sh",
+    "sha256": "f77e15f809a12f522f73399a16f2dc3360c881ee8b7dcbe37a1663150cb39b1f",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/verify_cellflow_artifacts.py",
+    "original_run_path": "final_source/verify_cellflow_artifacts.py",
+    "sha256": "0d8de0704fc343da1ea3c4fa0944b7c1e168dcaf9484cfd14aa99366369c834b",
+    "verification": "final_artifact_sha256.json"
+  },
+  {
+    "published_path": "experiments/cellflow_v1/source/check_cellflow_v1_gpu.py",
+    "original_run_path": "check_cellflow_v1_gpu.py",
+    "sha256": "c3a88a999d82fcd23ce658f06ebb8831031b3e506ccaae3bdf852209dcf48a0f",
+    "verification": "source_manifest.json"
+  }
+]

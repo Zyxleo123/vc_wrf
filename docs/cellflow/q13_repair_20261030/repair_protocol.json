@@ -1,0 +1,27 @@
+{
+  "planned_seeds": [
+    0,
+    1,
+    2
+  ],
+  "arms": [
+    3,
+    13
+  ],
+  "weight": 0.1,
+  "h": 0.3,
+  "steps": 30000,
+  "baseline_run": "/ocean/projects/cis260266p/ywang179/response-fraction/results/cellflow_vc_wrf_v1_50003709",
+  "previous_failed_experiment": "/ocean/projects/cis260266p/ywang179/response-fraction/experiments/cellflow_q13_20261030/run",
+  "repair_validation": "/ocean/projects/cis260266p/ywang179/response-fraction/experiments/cellflow_q13_repair_20261030/precision_repair_check.json",
+  "numerical_repair": "Float64 auxiliary Heun trajectory and response score; float32 ordinary flow loss, trainable parameters and optimizer retained.",
+  "unchanged": "Architecture, data, split, random seeds, learning rate, optimizer, gradient clipping, EMA, 8 auxiliary Heun steps, 64 prediction steps, loss weight, h, checkpoint rule and evaluation definitions.",
+  "no_clipped_trajectories": true,
+  "no_skipped_batches": true,
+  "no_nan_replacement": true,
+  "paired_design": "Rerun both threshold sets for all three seeds using the same repaired implementation.",
+  "test_policy": "Freeze all six selected models before any new test scoring; no test-based tuning.",
+  "exploratory": true,
+  "reason": "Numerical repair requested after the original failures and exploratory test results.",
+  "no_github_push": true
+}

@@ -1,0 +1,283 @@
+{
+  "passed": true,
+  "checked_at_utc": "2026-10-29T06:54:58.982574+00:00",
+  "selected_models": 9,
+  "metrics_per_condition": 8,
+  "all_test_model_hashes_unchanged": true,
+  "training_cell_ids_verified": true,
+  "summary_aggregation_verified": true,
+  "runs": [
+    {
+      "method": "cellflow",
+      "trial": "cellflow",
+      "seed": 0,
+      "effective_source_trial": "trials/cellflow_early/seed_0",
+      "training_updates": 30000,
+      "predictions": {
+        "val": {
+          "shape": [
+            4608,
+            2085
+          ],
+          "conditions": 9,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        },
+        "test": {
+          "shape": [
+            8704,
+            2085
+          ],
+          "conditions": 17,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        },
+        "train": {
+          "shape": [
+            39936,
+            2085
+          ],
+          "conditions": 78,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        }
+      }
+    },
+    {
+      "method": "cellflow",
+      "trial": "cellflow",
+      "seed": 1,
+      "effective_source_trial": "trials/cellflow_early/seed_1",
+      "training_updates": 30000,
+      "predictions": {
+        "val": {
+          "shape": [
+            4608,
+            2085
+          ],
+          "conditions": 9,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        },
+        "test": {
+          "shape": [
+            8704,
+            2085
+          ],
+          "conditions": 17,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        }
+      }
+    },
+    {
+      "method": "cellflow",
+      "trial": "cellflow",
+      "seed": 2,
+      "effective_source_trial": "trials/cellflow_early/seed_2",
+      "training_updates": 30000,
+      "predictions": {
+        "val": {
+          "shape": [
+            4608,
+            2085
+          ],
+          "conditions": 9,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        },
+        "test": {
+          "shape": [
+            8704,
+            2085
+          ],
+          "conditions": 17,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        }
+      }
+    },
+    {
+      "method": "cellflow_wrf",
+      "trial": "wrf_l0p1_h0p3",
+      "seed": 0,
+      "effective_source_trial": "trials/wrf_l0p1_h0p3/seed_0",
+      "training_updates": 30000,
+      "predictions": {
+        "val": {
+          "shape": [
+            4608,
+            2085
+          ],
+          "conditions": 9,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        },
+        "test": {
+          "shape": [
+            8704,
+            2085
+          ],
+          "conditions": 17,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        },
+        "train": {
+          "shape": [
+            39936,
+            2085
+          ],
+          "conditions": 78,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        }
+      }
+    },
+    {
+      "method": "cellflow_wrf",
+      "trial": "wrf_l0p1_h0p3",
+      "seed": 1,
+      "effective_source_trial": "trials/wrf_l0p1_h0p3/seed_1",
+      "training_updates": 30000,
+      "predictions": {
+        "val": {
+          "shape": [
+            4608,
+            2085
+          ],
+          "conditions": 9,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        },
+        "test": {
+          "shape": [
+            8704,
+            2085
+          ],
+          "conditions": 17,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        }
+      }
+    },
+    {
+      "method": "cellflow_wrf",
+      "trial": "wrf_l0p1_h0p3",
+      "seed": 2,
+      "effective_source_trial": "trials/wrf_l0p1_h0p3/seed_2",
+      "training_updates": 30000,
+      "predictions": {
+        "val": {
+          "shape": [
+            4608,
+            2085
+          ],
+          "conditions": 9,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        },
+        "test": {
+          "shape": [
+            8704,
+            2085
+          ],
+          "conditions": 17,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        }
+      }
+    },
+    {
+      "method": "cellflow_mmd",
+      "trial": "mmd_l1",
+      "seed": 0,
+      "effective_source_trial": "trials/mmd_l1/seed_0",
+      "training_updates": 30000,
+      "predictions": {
+        "val": {
+          "shape": [
+            4608,
+            2085
+          ],
+          "conditions": 9,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        },
+        "test": {
+          "shape": [
+            8704,
+            2085
+          ],
+          "conditions": 17,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        },
+        "train": {
+          "shape": [
+            39936,
+            2085
+          ],
+          "conditions": 78,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        }
+      }
+    },
+    {
+      "method": "cellflow_mmd",
+      "trial": "mmd_l1",
+      "seed": 1,
+      "effective_source_trial": "trials/mmd_l1/seed_1",
+      "training_updates": 30000,
+      "predictions": {
+        "val": {
+          "shape": [
+            4608,
+            2085
+          ],
+          "conditions": 9,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        },
+        "test": {
+          "shape": [
+            8704,
+            2085
+          ],
+          "conditions": 17,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        }
+      }
+    },
+    {
+      "method": "cellflow_mmd",
+      "trial": "mmd_l1",
+      "seed": 2,
+      "effective_source_trial": "trials/mmd_l1/seed_2",
+      "training_updates": 30000,
+      "predictions": {
+        "val": {
+          "shape": [
+            4608,
+            2085
+          ],
+          "conditions": 9,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        },
+        "test": {
+          "shape": [
+            8704,
+            2085
+          ],
+          "conditions": 17,
+          "source_controls_verified": true,
+          "metrics_finite": true
+        }
+      }
+    }
+  ],
+  "inventory_files": 720,
+  "hashed_files": 193
+}

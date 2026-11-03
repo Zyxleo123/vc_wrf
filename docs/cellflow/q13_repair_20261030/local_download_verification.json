@@ -1,0 +1,68 @@
+{
+  "verified_downloaded_files": 252,
+  "large_files_retained_on_psc": [
+    "run13/integration_audit/cellflow_wrf13_val_128steps.h5ad",
+    "run13/trials/wrf_l0p1_h0p3/seed_0/best_CellFlow.pkl",
+    "run13/trials/wrf_l0p1_h0p3/seed_0/preds_test.h5ad",
+    "run13/trials/wrf_l0p1_h0p3/seed_0/preds_val.h5ad",
+    "run13/trials/wrf_l0p1_h0p3/seed_1/best_CellFlow.pkl",
+    "run13/trials/wrf_l0p1_h0p3/seed_1/preds_test.h5ad",
+    "run13/trials/wrf_l0p1_h0p3/seed_1/preds_val.h5ad",
+    "run13/trials/wrf_l0p1_h0p3/seed_2/best_CellFlow.pkl",
+    "run13/trials/wrf_l0p1_h0p3/seed_2/preds_test.h5ad",
+    "run13/trials/wrf_l0p1_h0p3/seed_2/preds_val.h5ad",
+    "run3/integration_audit/cellflow_wrf_val_128steps.h5ad",
+    "run3/trials/wrf_l0p1_h0p3/seed_0/best_CellFlow.pkl",
+    "run3/trials/wrf_l0p1_h0p3/seed_0/preds_test.h5ad",
+    "run3/trials/wrf_l0p1_h0p3/seed_0/preds_val.h5ad",
+    "run3/trials/wrf_l0p1_h0p3/seed_1/best_CellFlow.pkl",
+    "run3/trials/wrf_l0p1_h0p3/seed_1/preds_test.h5ad",
+    "run3/trials/wrf_l0p1_h0p3/seed_1/preds_val.h5ad",
+    "run3/trials/wrf_l0p1_h0p3/seed_2/best_CellFlow.pkl",
+    "run3/trials/wrf_l0p1_h0p3/seed_2/preds_test.h5ad",
+    "run3/trials/wrf_l0p1_h0p3/seed_2/preds_val.h5ad"
+  ],
+  "apple_metadata_restored_by_tar": [
+    "run13/source/._.",
+    "run13/source/._check_validation_integration.py",
+    "run13/source/._production_driver.sh",
+    "run13/source/._report_repaired.py",
+    "run13/source/._run_cellflow_v1.py",
+    "run13/source/._run_repaired.py",
+    "run13/source/._score_comparison.py",
+    "run13/source/._share_repaired.py",
+    "run3/source/._.",
+    "run3/source/._check_validation_integration.py",
+    "run3/source/._production_driver.sh",
+    "run3/source/._report_repaired.py",
+    "run3/source/._run_cellflow_v1.py",
+    "run3/source/._run_repaired.py",
+    "run3/source/._score_comparison.py",
+    "run3/source/._share_repaired.py",
+    "src/._.",
+    "src/._check_validation_integration.py",
+    "src/._production_driver.sh",
+    "src/._report_repaired.py",
+    "src/._run_cellflow_v1.py",
+    "src/._run_repaired.py",
+    "src/._score_comparison.py",
+    "src/._share_repaired.py"
+  ],
+  "all_six_runs_complete": true,
+  "gradient_check_passed": true,
+  "finite_training_updates": 180000,
+  "finite_auxiliary_state_checks": 32400,
+  "test_rows_per_repaired_method": 51,
+  "primary_error_per_seed": {
+    "cellflow_wrf": {
+      "0": 4.149006388690413,
+      "1": 4.604419193761517,
+      "2": 6.043704955289103
+    },
+    "cellflow_wrf13": {
+      "0": 4.650375076114458,
+      "1": 4.534612315590669,
+      "2": 5.534127820929654
+    }
+  }
+}

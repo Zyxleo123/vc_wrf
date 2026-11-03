@@ -1,0 +1,15 @@
+{
+  "trial": "wrf_l0p1_h0p3",
+  "seed": 2,
+  "step": 10000,
+  "selection_keys": [
+    "wrf_err_pp_q0.95",
+    "w1_r"
+  ],
+  "selection_scores": [
+    6.26256523556189,
+    0.4458477193689401
+  ],
+  "selected_on": "validation only",
+  "test_evaluated": false
+}

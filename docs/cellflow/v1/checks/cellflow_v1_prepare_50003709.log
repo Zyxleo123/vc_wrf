@@ -1,0 +1,29 @@
+.......s                                                                 [100%]
+7 passed, 1 skipped in 10.27s
+[01:17:28] obs (799317, 38), var (110983, 3)
+[01:18:04]   102M entries, cell 88375/799317
+[01:18:34]   201M entries, cell 175705/799317
+[01:19:04]   304M entries, cell 265993/799317
+[01:19:34]   402M entries, cell 341715/799317
+[01:20:03]   501M entries, cell 419161/799317
+[01:20:34]   604M entries, cell 498406/799317
+[01:21:04]   702M entries, cell 573544/799317
+[01:21:33]   800M entries, cell 644282/799317
+[01:22:03]   903M entries, cell 718753/799317
+[01:22:30]   1001M entries, cell 793996/799317
+[01:22:32] nnz=1007419688
+[01:22:32] cells whose UMI total != pData n.umi: 0
+[01:22:56] wrote /ocean/projects/cis260266p/shared/response-fraction/data/processed/sciplex3_raw_counts.h5ad (3.0 GiB)
+[01:23:13] reading 24786 cells
+[01:24:02] controls 3773, treated 21013, drugs 26, median human UMIs 1267
+[01:24:02] program genes found: 97/97
+[01:24:02] pilot log_sum: auroc_10uM_vs_control_mean=0.693, n_drugs_auroc_10uM_gt_0.75=11.000, replicate_wrf_abs_diff_pp_mean=3.842, replicate_wrf_pearson=0.513, control_wrf_rep1=0.950, control_wrf_rep2=0.950, control_plate_mean_r_sd=0.088
+[01:24:02] pilot mean_log: auroc_10uM_vs_control_mean=0.663, n_drugs_auroc_10uM_gt_0.75=4.000, replicate_wrf_abs_diff_pp_mean=3.809, replicate_wrf_pearson=0.484, control_wrf_rep1=0.952, control_wrf_rep2=0.949, control_plate_mean_r_sd=0.123
+[01:24:02] cells per split: {'train': 15625, 'control': 3773, 'test': 3354, 'val': 2034}
+[01:24:18] eval genes: 2085 (2000 HVG, 97 program, 12 overlap)
+[01:24:23] PCA explained variance (50 PCs): 0.285; median dist 12.892
+[01:24:23] control WRF at taus: [0.8998, 0.9499, 0.9547]
+[01:24:23] reproduced frozen /ocean/projects/cis260266p/ywang179/response-fraction/src/vc_wrf_1d8b173/artifacts/eval_spec_v1; writing the panel only
+[01:24:24] wrote /ocean/projects/cis260266p/shared/response-fraction/data/processed/a549_hdaci_v1.h5ad (24786, 2085), /ocean/projects/cis260266p/ywang179/response-fraction/src/vc_wrf_1d8b173/artifacts/eval_spec_v1, /ocean/projects/cis260266p/ywang179/response-fraction/src/vc_wrf_1d8b173/configs/split_v1.json
+PANEL_AUDIT {"shape": [24786, 2085], "cells_by_split": {"train": 15625, "control": 3773, "test": 3354, "val": 2034}, "conditions_by_split": {"control": 1, "test": 17, "train": 78, "val": 9}, "panel_sha256": "8d07db08aa0323b35b65f2e2742492ac1c71d291e27f6bdce733cacb701cf8ff", "frozen_spec_matches": true, "treated_well_overlap": false}
+PREPARATION_COMPLETE /ocean/projects/cis260266p/ywang179/response-fraction/results/cellflow_vc_wrf_v1_50003709

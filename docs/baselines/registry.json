@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-11-02",
+  "evaluation_commit": "1d8b173f8d4120c8ba4487d7e03511b26e7a71ad",
+  "entries": [
+    {
+      "run_id": "cellflow_v1",
+      "baseline": "cellflow",
+      "contributor": "yujuewan",
+      "status": "complete",
+      "planned_seeds": [
+        0,
+        1,
+        2
+      ],
+      "completed_seeds": [
+        0,
+        1,
+        2
+      ],
+      "code": "experiments/cellflow_v1",
+      "report": "docs/cellflow/v1/report/cellflow-v1-report.txt",
+      "shared_archive": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709"
+    },
+    {
+      "run_id": "cellflow_q13_initial_20261030",
+      "baseline": "cellflow",
+      "contributor": "yujuewan",
+      "status": "incomplete",
+      "planned_seeds": [
+        0,
+        1,
+        2
+      ],
+      "completed_seeds": [
+        0
+      ],
+      "failed_seeds": [
+        1,
+        2
+      ],
+      "code": "experiments/cellflow_q13_initial_20261030",
+      "report": "docs/cellflow/q13_initial_20261030/README.md",
+      "shared_archive": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_20261030"
+    },
+    {
+      "run_id": "cellflow_q13_repair_20261030",
+      "baseline": "cellflow",
+      "contributor": "yujuewan",
+      "status": "complete_exploratory",
+      "planned_seeds": [
+        0,
+        1,
+        2
+      ],
+      "completed_seeds": [
+        0,
+        1,
+        2
+      ],
+      "arms": [
+        3,
+        13
+      ],
+      "code": "experiments/cellflow_q13_repair_20261030",
+      "report": "docs/cellflow/q13_repair_20261030/README.md",
+      "shared_archive": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030"
+    },
+    {
+      "run_id": "chemcpa_branch_186875e",
+      "baseline": "chemcpa",
+      "status": "existing_teammate_branch_not_merged",
+      "source_commit": "186875e3d4834f3e311b1c7a3ce6b3f39716d8f3",
+      "code_url": "https://github.com/Zyxleo123/vc_wrf/tree/186875e3d4834f3e311b1c7a3ce6b3f39716d8f3/sciplex_baselines",
+      "report_url": "https://github.com/Zyxleo123/vc_wrf/blob/186875e3d4834f3e311b1c7a3ce6b3f39716d8f3/docs/chemcpa/README.md",
+      "note": "Indexed for discovery only; runtime panel hashes and grid aggregation must be harmonized before a final combined benchmark."
+    }
+  ]
+}

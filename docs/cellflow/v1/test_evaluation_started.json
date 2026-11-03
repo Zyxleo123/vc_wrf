@@ -1,0 +1,154 @@
+{
+  "selected_models": {
+    "cellflow/s0": {
+      "trial": "cellflow",
+      "seed": 0,
+      "step": 1000,
+      "selection_keys": [
+        "wrf_err_pp_q0.95",
+        "w1_r"
+      ],
+      "selection_scores": [
+        5.394509680006335,
+        0.4218458390372719
+      ],
+      "selected_on": "validation only",
+      "test_evaluated": false,
+      "source_trial": "cellflow_early"
+    },
+    "cellflow/s1": {
+      "trial": "cellflow",
+      "seed": 1,
+      "step": 1000,
+      "selection_keys": [
+        "wrf_err_pp_q0.95",
+        "w1_r"
+      ],
+      "selection_scores": [
+        5.30770412445078,
+        0.4217067106485406
+      ],
+      "selected_on": "validation only",
+      "test_evaluated": false,
+      "source_trial": "cellflow_early"
+    },
+    "cellflow/s2": {
+      "trial": "cellflow",
+      "seed": 2,
+      "step": 2000,
+      "selection_keys": [
+        "wrf_err_pp_q0.95",
+        "w1_r"
+      ],
+      "selection_scores": [
+        6.864315305355301,
+        0.45435960324905295
+      ],
+      "selected_on": "validation only",
+      "test_evaluated": false,
+      "source_trial": "cellflow_early"
+    },
+    "cellflow_wrf/s0": {
+      "trial": "wrf_l0p1_h0p3",
+      "seed": 0,
+      "step": 5000,
+      "selection_keys": [
+        "wrf_err_pp_q0.95",
+        "w1_r"
+      ],
+      "selection_scores": [
+        4.024423801727206,
+        0.4193126838875105
+      ],
+      "selected_on": "validation only",
+      "test_evaluated": false
+    },
+    "cellflow_wrf/s1": {
+      "trial": "wrf_l0p1_h0p3",
+      "seed": 1,
+      "step": 10000,
+      "selection_keys": [
+        "wrf_err_pp_q0.95",
+        "w1_r"
+      ],
+      "selection_scores": [
+        4.805673801727206,
+        0.6143604957335359
+      ],
+      "selected_on": "validation only",
+      "test_evaluated": false
+    },
+    "cellflow_wrf/s2": {
+      "trial": "wrf_l0p1_h0p3",
+      "seed": 2,
+      "step": 10000,
+      "selection_keys": [
+        "wrf_err_pp_q0.95",
+        "w1_r"
+      ],
+      "selection_scores": [
+        6.588086068895224,
+        0.46160483991129664
+      ],
+      "selected_on": "validation only",
+      "test_evaluated": false
+    },
+    "cellflow_mmd/s0": {
+      "trial": "mmd_l1",
+      "seed": 0,
+      "step": 30000,
+      "selection_keys": [
+        "wrf_err_pp_q0.95",
+        "w1_r"
+      ],
+      "selection_scores": [
+        5.329405513339669,
+        0.4211724279430483
+      ],
+      "selected_on": "validation only",
+      "test_evaluated": false
+    },
+    "cellflow_mmd/s1": {
+      "trial": "mmd_l1",
+      "seed": 1,
+      "step": 10000,
+      "selection_keys": [
+        "wrf_err_pp_q0.95",
+        "w1_r"
+      ],
+      "selection_scores": [
+        5.242599957784113,
+        0.4167367727163572
+      ],
+      "selected_on": "validation only",
+      "test_evaluated": false
+    },
+    "cellflow_mmd/s2": {
+      "trial": "mmd_l1",
+      "seed": 2,
+      "step": 10000,
+      "selection_keys": [
+        "wrf_err_pp_q0.95",
+        "w1_r"
+      ],
+      "selection_scores": [
+        6.588086068895224,
+        0.46252959949506356
+      ],
+      "selected_on": "validation only",
+      "test_evaluated": false
+    }
+  },
+  "config_sha256": "280fab5e7b70fd6436ace7e4f795e9ed8e24b772c213febb7211ccb35fa6e29a",
+  "model_sha256": {
+    "cellflow/s0": "04e47a5dcc01ffcd54426bc479334876a79f37fcc44eee34f345084b8458538a",
+    "cellflow/s1": "78797e8a6a1f7b6001e45ced37aa286e2d1ac94fbb9eb725cdafda3c72ee7cba",
+    "cellflow/s2": "83acf63ff53e3bca15630f8e654f1ad036baf4b3616f91c9c595630d40644f5d",
+    "cellflow_wrf/s0": "1252974a7383299619193e5a43afe2c39f862ae06cab4fcfaa7e52e16ab9f56c",
+    "cellflow_wrf/s1": "bbc1603cf5832a8f0d5a2c5c32957f30cc2dd68f95e524fb466b8c5c66136311",
+    "cellflow_wrf/s2": "622a44065f95f6e5c9de17ed4adea9a1b1da96c42d65ab187b5a60e00ad1d23c",
+    "cellflow_mmd/s0": "4be4b3a8b0fd85c0aed76e11be7748b91dec4f36ecfa508be69c8ed746737f7f",
+    "cellflow_mmd/s1": "1f47eb5909b0048bdbc9c72babc2d3973ac7affab3d7b6f48a8a9eb2bfb08a1d",
+    "cellflow_mmd/s2": "c362e319917108f52d5f016dbdc3c705bb5fb4d9febb537081e35332097e7250"
+  }
+}

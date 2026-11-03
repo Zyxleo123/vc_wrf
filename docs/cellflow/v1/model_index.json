@@ -1,0 +1,74 @@
+[
+  {
+    "method": "cellflow",
+    "seed": 0,
+    "training_step": 1000,
+    "model": "trials/cellflow/seed_0/best_CellFlow.pkl",
+    "validation_predictions": "trials/cellflow/seed_0/preds_val.h5ad",
+    "test_predictions": "trials/cellflow/seed_0/preds_test.h5ad"
+  },
+  {
+    "method": "cellflow",
+    "seed": 1,
+    "training_step": 1000,
+    "model": "trials/cellflow/seed_1/best_CellFlow.pkl",
+    "validation_predictions": "trials/cellflow/seed_1/preds_val.h5ad",
+    "test_predictions": "trials/cellflow/seed_1/preds_test.h5ad"
+  },
+  {
+    "method": "cellflow",
+    "seed": 2,
+    "training_step": 2000,
+    "model": "trials/cellflow/seed_2/best_CellFlow.pkl",
+    "validation_predictions": "trials/cellflow/seed_2/preds_val.h5ad",
+    "test_predictions": "trials/cellflow/seed_2/preds_test.h5ad"
+  },
+  {
+    "method": "cellflow_mmd",
+    "seed": 0,
+    "training_step": 30000,
+    "model": "trials/mmd_l1/seed_0/best_CellFlow.pkl",
+    "validation_predictions": "trials/mmd_l1/seed_0/preds_val.h5ad",
+    "test_predictions": "trials/mmd_l1/seed_0/preds_test.h5ad"
+  },
+  {
+    "method": "cellflow_mmd",
+    "seed": 1,
+    "training_step": 10000,
+    "model": "trials/mmd_l1/seed_1/best_CellFlow.pkl",
+    "validation_predictions": "trials/mmd_l1/seed_1/preds_val.h5ad",
+    "test_predictions": "trials/mmd_l1/seed_1/preds_test.h5ad"
+  },
+  {
+    "method": "cellflow_mmd",
+    "seed": 2,
+    "training_step": 10000,
+    "model": "trials/mmd_l1/seed_2/best_CellFlow.pkl",
+    "validation_predictions": "trials/mmd_l1/seed_2/preds_val.h5ad",
+    "test_predictions": "trials/mmd_l1/seed_2/preds_test.h5ad"
+  },
+  {
+    "method": "cellflow_wrf",
+    "seed": 0,
+    "training_step": 5000,
+    "model": "trials/wrf_l0p1_h0p3/seed_0/best_CellFlow.pkl",
+    "validation_predictions": "trials/wrf_l0p1_h0p3/seed_0/preds_val.h5ad",
+    "test_predictions": "trials/wrf_l0p1_h0p3/seed_0/preds_test.h5ad"
+  },
+  {
+    "method": "cellflow_wrf",
+    "seed": 1,
+    "training_step": 10000,
+    "model": "trials/wrf_l0p1_h0p3/seed_1/best_CellFlow.pkl",
+    "validation_predictions": "trials/wrf_l0p1_h0p3/seed_1/preds_val.h5ad",
+    "test_predictions": "trials/wrf_l0p1_h0p3/seed_1/preds_test.h5ad"
+  },
+  {
+    "method": "cellflow_wrf",
+    "seed": 2,
+    "training_step": 10000,
+    "model": "trials/wrf_l0p1_h0p3/seed_2/best_CellFlow.pkl",
+    "validation_predictions": "trials/wrf_l0p1_h0p3/seed_2/preds_val.h5ad",
+    "test_predictions": "trials/wrf_l0p1_h0p3/seed_2/preds_test.h5ad"
+  }
+]

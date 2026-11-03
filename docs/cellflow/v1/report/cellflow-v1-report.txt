@@ -1,0 +1,137 @@
+CellFlow benchmark using vc_wrf v1
+
+RESULTS COMPLETE: standard CellFlow, CellFlow + response-fraction loss, and CellFlow + MMD.
+Each selected method was trained with three independent seeds. Hyperparameters and checkpoints
+were selected using validation only, then all final test predictions were scored with the
+unmodified shared metric functions at commit 1d8b173f8d4120c8ba4487d7e03511b26e7a71ad.
+
+Repository: https://github.com/Zyxleo123/vc_wrf/tree/1d8b173f8d4120c8ba4487d7e03511b26e7a71ad
+
+DATA AND SPLIT
+Panel: 24,786 A549 cells x 2,085 evaluation genes; 26 HDAC inhibitors, 24 hours.
+Cells by split: {'train': 15625, 'control': 3773, 'test': 3354, 'val': 2034}
+9 validation conditions and 17 final test conditions; each drug holds out one intermediate dose.
+Entire treated wells are separated between train, validation, and test. All permitted vehicle
+controls are available to every method. Controls and predictions are matched within replicate.
+Evaluation gene order, normalization, response program, control statistics, PCA basis and thresholds
+are frozen by the repository. No test expression or test fraction is used for training or selection.
+
+TRAINING
+The installed CellFlow OT flow-matching implementation operates directly on all 2,085 log1p(CP10K)
+evaluation genes. Drug identity is one-hot; dose is continuous log1p dose. Architecture and 30,000
+optimizer updates are matched. The auxiliary variants cost more per update; this is an update-matched
+comparison, not an equal-FLOP comparison. Run wall times include validation and checkpoint writes.
+Because the initial baseline validation curve favored its earliest saved checkpoint, a validation-only
+audit replayed its first 3,000 updates (same learning-rate schedule) to add checkpoints at 500, 1,000,
+2,000 and 3,000 updates. The better baseline checkpoint was retained separately for each seed.
+A pre-test fraction-loss trial at weight 1 became numerically unstable. The training response-score
+calculation was rewritten in an algebraically equivalent overflow-safe form, and every fraction
+trial was restarted using weights 0.01, 0.03 and 0.1. The failed/interrupted attempts and original
+configuration are retained under numerical_preflight_attempts/. No test result informed this repair.
+Auxiliary losses: 128 generated cells, 8-step differentiable Heun rollout,
+one auxiliary update per 5 updates after update 3000; the coefficient is frequency-corrected.
+The fraction loss uses the same smooth indicator on real and generated cells at all three frozen
+thresholds. MMD uses the same PCA space and bandwidths as the shared metric.
+Final generation: 512 cells per condition with 64 Heun steps; replicate weights follow the frozen
+cell counts. Negative generated log-expression is clipped to zero before all metrics.
+
+SELECTED SETTINGS
+CellFlow: cellflow; weight=0; smoothing h=0.1; selected steps by seed=[1000, 1000, 2000].
+CellFlow + fraction: wrf_l0p1_h0p3; weight=0.1; smoothing h=0.3; selected steps by seed=[5000, 10000, 10000].
+CellFlow + MMD: mmd_l1; weight=1; smoothing h=0.1; selected steps by seed=[30000, 10000, 10000].
+
+FAILED VALIDATION CANDIDATES
+wrf_l0p1_h0p1: nonfinite_training_loss at update 3100; preserved in trials/ and excluded from selection. No test result was used.
+mmd_l0p1: nonfinite_training_loss at update 3045; preserved in trials/ and excluded from selection. No test result was used.
+
+TEST METRICS
+Lower is better for all metrics. WRF errors are percentage points.
+Values are equal-weight means over 17 conditions after averaging the three training seeds.
+95% CIs resample conditions; they do not imply 51 independent biological experiments.
+
+wrf_err_pp_q0.9
+  CellFlow               10.516976  95% CI [5.834612, 16.186205]; seed SD 1.678545
+  CellFlow + fraction    9.088799  95% CI [7.025916, 11.945064]; seed SD 2.130791
+  CellFlow + MMD         9.641797  95% CI [4.957755, 15.336982]; seed SD 0.682001
+wrf_err_pp_q0.95
+  CellFlow               5.300152  95% CI [2.963390, 8.287709]; seed SD 1.023180
+  CellFlow + fraction    4.881001  95% CI [3.642506, 6.542568]; seed SD 1.113292
+  CellFlow + MMD         5.095670  95% CI [2.818181, 8.061423]; seed SD 0.821525
+wrf_err_pp_q0.975
+  CellFlow               7.409756  95% CI [5.374832, 9.898568]; seed SD 0.000000
+  CellFlow + fraction    7.336993  95% CI [5.328187, 9.810199]; seed SD 0.063276
+  CellFlow + MMD         7.409756  95% CI [5.374832, 9.898568]; seed SD 0.000000
+w1_r
+  CellFlow               0.418783  95% CI [0.281692, 0.579041]; seed SD 0.028810
+  CellFlow + fraction    0.469605  95% CI [0.419105, 0.527713]; seed SD 0.095369
+  CellFlow + MMD         0.411000  95% CI [0.255517, 0.593582]; seed SD 0.033078
+mmd2
+  CellFlow               0.053768  95% CI [0.035241, 0.074403]; seed SD 0.027600
+  CellFlow + fraction    0.060458  95% CI [0.046903, 0.079366]; seed SD 0.013837
+  CellFlow + MMD         0.051243  95% CI [0.020986, 0.086354]; seed SD 0.000748
+rmse_mean_all
+  CellFlow               0.091749  95% CI [0.075217, 0.108618]; seed SD 0.021398
+  CellFlow + fraction    0.078797  95% CI [0.066506, 0.093302]; seed SD 0.013066
+  CellFlow + MMD         0.088300  95% CI [0.067486, 0.111036]; seed SD 0.001082
+rmse_mean_deg50
+  CellFlow               0.284124  95% CI [0.224113, 0.344048]; seed SD 0.038014
+  CellFlow + fraction    0.303070  95% CI [0.229518, 0.386391]; seed SD 0.064166
+  CellFlow + MMD         0.374058  95% CI [0.242649, 0.523884]; seed SD 0.002464
+rmse_mean_program
+  CellFlow               0.081520  95% CI [0.067044, 0.097448]; seed SD 0.004179
+  CellFlow + fraction    0.086920  95% CI [0.079365, 0.095178]; seed SD 0.010015
+  CellFlow + MMD         0.088848  95% CI [0.068092, 0.111553]; seed SD 0.001672
+
+PAIRED PRIMARY-METRIC DIFFERENCES (method minus standard CellFlow; negative is better)
+CellFlow + fraction: -0.4192 pp [-1.9522, 0.9710]; improves 6/17 conditions.
+CellFlow + MMD: -0.2045 pp [-0.3140, -0.0821]; improves 12/17 conditions.
+
+ADDITIONAL DISTRIBUTION CHECKS
+Descriptive averages over test conditions and seeds; these were not selection criteria.
+Variance ratio is generated / measured total gene variance (1 means equal). Zero fractions
+are the fraction of gene-expression entries equal to zero after stated postprocessing.
+CellFlow: non-program mean RMSE=0.091983; variance ratio=0.9086; zero fraction measured=0.9605, predicted=0.4618.
+CellFlow + fraction: non-program mean RMSE=0.077996; variance ratio=0.6893; zero fraction measured=0.9605, predicted=0.4517.
+CellFlow + MMD: non-program mean RMSE=0.088004; variance ratio=0.9745; zero fraction measured=0.9605, predicted=0.5194.
+
+INTERPRETATION LIMITS
+The repository warns that the current q=0.95 weak-responder endpoint is weakly sensitive to drug
+effects and q=0.975 is degenerate because many cells have zero detected program expression.
+Thresholds were kept unchanged. WRF must therefore be read together with W1, MMD, gene-mean
+errors, per-well results, and response distributions. A matched fraction alone does not establish
+a correct response distribution. Replicate disagreement is a reference, not a strict lower bound.
+Only known-drug dose interpolation in A549 is tested. There are two replicate wells per condition.
+This is a CellFlow-based benchmark implementation, not a reproduction of every setting in the
+published CellFlow paper. The three primary variants are complete; other architectures such as
+scVIDR are separate project comparisons.
+
+SAVED ARTIFACTS
+/ocean/projects/cis260266p/ywang179/response-fraction/results/cellflow_vc_wrf_v1_50003709
+config.json, source_manifest.json, requirements.lock.txt, panel_audit.json, frozen spec/split,
+all validation candidate summaries, selected_methods.json, models and predictions under trials/,
+per-condition metrics, per-well metrics, per-cell response scores, distribution checks and figures.
+Each selected trial has best_CellFlow.pkl, preds_val.h5ad, preds_test.h5ad, training_loss.csv,
+training_cell_ids.csv, validation_history.json and selected_checkpoint.json.
+Seed 0 also has preds_train.h5ad and metrics for all 78 seen treatment conditions; these
+are descriptive in-sample diagnostics and were never used for checkpoint or hyperparameter choice.
+No test result was used to revise the selected models. Test model/config hashes are frozen in
+test_evaluation_started.json. The shared data remain under
+/ocean/projects/cis260266p/shared/response-fraction/data.
+
+ADDITIONAL UNCERTAINTY AND NUMERICAL CHECKS
+A run seed changes both model training and the sampled source controls; the reported seed SD
+therefore includes both sources of variation. It is not an estimate from independent biological
+replicates. Per-well metrics and the replicate reference are saved separately.
+Interrupted runs are retained under interrupted_allocation_50003709/ and interrupted_allocation_50004068/.
+The remaining experiment uses an active allocation driver rather than an idle login shell.
+
+Pandas 3.1 makes the official replicate helper's NumPy mask read-only. A local adapter
+copies that mask before combining selectors, then calls the unchanged official metric
+functions in both directions and averages them exactly as the original helper does.
+The pinned metric repository, model choices, generated predictions, and metric definitions
+remain unchanged. See reference_compatibility_record.json for the equivalence check.
+
+Validation numerical integration check: 64 vs 128 Heun steps, with identical source cells.
+  CellFlow: mean fraction difference 0.00000 pp, max 0.00000 pp; mean response W1 0.000319.
+  CellFlow + fraction: mean fraction difference 0.02170 pp, max 0.19531 pp; mean response W1 0.001953.
+  CellFlow + MMD: mean fraction difference 0.00000 pp, max 0.00000 pp; mean response W1 0.000003.

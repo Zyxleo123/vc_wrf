@@ -1,0 +1,31 @@
+{
+  "planned_seeds": [
+    0,
+    1,
+    2
+  ],
+  "completed_seeds": [
+    0
+  ],
+  "failures": [
+    {
+      "seed": 1,
+      "status": "failed_nonfinite_loss",
+      "step": 3550,
+      "value": "nan",
+      "test_evaluated": false
+    },
+    {
+      "seed": 2,
+      "status": "failed_nonfinite_loss",
+      "step": 3150,
+      "value": "nan",
+      "test_evaluated": false
+    }
+  ],
+  "n_completed": 1,
+  "n_failed": 2,
+  "settings_unchanged": true,
+  "no_failed_seeds_replaced": true,
+  "comparison_policy": "Only compare completed seeds with the same archived seeds; never call this a three-seed mean if any seed fails."
+}

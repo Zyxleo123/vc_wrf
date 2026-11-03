@@ -1,0 +1,21 @@
+{
+  "shape": [
+    24786,
+    2085
+  ],
+  "cells_by_split": {
+    "train": 15625,
+    "control": 3773,
+    "test": 3354,
+    "val": 2034
+  },
+  "conditions_by_split": {
+    "control": 1,
+    "test": 17,
+    "train": 78,
+    "val": 9
+  },
+  "panel_sha256": "8d07db08aa0323b35b65f2e2742492ac1c71d291e27f6bdce733cacb701cf8ff",
+  "frozen_spec_matches": true,
+  "treated_well_overlap": false
+}

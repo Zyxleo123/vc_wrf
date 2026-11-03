@@ -1,0 +1,1065 @@
+{
+  "prepared_date": "2026-11-02",
+  "contributor": "yujuewan",
+  "upstream_repository": "Zyxleo123/vc_wrf",
+  "base_commit": "1d8b173f8d4120c8ba4487d7e03511b26e7a71ad",
+  "contains_new_training": false,
+  "large_artifacts": "PSC paths and hashes in each run archive record",
+  "files": [
+    {
+      "path": ".github/PULL_REQUEST_TEMPLATE.md",
+      "sha256": "67a1cbb1b208e0c402ca8a9d29ef62696743e6fce38dc546c64e96353e8cd629",
+      "bytes": 531
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "7aabb1d7e6d4d9a4f9ec08ba6628cf578d2512d212e16432c71b783557b60930",
+      "bytes": 4635
+    },
+    {
+      "path": "README.md",
+      "sha256": "bd1d1471bdbaed76d163884a2838602cea75da6f9cf9dbd63091f96fa4d57f45",
+      "bytes": 7328
+    },
+    {
+      "path": "configs/eval_grid13_v1.json",
+      "sha256": "e70c25b98588910e987f8526b45ce7c5d818351a5413f24aa256e1a08f60759b",
+      "bytes": 889
+    },
+    {
+      "path": "docs/baselines/README.md",
+      "sha256": "8976eeadbb6c74e612f5141b871cf31e996e5b8c2db88dc20a192a6b015bc6d2",
+      "bytes": 1941
+    },
+    {
+      "path": "docs/baselines/registry.json",
+      "sha256": "a215a91f3ad2c5bff382dc9f127ab7fa2a0b7063d49b53c4427e3d6e73e92cf5",
+      "bytes": 2365
+    },
+    {
+      "path": "docs/baselines/run_metadata.template.json",
+      "sha256": "512a427fef12f2720e56d5fd44f45c2d82f057145aeddef63c4da1aa7571e962",
+      "bytes": 1038
+    },
+    {
+      "path": "docs/cellflow/COMPARABILITY.md",
+      "sha256": "8c9a7818263abd6bdbc72042ebfa69d09c9b084e78f6e2bd0cf7cfee937383fd",
+      "bytes": 5040
+    },
+    {
+      "path": "docs/cellflow/README.md",
+      "sha256": "7ef7879c1c2f384447d7834acc15741b4595350da5536dbbc7704f74f59abfcf",
+      "bytes": 4214
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/README.md",
+      "sha256": "ed6614f841d2aef3c08c800787f1c61f532c1917f5f1015b4ebed6c2d8b5d2ee",
+      "bytes": 856
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/ablation_protocol.json",
+      "sha256": "5e966018f8fab38ce71051f932476920461af50938befd01504962853858467c",
+      "bytes": 2854
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/artifact_sha256.json",
+      "sha256": "96951faf02edab87ecf08ec735af73e1ad04400877483eb6949c0847ca4fe218",
+      "bytes": 11678
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/checks/comparison_verification.json",
+      "sha256": "46d39a961080a2876877f7e59100eacda7b425a74980779289913e3554fb7774",
+      "bytes": 1038
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/checks/controlled_settings_and_numerics.json",
+      "sha256": "6018bcb00031aa73c0504813258f5f1465c4a7cab1507e6633bd761dc733a6cb",
+      "bytes": 4746
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/checks/threshold_loss_check.json",
+      "sha256": "1c0bd5fca8344403f9be50ca56184e0d8fa4cc264123fc4ca560ffa36bcb3201",
+      "bytes": 272
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/complete.json",
+      "sha256": "44feeffdc341c6d33b593fba29c4dfbf8730594cda2bd22edf4ca11a9558eff1",
+      "bytes": 695
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/config.json",
+      "sha256": "34882a38854289268d44d335d036fde1cb294362727f6d4e628ff753d7381c88",
+      "bytes": 3500
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/evaluation_complete.json",
+      "sha256": "20eb30d07d7a037ca67d2e3f4caba948dd5806e676b66247037da7088b3c8b27",
+      "bytes": 494
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/logs/controlled_settings_audit.log",
+      "sha256": "8a80a5a4ab035d5385d319c909784d469cef85ece33a09b668b17b7370ce66f7",
+      "bytes": 4268
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/logs/evaluate.log",
+      "sha256": "adbbec30b8a08c2ac8726b5060b8acba6fbccc992650cd4e3f6184611bd79496",
+      "bytes": 760
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/logs/integration.log",
+      "sha256": "39d3580eb728acbf74a3ddfe545713c6f667965a16026a035e23131cd3186aa2",
+      "bytes": 498
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/logs/preflight.log",
+      "sha256": "3de65411becf1672ea4099a5bd2aff05212c7580dab32b20929edc27319f1050",
+      "bytes": 252
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/logs/report.log",
+      "sha256": "5bbfb7379f70f90f6785d0d60c0cffead0ea163da071746a6be847639e2a4acd",
+      "bytes": 555
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/logs/report_initial_failure.log",
+      "sha256": "0ed72e583eec888c1992e4ad3d7470361eb46f902eb61a0ed6ff69353080695c",
+      "bytes": 535
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/logs/train_seed0.log",
+      "sha256": "d31533a50e93fbec2043c700652dd0fe85c46a259390c84df5afc78362b266e3",
+      "bytes": 6232
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/logs/train_seed1.log",
+      "sha256": "0f53753c35fab2ae29ccb371df6688e046bac8cde7f87bd101e04288604ca4ed",
+      "bytes": 1499
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/logs/train_seed2.log",
+      "sha256": "68f9ce801e809d197ac25ff552ffe6001e407bf1f22c495d2bbfffe54bd28071",
+      "bytes": 1499
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/panel_audit.json",
+      "sha256": "089134ee96f3617d1af747f0dc103c6ff418c8a6912c712fd77fb20ed29c89ce",
+      "bytes": 389
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/prediction_index.json",
+      "sha256": "8ff416da88ba22d020c353a1d19de0251d5ab98355d951c6f59b04ec23f57c48",
+      "bytes": 2411
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/published_source_provenance.json",
+      "sha256": "9e8afe983d832b1eab60e06867b4ce4966079d89f14cf8643f1d08443d6e21d8",
+      "bytes": 10090
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/report/all_per_condition_metrics.csv",
+      "sha256": "f689ff442602449d1f153da1b7b012b04c78ae838d81fb673e93fb3a9c2189a8",
+      "bytes": 74783
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/report/comparison.png",
+      "sha256": "62e4da264af065257447eb26e680dfe8ef39f26cd0f3ca867de274a475f91de1",
+      "bytes": 170885
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/report/comparison_report.txt",
+      "sha256": "7aab9cac0cc9f7932a12c53b593d5654b964e3b3bf02b371152943d5563c53a8",
+      "bytes": 8761
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/report/metric_summary.csv",
+      "sha256": "20067993cf84b09c429771d9d7afcbba9def121e4462017047ff63f42a41191e",
+      "bytes": 14111
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/report/paired_differences.csv",
+      "sha256": "f5fb40cee98680bd981d556f460acc92feea359021827358c3cc95aa731cf666",
+      "bytes": 2545
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/report/threshold_grid_per_condition.csv",
+      "sha256": "bbf40dde0f3ed5c2a0645c79f2ded52fb27d34ee6c67dc96371a334adfbab557",
+      "bytes": 281998
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/report/threshold_sensitivity.png",
+      "sha256": "4a628e1aafd2bcbb8c4a72ec81bf8a57e6cc42bf6d39b03924908ce650a729fd",
+      "bytes": 197816
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/report/training_summary.csv",
+      "sha256": "17e06612f45995b479fc7e9b21c007e73f53e64a84eff68cf7018422a8d76e08",
+      "bytes": 1203
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/selected_methods.json",
+      "sha256": "c810eb114d5a8923d0e431f4e80ba5e94dbfcb341c7e2c10ce941885901b0007",
+      "bytes": 154
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/shared_package.json",
+      "sha256": "5eadaf81c2607f7f3e3eeb0ec6f09c0637fa4b65edec3b9f1f067cb8ba914f20",
+      "bytes": 416
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/source_manifest.json",
+      "sha256": "e28515af5de6db78f546feae846e4b52af0d212d964928c9d6ab3fa9332bdc13",
+      "bytes": 2098
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/split_v1.json",
+      "sha256": "42d8b919cbdec837af932678dc7b57686fa0ad25b9b0dad9f1c0bb0bf3061541",
+      "bytes": 22675
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/test_evaluation_started.json",
+      "sha256": "2afa89fdbcedb9ce7510db088611561c3c47833b343af7bc29b57d3abb0fcbbb",
+      "bytes": 671
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/training_outcomes.json",
+      "sha256": "ad095948a66ae4cff2409eca700bf1c8c5c7e1afeac6b5b184dfe43e1ee36f85",
+      "bytes": 630
+    },
+    {
+      "path": "docs/cellflow/q13_initial_20261030/validation_integration_audit.json",
+      "sha256": "059716e69f515beede6f62e878c7c95eb7ec6377801b6c5a113877d81b93dd6a",
+      "bytes": 2810
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/README.md",
+      "sha256": "144129b33a54223368ec9d3507822d8dcdd8550c3f9a20d52762fbda2b687b10",
+      "bytes": 3322
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/all_models_frozen_before_test.json",
+      "sha256": "bb8587710b82733db4536649786ea36e40defeff7390f0a758f8008cb7dde964",
+      "bytes": 3306
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/artifact_sha256.json",
+      "sha256": "bcac839edb24e3e509c23399d59950efdc0777b8967ed26e76ff4982284c50b9",
+      "bytes": 35416
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/comparison_verification.json",
+      "sha256": "b3a05c228d6f84f778d06047fce90c5d3a915f7ff47003ab84ce0e103f743fab",
+      "bytes": 1751
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/complete.json",
+      "sha256": "74807357e118acf95ef76ba5368d442a5faada1b9650ebc2f8a50de6ab77d4b3",
+      "bytes": 291
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/evaluation_complete.json",
+      "sha256": "f8f9a2ae3b46d1a46ff8993579802f859e503080ea5f23839480a7585267e820",
+      "bytes": 220
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/local_download_verification.json",
+      "sha256": "2a882775c028090f45c983192ba06495d839b11292f5d0b92f1dfca5af46d598",
+      "bytes": 2613
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/local_package_manifest.json",
+      "sha256": "e4fe855843234326ab94f7ac2bfdad74338de883b0aa8126becefd730e12380e",
+      "bytes": 13292
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/prediction_index.json",
+      "sha256": "0f61128e9081f9e999dc67eb80a746a1d3b0012456cd92846c74550635255db0",
+      "bytes": 7473
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/repair_protocol.json",
+      "sha256": "ac182ced108ce20d675cc8b4457f5c63404bf53f744c10a32ab98cde6949ec3b",
+      "bytes": 1334
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/report/all_per_condition_metrics.csv",
+      "sha256": "3f8aa115153d4bc96190dd40fdff1e807e20cad16e1ec661544e3ec6f1d426fa",
+      "bytes": 147274
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/report/comparison.png",
+      "sha256": "14adbc603452a7b403286ceeb9f27357e934ecc88f3732acfee31896d580a812",
+      "bytes": 166888
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/report/comparison_report.txt",
+      "sha256": "2c27ab08397a3c810e0d7d594221b88d3329c0ce3b1c1f6105eeec8a36c241f7",
+      "bytes": 7290
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/report/comparison_table.csv",
+      "sha256": "e7d6d8bbbb11a456573401170d32894a697a1a897149ec3ff2afc09b3c784a6e",
+      "bytes": 1348
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/report/metric_summary.csv",
+      "sha256": "5ef9422c47e7033b365665d701957fa818c869d3125160b47e196c208684141f",
+      "bytes": 15511
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/report/paired_differences.csv",
+      "sha256": "454c23444e741c061f886ab2f368174943635bdcc8bcc11236df6281d56190b2",
+      "bytes": 2626
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/report/threshold_grid_per_condition.csv",
+      "sha256": "62c7e249d33a9d256d58c64077a63d6dd7a7cf8d35f570ae33d26fb8012e29a0",
+      "bytes": 597829
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/report/threshold_sensitivity.png",
+      "sha256": "4f72e794ebd3090192fabb794d2f84d08f464598c97806fefe0ea77043392666",
+      "bytes": 191348
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/report/training_summary.csv",
+      "sha256": "b8c53d13e20b15d12547fbb8479d807c63d9b9eb9befa7a3aa442e2ac4ce3e8c",
+      "bytes": 257
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/config.json",
+      "sha256": "34882a38854289268d44d335d036fde1cb294362727f6d4e628ff753d7381c88",
+      "bytes": 3500
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/panel_audit.json",
+      "sha256": "089134ee96f3617d1af747f0dc103c6ff418c8a6912c712fd77fb20ed29c89ce",
+      "bytes": 389
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/precision_repair_check.json",
+      "sha256": "46cbbba95f8e9268a6aa6dc1d71d20289dc5767f41d2501d54c1ec10a13cf27b",
+      "bytes": 859
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_0/model_info.json",
+      "sha256": "3008509b04b1ddbb770d79f62164c317e1f3e079b906aa816c981c90d8e19147",
+      "bytes": 195
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_0/numerical_training_check.json",
+      "sha256": "0d81225f3573eaa93bcc50576a6cbad9fffb54d7dfa885acfa920acd4585da85",
+      "bytes": 222
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_0/selected_checkpoint.json",
+      "sha256": "9803fc4febf7d80755c6f3127df672286508e419e8784a470fb08d291a202bc4",
+      "bytes": 261
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_0/source_hashes.json",
+      "sha256": "1a268add597e569ce93da68939f2e93f2c975425b00f6ced8d0a394a6ce626f6",
+      "bytes": 348
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_0/training_complete.json",
+      "sha256": "c48a4bfe50afa413b01bc90efb8d440b21f7c217f1c86542e882afb2c27a4900",
+      "bytes": 382
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_0/trial_config.json",
+      "sha256": "abb9399fe8d4e294c8f71b1cd9c5f2c857f8fb6c1823e664c14888dbf77f5a8c",
+      "bytes": 51
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_0/validation_history.json",
+      "sha256": "3da4a11eaa79b6e1002389d94557a2fd0c017015a737d9746e55f085faf74bfd",
+      "bytes": 672
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_1/model_info.json",
+      "sha256": "aba145b6c4a44330611958baf897024558ffacbfd1ca6c455709866af7ffea3d",
+      "bytes": 195
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_1/numerical_training_check.json",
+      "sha256": "696bb0155bfd8b126a7eea065bd28deb596ab155a3f3b1a44a2cd586aafe579b",
+      "bytes": 222
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_1/selected_checkpoint.json",
+      "sha256": "4e22e2cc21401883781dc48afade8441aa0bde23675d61ae9b8ed8b0800d86b1",
+      "bytes": 261
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_1/source_hashes.json",
+      "sha256": "1a268add597e569ce93da68939f2e93f2c975425b00f6ced8d0a394a6ce626f6",
+      "bytes": 348
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_1/training_complete.json",
+      "sha256": "0a2906cd04af8bac5988cfcadfa355b0eecd810961c1005aa6a568ee034a97df",
+      "bytes": 384
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_1/trial_config.json",
+      "sha256": "abb9399fe8d4e294c8f71b1cd9c5f2c857f8fb6c1823e664c14888dbf77f5a8c",
+      "bytes": 51
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_1/validation_history.json",
+      "sha256": "5163e917618219227e0ab56d4acdabd6c2a7aa493839ac0d2e3e36583f4d42e7",
+      "bytes": 670
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_2/model_info.json",
+      "sha256": "cb5b5b0940d7b46a4ed660deb4ccda77b15ba061823fd5217e498d469629f954",
+      "bytes": 195
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_2/numerical_training_check.json",
+      "sha256": "f801ad763056e349d7cbaa50fed960dd52adcdffaa026139c68d28dc71b9cc4c",
+      "bytes": 222
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_2/selected_checkpoint.json",
+      "sha256": "ce07edc0f45de445cdb93f0417ffa7a6d733a63c01be268ee83ba5f2fd3e54fe",
+      "bytes": 260
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_2/source_hashes.json",
+      "sha256": "1a268add597e569ce93da68939f2e93f2c975425b00f6ced8d0a394a6ce626f6",
+      "bytes": 348
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_2/training_complete.json",
+      "sha256": "77401e9cdb3718ce1b3938ea80fa4366592be27b4709b0e67cf9246981743118",
+      "bytes": 383
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_2/trial_config.json",
+      "sha256": "abb9399fe8d4e294c8f71b1cd9c5f2c857f8fb6c1823e664c14888dbf77f5a8c",
+      "bytes": 51
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/seed_2/validation_history.json",
+      "sha256": "8e20eec422c97c9e5bf9153188eb1584e92a798f4b9365528734443771aa0c7b",
+      "bytes": 663
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/selected_methods.json",
+      "sha256": "8d8d010fbb09737d91e4431537b5f12eae40f40174fa7af4f4e4eaba6c911221",
+      "bytes": 148
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/source_manifest.json",
+      "sha256": "81acf067df5b891259ff8054ca1e759c6235a4e9a319dbababd5e265e1db2b04",
+      "bytes": 2195
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run13/validation_integration_audit.json",
+      "sha256": "1aa42301be8a16bdb5bcaec9f0df62cc28d975c504e5a3d645b5a782b6cd9657",
+      "bytes": 2808
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/config.json",
+      "sha256": "da84aa35e2de5163edfc7d8bbc8968d8c349ad7982b486dc64cbcad4105c0c1f",
+      "bytes": 3160
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/panel_audit.json",
+      "sha256": "089134ee96f3617d1af747f0dc103c6ff418c8a6912c712fd77fb20ed29c89ce",
+      "bytes": 389
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/precision_repair_check.json",
+      "sha256": "46cbbba95f8e9268a6aa6dc1d71d20289dc5767f41d2501d54c1ec10a13cf27b",
+      "bytes": 859
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_0/model_info.json",
+      "sha256": "3008509b04b1ddbb770d79f62164c317e1f3e079b906aa816c981c90d8e19147",
+      "bytes": 195
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_0/numerical_training_check.json",
+      "sha256": "8f4698e86e9a5b3f146ac8c9263c14f483c24c065fe2ca8a5111e737a522b43c",
+      "bytes": 221
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_0/selected_checkpoint.json",
+      "sha256": "90f26aff2323cffc15951370a5c74b00e8b67ab6347008e102ab8b12b4f470b7",
+      "bytes": 260
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_0/source_hashes.json",
+      "sha256": "551d2fb57761f9b6105d6bd7b9f26061feacd4baf6311c91f3666cca9035b523",
+      "bytes": 348
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_0/training_complete.json",
+      "sha256": "9056fcac5de9e8bbdec308847f895e7d1a6b00bdd092546dc2f206a7a0e154f4",
+      "bytes": 384
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_0/trial_config.json",
+      "sha256": "abb9399fe8d4e294c8f71b1cd9c5f2c857f8fb6c1823e664c14888dbf77f5a8c",
+      "bytes": 51
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_0/validation_history.json",
+      "sha256": "06dde2d07f2efee925924af37f160f020fd870e51146a64598c6e7dfa4604f41",
+      "bytes": 672
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_1/model_info.json",
+      "sha256": "aba145b6c4a44330611958baf897024558ffacbfd1ca6c455709866af7ffea3d",
+      "bytes": 195
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_1/numerical_training_check.json",
+      "sha256": "0cbb1638418915aceeb0947215b0d2f84ec2b88c1d0edd9c8dab17e219478757",
+      "bytes": 221
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_1/selected_checkpoint.json",
+      "sha256": "151a031fca055c32ee1ac4b8e07a85afc7a9c01c4af41356421de1fa2119ad40",
+      "bytes": 262
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_1/source_hashes.json",
+      "sha256": "551d2fb57761f9b6105d6bd7b9f26061feacd4baf6311c91f3666cca9035b523",
+      "bytes": 348
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_1/training_complete.json",
+      "sha256": "171ab9ac4743f06b31acb3ef28d2a326d05faca980d0db4d74dba6740bd354bf",
+      "bytes": 383
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_1/trial_config.json",
+      "sha256": "abb9399fe8d4e294c8f71b1cd9c5f2c857f8fb6c1823e664c14888dbf77f5a8c",
+      "bytes": 51
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_1/validation_history.json",
+      "sha256": "85b96228849efbbc6cc93655e9b0d0327b8380fbc59a21ececfb48af8ead53b2",
+      "bytes": 669
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_2/model_info.json",
+      "sha256": "cb5b5b0940d7b46a4ed660deb4ccda77b15ba061823fd5217e498d469629f954",
+      "bytes": 195
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_2/numerical_training_check.json",
+      "sha256": "dcf8dd2ff2049d0a97117f115745e9b48b9ec4c2242eb4ad7b7315c4755e4f73",
+      "bytes": 221
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_2/selected_checkpoint.json",
+      "sha256": "115dbc9cf41625abc5dd98613ac917110a91c59179afe4a47624295572f79dc2",
+      "bytes": 262
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_2/source_hashes.json",
+      "sha256": "551d2fb57761f9b6105d6bd7b9f26061feacd4baf6311c91f3666cca9035b523",
+      "bytes": 348
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_2/training_complete.json",
+      "sha256": "e9f6dd412c5fec3e8a1e2effef8c407e582c2ba0edd5cd98ea953a2e1d4765cb",
+      "bytes": 380
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_2/trial_config.json",
+      "sha256": "abb9399fe8d4e294c8f71b1cd9c5f2c857f8fb6c1823e664c14888dbf77f5a8c",
+      "bytes": 51
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/seed_2/validation_history.json",
+      "sha256": "8c3fb91a41ae00df2e2b36dd97c4dcbe5905564d6da5f9747d9594338439da6e",
+      "bytes": 672
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/selected_methods.json",
+      "sha256": "273ef3f0d33563cc626738e86f1f122bfe97977eedd43f1c58c5015bb3ba306c",
+      "bytes": 146
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/source_manifest.json",
+      "sha256": "c81c9473ceb8e552fe6ce7582ddcd427554227aeef3314c08cd1f39f6deb2bf4",
+      "bytes": 2195
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/run3/validation_integration_audit.json",
+      "sha256": "cee324b764703fc844d7136cf594608dfbd44d21da328cb7f50ee5eabbf137e2",
+      "bytes": 2838
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/shared_package.json",
+      "sha256": "ea96f6ca380636889ff1d190114067df292274bf83551d92cb6176e2efc5dedf",
+      "bytes": 606
+    },
+    {
+      "path": "docs/cellflow/q13_repair_20261030/split_v1.json",
+      "sha256": "42d8b919cbdec837af932678dc7b57686fa0ad25b9b0dad9f1c0bb0bf3061541",
+      "bytes": 22675
+    },
+    {
+      "path": "docs/cellflow/v1/baseline_early_checkpoint_audit.json",
+      "sha256": "b9c6f9ce899b58cd05a6d27b5793b4ec62108d001845b38e9786f3a12d9b5acd",
+      "bytes": 2611
+    },
+    {
+      "path": "docs/cellflow/v1/candidate_failure_policy.json",
+      "sha256": "ba428874304de7d0be328c4144e32a81e14d6c34906d0c8df5ad2b36167171c5",
+      "bytes": 552
+    },
+    {
+      "path": "docs/cellflow/v1/checks/artifact_validation.json",
+      "sha256": "57c07036e63a6ca2672b6648aba910222de4ee5668186198b9452c6d9b5b43ea",
+      "bytes": 6482
+    },
+    {
+      "path": "docs/cellflow/v1/checks/cellflow_model_roundtrip.log",
+      "sha256": "f8d6a2db85304c5e0a749c2e5a2ece99a783eea0a40899550f6561f08b1a3c35",
+      "bytes": 1271
+    },
+    {
+      "path": "docs/cellflow/v1/checks/cellflow_population_checks_stable.log",
+      "sha256": "6585598a156a8f7214c25fbd5dbbba079f4d3c9894d6c6aed1c2749e0f86ffcb",
+      "bytes": 1299
+    },
+    {
+      "path": "docs/cellflow/v1/checks/cellflow_v1_prepare_50003709.log",
+      "sha256": "dea33c168e9ae64295cff3257f36834fd604411a441fe44ed4c9d46ac40f76e0",
+      "bytes": 2618
+    },
+    {
+      "path": "docs/cellflow/v1/checks/reference_compatibility_check.json",
+      "sha256": "e7d1986e25c3987cce93b65c4b8ab5e2b165fa2b490bbca1e471022ffc428968",
+      "bytes": 733
+    },
+    {
+      "path": "docs/cellflow/v1/combined_summary.json",
+      "sha256": "2bc608610c6e28e1e7ae0c500ecfa636e0f4baaddf856ec901848a572d9e8337",
+      "bytes": 27989
+    },
+    {
+      "path": "docs/cellflow/v1/complete.json",
+      "sha256": "a7c17204bb39deffce308b70f1a032ef775d52627cb0b6bdb34846504936be00",
+      "bytes": 137
+    },
+    {
+      "path": "docs/cellflow/v1/config.json",
+      "sha256": "280fab5e7b70fd6436ace7e4f795e9ed8e24b772c213febb7211ccb35fa6e29a",
+      "bytes": 2848
+    },
+    {
+      "path": "docs/cellflow/v1/delivery_verification.json",
+      "sha256": "a68e29286e445e9f7cb7e293d9762a3be4c07a1697ea4f28c38f59442566dcd8",
+      "bytes": 247
+    },
+    {
+      "path": "docs/cellflow/v1/final_artifact_sha256.json",
+      "sha256": "2a4b766084ec3e3850b070f038f2a36e1002fbcabc4aba311fb65d2c39b4ae9e",
+      "bytes": 22219
+    },
+    {
+      "path": "docs/cellflow/v1/geo_matrix_source_v1.json",
+      "sha256": "a180f63a2529a6a7dd09709b2e8c5a6b2d38c1681c64f90d27dc1ea53b5f49eb",
+      "bytes": 679
+    },
+    {
+      "path": "docs/cellflow/v1/model_index.json",
+      "sha256": "cd0da6a1a11227105e1d375fcf311054e3638e15d8474596497b88c5ccce1ad7",
+      "bytes": 2489
+    },
+    {
+      "path": "docs/cellflow/v1/numerical_repair_record.json",
+      "sha256": "a2f4f7e8c08daf22ddfc0df076c26d9925d5a0760c552ab5145858ce44c5faa7",
+      "bytes": 707
+    },
+    {
+      "path": "docs/cellflow/v1/panel_audit.json",
+      "sha256": "089134ee96f3617d1af747f0dc103c6ff418c8a6912c712fd77fb20ed29c89ce",
+      "bytes": 389
+    },
+    {
+      "path": "docs/cellflow/v1/publication_manifest.json",
+      "sha256": "7f53dd126b78c3de7c8824a5f3b4cee1e85038790f8b14e13a28a284b9132908",
+      "bytes": 10762
+    },
+    {
+      "path": "docs/cellflow/v1/publication_manifest_initial.json",
+      "sha256": "8792ea8afb18358c1d85921300bc2b510fc7c90f7f234607eb91ab111ece1770",
+      "bytes": 10629
+    },
+    {
+      "path": "docs/cellflow/v1/publication_revision.json",
+      "sha256": "e4bc5aa4df93d9764e0f37f8505ce198f2aaba42b2be72111167e07788783166",
+      "bytes": 631
+    },
+    {
+      "path": "docs/cellflow/v1/published_source_provenance.json",
+      "sha256": "43cce1217ac37808c1442ef8309e9ec7f62cf4a9342a19140a627c2c7c4be357",
+      "bytes": 4016
+    },
+    {
+      "path": "docs/cellflow/v1/reference_compatibility_record.json",
+      "sha256": "e7d1986e25c3987cce93b65c4b8ab5e2b165fa2b490bbca1e471022ffc428968",
+      "bytes": 733
+    },
+    {
+      "path": "docs/cellflow/v1/report/all_metric_summaries.csv",
+      "sha256": "4340f7c0c19b25c43f962a4c1da8e4c4cf0a401802408ef728a9ac079f6184fd",
+      "bytes": 14408
+    },
+    {
+      "path": "docs/cellflow/v1/report/all_per_condition_metrics.csv",
+      "sha256": "e1235ddcd7a2cca35c0bc439bde76dc105818f4e213f389befdc77a5ee8867cf",
+      "bytes": 479154
+    },
+    {
+      "path": "docs/cellflow/v1/report/cellflow-v1-report.txt",
+      "sha256": "c2e110d92f9141e8f546388637a134e99dc969fea74358eb78ba6b4e0342912f",
+      "bytes": 9732
+    },
+    {
+      "path": "docs/cellflow/v1/report/distribution_diagnostics_summary.csv",
+      "sha256": "3d10f6716213d4e34de8a2b1d9be3b137cc1e41b03ff7c90f575312adab24042",
+      "bytes": 374
+    },
+    {
+      "path": "docs/cellflow/v1/report/paired_differences.json",
+      "sha256": "51a4710bb3ca2952eb3778f4c74fd903d4b33dec94604c174d0608571ddcf171",
+      "bytes": 3594
+    },
+    {
+      "path": "docs/cellflow/v1/report/response_distributions.png",
+      "sha256": "02ab416f692899738c7760c4d97075dd02d8f13a16d6069d0f46462b87d318c1",
+      "bytes": 153765
+    },
+    {
+      "path": "docs/cellflow/v1/report/test_metrics.png",
+      "sha256": "b79f9e08fbd3f217067860be6cd47988cffff92be97940aa8017c1d30db78989",
+      "bytes": 222815
+    },
+    {
+      "path": "docs/cellflow/v1/report/training_curves.png",
+      "sha256": "81270712fe9ffab0906ba1efdc1e2d0c7b163c82ab56b55eefdffb37f8dd6070",
+      "bytes": 245864
+    },
+    {
+      "path": "docs/cellflow/v1/report/training_runs.csv",
+      "sha256": "0e4c4558c445e6e4fc62b7639f1ccddd5352de61ac1ff15a3e493b0b61319a8c",
+      "bytes": 953
+    },
+    {
+      "path": "docs/cellflow/v1/report/validation_search.csv",
+      "sha256": "af0d00cf30387b424a2118b22708d5e74d5ae15bfc7e5c3f21df612936c8fc90",
+      "bytes": 1710
+    },
+    {
+      "path": "docs/cellflow/v1/selected_methods.json",
+      "sha256": "642cfea14bb74ab81d3e9f3b5214405b3a1e467f2cb735f6ed8d0f596dde0f27",
+      "bytes": 2951
+    },
+    {
+      "path": "docs/cellflow/v1/shared_results_package.json",
+      "sha256": "fd9f3ab139df935adbd8819f8c8507ea4c9beb5acfaa798f10fa207e4969fea8",
+      "bytes": 291
+    },
+    {
+      "path": "docs/cellflow/v1/source_manifest.json",
+      "sha256": "23493cdf40761ec459c755cd8d893d528f54e7941f4b9e73a04bc47bade26937",
+      "bytes": 1043
+    },
+    {
+      "path": "docs/cellflow/v1/split_v1.json",
+      "sha256": "42d8b919cbdec837af932678dc7b57686fa0ad25b9b0dad9f1c0bb0bf3061541",
+      "bytes": 22675
+    },
+    {
+      "path": "docs/cellflow/v1/test_evaluation_started.json",
+      "sha256": "416e6b9d4f5a360a2cc9453d52dff3b93290a6af1796d678c62c43c1d8b2c610",
+      "bytes": 4087
+    },
+    {
+      "path": "docs/cellflow/v1/validation_integration_audit.json",
+      "sha256": "ecab367daaffd732f7ede1b74fea256df21a8b9940bb829938cb3b33c7d0af1f",
+      "bytes": 7884
+    },
+    {
+      "path": "experiments/cellflow/verify_all_results.py",
+      "sha256": "eca8a1abc299af6c94dd723c191dd6b6418b1761e50fe306cd30ef3000a19c93",
+      "bytes": 6084
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/README.md",
+      "sha256": "0d613f1e277fed278022d43dbeaef6ec2c8cdd399272e886defbad9772275783",
+      "bytes": 939
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/finalization_source/audit_controlled_settings.py",
+      "sha256": "4afa37658a7cb3c9f2883810089208566a4ca5cfd51e7933581bace6e0a370d5",
+      "bytes": 6194
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/finalization_source/finish_comparison.sh",
+      "sha256": "f7ac8c79ac1654925e66ecfeca46b451693e830a515be50b2f45ff13a50b98dd",
+      "bytes": 3021
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/finalization_source/report_before_format_fix.py",
+      "sha256": "9b3d1bb6bcef198155dfe41c60b7ff37f52ffe2c7e847d937f47ef717dc4e46c",
+      "bytes": 9888
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/finalization_source/report_threshold_comparison.py",
+      "sha256": "b140609390f0b2f120e0eeb8737a94b96c5af272426ee290fdc7bfcecbb8ea54",
+      "bytes": 9893
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/finalization_source/run_threshold_comparison.py",
+      "sha256": "2a92f5dc7dc69b1dea1267a9900c7fe78a1d09de1efc6e0125951597cac7195f",
+      "bytes": 17394
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/finalization_source/share_comparison.py",
+      "sha256": "8380433433d737c7fad2433a447c5ed5cb60bca38d184f26234e086d350808a6",
+      "bytes": 2016
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/requirements.lock.txt",
+      "sha256": "ee71b6151e274c578dc0878349ae9de48b281ecec0e298fb21b39a5f61517293",
+      "bytes": 2469
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/source/cellflow_population_loss.py",
+      "sha256": "e975f0cc3e35c2ac0194744a6c220acc9c183e0486f92df97efc8082881175a7",
+      "bytes": 5298
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/source/check_validation_integration.py",
+      "sha256": "3f64f5f55ec9709d9c64b92d1d7137a3e185ed3139be0c1625efc66586f5e989",
+      "bytes": 4031
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/source/driver.sh",
+      "sha256": "06ed7719dcc5dbcabbadb6854f7b3b76792358e10663d08908f1beee69b627ec",
+      "bytes": 2673
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/source/report_threshold_comparison.py",
+      "sha256": "d45811653a1e3ddb8c490f8273e3a738eb6aac5adf6d63a632b0978caa3678ba",
+      "bytes": 8067
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/source/run_cellflow_v1.py",
+      "sha256": "e52af678ad8192763c672deb3496688c24efc60c47fd7d691af4dcc9906310db",
+      "bytes": 31412
+    },
+    {
+      "path": "experiments/cellflow_q13_initial_20261030/source/run_threshold_comparison.py",
+      "sha256": "ff0a3903f7bc42f18ccd9c655fddb431dacc4a4a1c177463ea4006a3d49b04cb",
+      "bytes": 17064
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/README.txt",
+      "sha256": "e78b9ee9e6e23c4dd9db7e0cbe7dfca0be2652057db6eed2fd09681accb1f8ec",
+      "bytes": 4198
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/diagnosis/cellflow_population_loss.py",
+      "sha256": "e975f0cc3e35c2ac0194744a6c220acc9c183e0486f92df97efc8082881175a7",
+      "bytes": 5298
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/diagnosis/cellflow_population_loss_fp64.py",
+      "sha256": "04c6c1e0d0447f7bdd00a05593bc0faa8bf21543def4f7f753a099ba9d711350",
+      "bytes": 5551
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/diagnosis/check_gradient_repair.py",
+      "sha256": "f242742362ce6c13725cc29b23f5e21d5a1a9f8b8903b8b9d7c7f379b46c3dd1",
+      "bytes": 2402
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/diagnosis/check_precision_repair.py",
+      "sha256": "c05d037b5ad687bf563c9b48fce0f5209107df7268b04bbab765822f5a074ce5",
+      "bytes": 4756
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/diagnosis/diagnose_failure.py",
+      "sha256": "6a936a0cb9d453c13af94512c9d97c1775bdf18a33607bbcbf28291db61a1a70",
+      "bytes": 5829
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/diagnosis/failure_diagnosis.json",
+      "sha256": "7dc86e7f3a3765cb975eb7f0b04af9d7338d999cf86eef02f7da0a287cb21dc3",
+      "bytes": 2793
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/diagnosis/gradient_driver.sh",
+      "sha256": "f641df3bdc21990829175a92f77c2a62e48becb0d000f03c7b2d3cb7b3c188e6",
+      "bytes": 813
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/diagnosis/gradient_repair_check.json",
+      "sha256": "5757b020ded9c02a06f3e07c8704f87a4a42fe86a697940ad22ce7ce7085635e",
+      "bytes": 444
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/diagnosis/gradient_repair_check.log",
+      "sha256": "e6820324639748d52b4238f419f1471fd0be99d5cc52ef12b34e2aaa091e9e48",
+      "bytes": 924
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/diagnosis/no_failure_reproduced.json",
+      "sha256": "a11a70c13a78e33cee21e451b55c1d87f12d0b25163ac3f4b258a5b19dae11c5",
+      "bytes": 33
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/diagnosis/precision_repair_check.json",
+      "sha256": "46cbbba95f8e9268a6aa6dc1d71d20289dc5767f41d2501d54c1ec10a13cf27b",
+      "bytes": 859
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/precision_fix.patch",
+      "sha256": "768bfae247ae644e2335e10979f082d9e30c006fd6952d476d50ac9ce963dac6",
+      "bytes": 2999
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/requirements.lock.txt",
+      "sha256": "ee71b6151e274c578dc0878349ae9de48b281ecec0e298fb21b39a5f61517293",
+      "bytes": 2469
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/source/cellflow_population_loss.py",
+      "sha256": "04c6c1e0d0447f7bdd00a05593bc0faa8bf21543def4f7f753a099ba9d711350",
+      "bytes": 5551
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/source/check_validation_integration.py",
+      "sha256": "3f64f5f55ec9709d9c64b92d1d7137a3e185ed3139be0c1625efc66586f5e989",
+      "bytes": 4031
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/source/production_driver.sh",
+      "sha256": "edaa64034dbff72268f62008a63017374f0825ebdc38e5f158925078d1f17672",
+      "bytes": 2394
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/source/report_repaired.py",
+      "sha256": "8106fa1400ca0cd53f4736bd970622b9ad214fd471c7aa67a9d19b2b2b1567f4",
+      "bytes": 8357
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/source/run_cellflow_v1.py",
+      "sha256": "e52af678ad8192763c672deb3496688c24efc60c47fd7d691af4dcc9906310db",
+      "bytes": 31412
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/source/run_repaired.py",
+      "sha256": "59e19f189279c0c14759be91f5db4809cdd32fe37a829f450f479457c4ced6c1",
+      "bytes": 8592
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/source/score_comparison.py",
+      "sha256": "1e47ef08c84396b95e952d457d98c6cda5c1190d96582790a2af103443dec457",
+      "bytes": 17495
+    },
+    {
+      "path": "experiments/cellflow_q13_repair_20261030/source/share_repaired.py",
+      "sha256": "6178497f5ff2db45153f70a35691ceba5cc1e0a24115505a9e57f5de4794fbb3",
+      "bytes": 2300
+    },
+    {
+      "path": "experiments/cellflow_v1/README.md",
+      "sha256": "062d3038f2430f7453d02e760e5304ac4add69c3c611730068185ca41aa0c4d4",
+      "bytes": 3856
+    },
+    {
+      "path": "experiments/cellflow_v1/requirements.lock.txt",
+      "sha256": "ee71b6151e274c578dc0878349ae9de48b281ecec0e298fb21b39a5f61517293",
+      "bytes": 2469
+    },
+    {
+      "path": "experiments/cellflow_v1/source/cellflow_population_loss.py",
+      "sha256": "45a19027ffb3f53c6ea3a0fe286cfa32c6855b2880685d7d85273a94cda5eda8",
+      "bytes": 5269
+    },
+    {
+      "path": "experiments/cellflow_v1/source/cellflow_v1_config.json",
+      "sha256": "280fab5e7b70fd6436ace7e4f795e9ed8e24b772c213febb7211ccb35fa6e29a",
+      "bytes": 2848
+    },
+    {
+      "path": "experiments/cellflow_v1/source/cellflow_v1_full.sbatch",
+      "sha256": "a65b2ba47e4d60ad65ced2d54563ab0716ae9773211241bb008e4fd22aae7d64",
+      "bytes": 3362
+    },
+    {
+      "path": "experiments/cellflow_v1/source/cellflow_worker.py",
+      "sha256": "e109895049588886a0c38070e8b1e2e7fc1e859751ee2d6892ff1039b6a01566",
+      "bytes": 2248
+    },
+    {
+      "path": "experiments/cellflow_v1/source/check_cellflow_v1_gpu.py",
+      "sha256": "c3a88a999d82fcd23ce658f06ebb8831031b3e506ccaae3bdf852209dcf48a0f",
+      "bytes": 2894
+    },
+    {
+      "path": "experiments/cellflow_v1/source/check_population_loss.py",
+      "sha256": "1a0e24a5c3930f6176a2898673a926a08873b2b7b65665a782aa8d147d92fe0d",
+      "bytes": 3913
+    },
+    {
+      "path": "experiments/cellflow_v1/source/check_validation_integration.py",
+      "sha256": "3f64f5f55ec9709d9c64b92d1d7137a3e185ed3139be0c1625efc66586f5e989",
+      "bytes": 4031
+    },
+    {
+      "path": "experiments/cellflow_v1/source/complete_cellflow_evaluation.sh",
+      "sha256": "ef625d2a9d6c0ebd0643942e239c2a0bbdb150dfa44f58c84e01e9cc9c533384",
+      "bytes": 3459
+    },
+    {
+      "path": "experiments/cellflow_v1/source/package_cellflow_results.py",
+      "sha256": "154f49345b7b7d13a4d7f2d197fdce94cade4173fc5292007aaa30de0fbb22cb",
+      "bytes": 5980
+    },
+    {
+      "path": "experiments/cellflow_v1/source/report_cellflow_v1.py",
+      "sha256": "d9fe8e54a49e44cb2c4301ae3d6cac2904a08939cd363b350f1d4b6d094f746c",
+      "bytes": 16824
+    },
+    {
+      "path": "experiments/cellflow_v1/source/resume_cellflow_driver.sh",
+      "sha256": "f61c9b83ea275b08bba0cbeade71a5b0dba469060246fa8c8437b47c5338269d",
+      "bytes": 2529
+    },
+    {
+      "path": "experiments/cellflow_v1/source/run_cellflow_v1.py",
+      "sha256": "e52af678ad8192763c672deb3496688c24efc60c47fd7d691af4dcc9906310db",
+      "bytes": 31412
+    },
+    {
+      "path": "experiments/cellflow_v1/source/run_cellflow_workers.sh",
+      "sha256": "f77e15f809a12f522f73399a16f2dc3360c881ee8b7dcbe37a1663150cb39b1f",
+      "bytes": 661
+    },
+    {
+      "path": "experiments/cellflow_v1/source/verify_cellflow_artifacts.py",
+      "sha256": "0d8de0704fc343da1ea3c4fa0944b7c1e168dcaf9484cfd14aa99366369c834b",
+      "bytes": 9974
+    },
+    {
+      "path": "experiments/cellflow_v1/verify_published_results.py",
+      "sha256": "46660c1a8590a795344fd8c56fe3de01ba87557c85b57c6eae9de0d776c59f9b",
+      "bytes": 4577
+    }
+  ]
+}

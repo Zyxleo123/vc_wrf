@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "seed": 0,
+  "thresholds": 3,
+  "finite_parameter_and_optimizer_checks": 5400,
+  "training_ids_identical_to_original": true,
+  "updates": 30000,
+  "configuration_unchanged_except_thresholds": true
+}

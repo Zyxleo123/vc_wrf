@@ -1,0 +1,12 @@
+{
+  "training": "e52af678ad8192763c672deb3496688c24efc60c47fd7d691af4dcc9906310db",
+  "population_loss": "04c6c1e0d0447f7bdd00a05593bc0faa8bf21543def4f7f753a099ba9d711350",
+  "config": "34882a38854289268d44d335d036fde1cb294362727f6d4e628ff753d7381c88",
+  "stop_after": 30000,
+  "validation_steps": [
+    5000,
+    10000,
+    20000,
+    30000
+  ]
+}

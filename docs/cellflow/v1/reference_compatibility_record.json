@@ -1,0 +1,12 @@
+{
+  "pandas_version": "3.1.0",
+  "issue": "Pinned replicate helper mutates a read-only NumPy boolean mask under pandas3.1.",
+  "fix": "Copy only row masks in a local compatibility adapter; preserve sparse expression, bidirectional averaging, and all official metric functions.",
+  "unchanged_official_file_sha256": "38369c15b66c221387b162eeacf47f29f8309381cc99ba62f60749938fa655ab",
+  "check": "Compared local adapter with original helper executed in an isolated namespace with only its mask copied. All returned fields match exactly on all9 validation conditions.",
+  "validation_conditions": 9,
+  "max_absolute_difference": 0.0,
+  "passed": true,
+  "existing_predictions_only": true,
+  "no_model_or_hyperparameter_changes": true
+}

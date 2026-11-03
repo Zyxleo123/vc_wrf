@@ -1,0 +1,13 @@
+{
+  "stage": "validation only, before any final test scoring",
+  "reason": "After a pre-test weight-1 fraction trial became unstable at update 3016, use an algebraically equivalent overflow-safe score and search weights 0.01/0.03/0.1. All fraction trials restarted; original attempts retained.",
+  "old_config_sha256": "1e4f4cbcfa4b73c82938e97b257f35a0ba0cd2364ce6d403bf0e660731b4fe89",
+  "current_config_sha256": "280fab5e7b70fd6436ace7e4f795e9ed8e24b772c213febb7211ccb35fa6e29a",
+  "original_manifest_config_path": "numerical_preflight_attempts/initial_config.json",
+  "stopped_trials": [
+    "wrf_l0p1_h0p1",
+    "wrf_l0p1_h0p3",
+    "wrf_l1_h0p1"
+  ],
+  "completed_standard_baselines_preserved": true
+}

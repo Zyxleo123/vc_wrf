@@ -1,0 +1,1107 @@
+{
+ "version": "v1",
+ "status": "proposed - confirm with the team before any test-split run",
+ "cell_line": "A549",
+ "seed": 0,
+ "rule": "Each HDACi drug holds out one intermediate dose (100 or 1000 nM; both replicate wells) and keeps 10 nM, 10 uM and its other intermediate dose in train. Drugs ranked by median r(x) at 10 uM are taken in blocks of 3; one random drug per block is a val drug, the rest are test drugs. Along the ranking the held-out dose alternates 100/1000 nM within each split. All vehicle cells are permitted controls for every split.",
+ "drugs_ranked_by_10uM_median_r": [
+  {
+   "drug": "Entinostat (MS-275)",
+   "median_r_10uM": 1.128,
+   "group": "test",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "Resminostat",
+   "median_r_10uM": 0.88,
+   "group": "test",
+   "heldout_dose_nM": 100.0
+  },
+  {
+   "drug": "Mocetinostat (MGCD0103)",
+   "median_r_10uM": 0.747,
+   "group": "val",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "CUDC-101",
+   "median_r_10uM": 0.716,
+   "group": "test",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "Tacedinaline (CI994)",
+   "median_r_10uM": 0.705,
+   "group": "val",
+   "heldout_dose_nM": 100.0
+  },
+  {
+   "drug": "Abexinostat (PCI-24781)",
+   "median_r_10uM": 0.669,
+   "group": "test",
+   "heldout_dose_nM": 100.0
+  },
+  {
+   "drug": "Tucidinostat (Chidamide)",
+   "median_r_10uM": 0.658,
+   "group": "test",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "M344",
+   "median_r_10uM": 0.607,
+   "group": "val",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "Pracinostat (SB939)",
+   "median_r_10uM": 0.599,
+   "group": "test",
+   "heldout_dose_nM": 100.0
+  },
+  {
+   "drug": "Givinostat (ITF2357)",
+   "median_r_10uM": 0.599,
+   "group": "val",
+   "heldout_dose_nM": 100.0
+  },
+  {
+   "drug": "Dacinostat (LAQ824)",
+   "median_r_10uM": 0.511,
+   "group": "test",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "Quisinostat (JNJ-26481585) 2HCl",
+   "median_r_10uM": 0.496,
+   "group": "test",
+   "heldout_dose_nM": 100.0
+  },
+  {
+   "drug": "AR-42",
+   "median_r_10uM": 0.424,
+   "group": "val",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "Trichostatin A (TSA)",
+   "median_r_10uM": 0.403,
+   "group": "test",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "Panobinostat (LBH589)",
+   "median_r_10uM": 0.403,
+   "group": "test",
+   "heldout_dose_nM": 100.0
+  },
+  {
+   "drug": "Belinostat (PXD101)",
+   "median_r_10uM": 0.366,
+   "group": "val",
+   "heldout_dose_nM": 100.0
+  },
+  {
+   "drug": "PCI-34051",
+   "median_r_10uM": 0.277,
+   "group": "test",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "CUDC-907",
+   "median_r_10uM": 0.27,
+   "group": "test",
+   "heldout_dose_nM": 100.0
+  },
+  {
+   "drug": "Droxinostat",
+   "median_r_10uM": 0.086,
+   "group": "val",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "Divalproex Sodium",
+   "median_r_10uM": -0.042,
+   "group": "test",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "ITSA-1 (ITSA1)",
+   "median_r_10uM": -0.091,
+   "group": "test",
+   "heldout_dose_nM": 100.0
+  },
+  {
+   "drug": "Tubastatin A HCl",
+   "median_r_10uM": -0.175,
+   "group": "val",
+   "heldout_dose_nM": 100.0
+  },
+  {
+   "drug": "MC1568",
+   "median_r_10uM": -0.19,
+   "group": "test",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "Sodium Phenylbutyrate",
+   "median_r_10uM": -0.225,
+   "group": "test",
+   "heldout_dose_nM": 100.0
+  },
+  {
+   "drug": "TMP195",
+   "median_r_10uM": -0.249,
+   "group": "val",
+   "heldout_dose_nM": 1000.0
+  },
+  {
+   "drug": "Valproic acid sodium salt (Sodium valproate)",
+   "median_r_10uM": -0.345,
+   "group": "test",
+   "heldout_dose_nM": 1000.0
+  }
+ ],
+ "controls": {
+  "condition": "A549|Vehicle|0",
+  "n_cells": 3773
+ },
+ "conditions": [
+  {
+   "condition": "A549|AR-42|10",
+   "drug": "AR-42",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 213,
+   "n_rep1": 107,
+   "n_rep2": 106
+  },
+  {
+   "condition": "A549|AR-42|100",
+   "drug": "AR-42",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 228,
+   "n_rep1": 104,
+   "n_rep2": 124
+  },
+  {
+   "condition": "A549|AR-42|1000",
+   "drug": "AR-42",
+   "dose_nM": 1000.0,
+   "split": "val",
+   "n_cells": 168,
+   "n_rep1": 66,
+   "n_rep2": 102
+  },
+  {
+   "condition": "A549|AR-42|10000",
+   "drug": "AR-42",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 122,
+   "n_rep1": 49,
+   "n_rep2": 73
+  },
+  {
+   "condition": "A549|Abexinostat (PCI-24781)|10",
+   "drug": "Abexinostat (PCI-24781)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 208,
+   "n_rep1": 81,
+   "n_rep2": 127
+  },
+  {
+   "condition": "A549|Abexinostat (PCI-24781)|100",
+   "drug": "Abexinostat (PCI-24781)",
+   "dose_nM": 100.0,
+   "split": "test",
+   "n_cells": 209,
+   "n_rep1": 82,
+   "n_rep2": 127
+  },
+  {
+   "condition": "A549|Abexinostat (PCI-24781)|1000",
+   "drug": "Abexinostat (PCI-24781)",
+   "dose_nM": 1000.0,
+   "split": "train",
+   "n_cells": 198,
+   "n_rep1": 74,
+   "n_rep2": 124
+  },
+  {
+   "condition": "A549|Abexinostat (PCI-24781)|10000",
+   "drug": "Abexinostat (PCI-24781)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 157,
+   "n_rep1": 52,
+   "n_rep2": 105
+  },
+  {
+   "condition": "A549|Belinostat (PXD101)|10",
+   "drug": "Belinostat (PXD101)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 190,
+   "n_rep1": 67,
+   "n_rep2": 123
+  },
+  {
+   "condition": "A549|Belinostat (PXD101)|100",
+   "drug": "Belinostat (PXD101)",
+   "dose_nM": 100.0,
+   "split": "val",
+   "n_cells": 239,
+   "n_rep1": 94,
+   "n_rep2": 145
+  },
+  {
+   "condition": "A549|Belinostat (PXD101)|1000",
+   "drug": "Belinostat (PXD101)",
+   "dose_nM": 1000.0,
+   "split": "train",
+   "n_cells": 209,
+   "n_rep1": 67,
+   "n_rep2": 142
+  },
+  {
+   "condition": "A549|Belinostat (PXD101)|10000",
+   "drug": "Belinostat (PXD101)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 106,
+   "n_rep1": 38,
+   "n_rep2": 68
+  },
+  {
+   "condition": "A549|CUDC-101|10",
+   "drug": "CUDC-101",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 271,
+   "n_rep1": 99,
+   "n_rep2": 172
+  },
+  {
+   "condition": "A549|CUDC-101|100",
+   "drug": "CUDC-101",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 223,
+   "n_rep1": 109,
+   "n_rep2": 114
+  },
+  {
+   "condition": "A549|CUDC-101|1000",
+   "drug": "CUDC-101",
+   "dose_nM": 1000.0,
+   "split": "test",
+   "n_cells": 216,
+   "n_rep1": 76,
+   "n_rep2": 140
+  },
+  {
+   "condition": "A549|CUDC-101|10000",
+   "drug": "CUDC-101",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 157,
+   "n_rep1": 77,
+   "n_rep2": 80
+  },
+  {
+   "condition": "A549|CUDC-907|10",
+   "drug": "CUDC-907",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 220,
+   "n_rep1": 89,
+   "n_rep2": 131
+  },
+  {
+   "condition": "A549|CUDC-907|100",
+   "drug": "CUDC-907",
+   "dose_nM": 100.0,
+   "split": "test",
+   "n_cells": 175,
+   "n_rep1": 82,
+   "n_rep2": 93
+  },
+  {
+   "condition": "A549|CUDC-907|1000",
+   "drug": "CUDC-907",
+   "dose_nM": 1000.0,
+   "split": "train",
+   "n_cells": 165,
+   "n_rep1": 71,
+   "n_rep2": 94
+  },
+  {
+   "condition": "A549|CUDC-907|10000",
+   "drug": "CUDC-907",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 70,
+   "n_rep1": 22,
+   "n_rep2": 48
+  },
+  {
+   "condition": "A549|Dacinostat (LAQ824)|10",
+   "drug": "Dacinostat (LAQ824)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 231,
+   "n_rep1": 88,
+   "n_rep2": 143
+  },
+  {
+   "condition": "A549|Dacinostat (LAQ824)|100",
+   "drug": "Dacinostat (LAQ824)",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 175,
+   "n_rep1": 62,
+   "n_rep2": 113
+  },
+  {
+   "condition": "A549|Dacinostat (LAQ824)|1000",
+   "drug": "Dacinostat (LAQ824)",
+   "dose_nM": 1000.0,
+   "split": "test",
+   "n_cells": 115,
+   "n_rep1": 39,
+   "n_rep2": 76
+  },
+  {
+   "condition": "A549|Dacinostat (LAQ824)|10000",
+   "drug": "Dacinostat (LAQ824)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 108,
+   "n_rep1": 34,
+   "n_rep2": 74
+  },
+  {
+   "condition": "A549|Divalproex Sodium|10",
+   "drug": "Divalproex Sodium",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 184,
+   "n_rep1": 46,
+   "n_rep2": 138
+  },
+  {
+   "condition": "A549|Divalproex Sodium|100",
+   "drug": "Divalproex Sodium",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 220,
+   "n_rep1": 89,
+   "n_rep2": 131
+  },
+  {
+   "condition": "A549|Divalproex Sodium|1000",
+   "drug": "Divalproex Sodium",
+   "dose_nM": 1000.0,
+   "split": "test",
+   "n_cells": 134,
+   "n_rep1": 30,
+   "n_rep2": 104
+  },
+  {
+   "condition": "A549|Divalproex Sodium|10000",
+   "drug": "Divalproex Sodium",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 171,
+   "n_rep1": 23,
+   "n_rep2": 148
+  },
+  {
+   "condition": "A549|Droxinostat|10",
+   "drug": "Droxinostat",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 283,
+   "n_rep1": 104,
+   "n_rep2": 179
+  },
+  {
+   "condition": "A549|Droxinostat|100",
+   "drug": "Droxinostat",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 276,
+   "n_rep1": 116,
+   "n_rep2": 160
+  },
+  {
+   "condition": "A549|Droxinostat|1000",
+   "drug": "Droxinostat",
+   "dose_nM": 1000.0,
+   "split": "val",
+   "n_cells": 256,
+   "n_rep1": 106,
+   "n_rep2": 150
+  },
+  {
+   "condition": "A549|Droxinostat|10000",
+   "drug": "Droxinostat",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 242,
+   "n_rep1": 94,
+   "n_rep2": 148
+  },
+  {
+   "condition": "A549|Entinostat (MS-275)|10",
+   "drug": "Entinostat (MS-275)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 293,
+   "n_rep1": 127,
+   "n_rep2": 166
+  },
+  {
+   "condition": "A549|Entinostat (MS-275)|100",
+   "drug": "Entinostat (MS-275)",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 247,
+   "n_rep1": 136,
+   "n_rep2": 111
+  },
+  {
+   "condition": "A549|Entinostat (MS-275)|1000",
+   "drug": "Entinostat (MS-275)",
+   "dose_nM": 1000.0,
+   "split": "test",
+   "n_cells": 265,
+   "n_rep1": 123,
+   "n_rep2": 142
+  },
+  {
+   "condition": "A549|Entinostat (MS-275)|10000",
+   "drug": "Entinostat (MS-275)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 213,
+   "n_rep1": 106,
+   "n_rep2": 107
+  },
+  {
+   "condition": "A549|Givinostat (ITF2357)|10",
+   "drug": "Givinostat (ITF2357)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 205,
+   "n_rep1": 88,
+   "n_rep2": 117
+  },
+  {
+   "condition": "A549|Givinostat (ITF2357)|100",
+   "drug": "Givinostat (ITF2357)",
+   "dose_nM": 100.0,
+   "split": "val",
+   "n_cells": 213,
+   "n_rep1": 90,
+   "n_rep2": 123
+  },
+  {
+   "condition": "A549|Givinostat (ITF2357)|1000",
+   "drug": "Givinostat (ITF2357)",
+   "dose_nM": 1000.0,
+   "split": "train",
+   "n_cells": 219,
+   "n_rep1": 93,
+   "n_rep2": 126
+  },
+  {
+   "condition": "A549|Givinostat (ITF2357)|10000",
+   "drug": "Givinostat (ITF2357)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 148,
+   "n_rep1": 43,
+   "n_rep2": 105
+  },
+  {
+   "condition": "A549|ITSA-1 (ITSA1)|10",
+   "drug": "ITSA-1 (ITSA1)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 167,
+   "n_rep1": 63,
+   "n_rep2": 104
+  },
+  {
+   "condition": "A549|ITSA-1 (ITSA1)|100",
+   "drug": "ITSA-1 (ITSA1)",
+   "dose_nM": 100.0,
+   "split": "test",
+   "n_cells": 196,
+   "n_rep1": 44,
+   "n_rep2": 152
+  },
+  {
+   "condition": "A549|ITSA-1 (ITSA1)|1000",
+   "drug": "ITSA-1 (ITSA1)",
+   "dose_nM": 1000.0,
+   "split": "train",
+   "n_cells": 187,
+   "n_rep1": 87,
+   "n_rep2": 100
+  },
+  {
+   "condition": "A549|ITSA-1 (ITSA1)|10000",
+   "drug": "ITSA-1 (ITSA1)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 218,
+   "n_rep1": 76,
+   "n_rep2": 142
+  },
+  {
+   "condition": "A549|M344|10",
+   "drug": "M344",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 252,
+   "n_rep1": 101,
+   "n_rep2": 151
+  },
+  {
+   "condition": "A549|M344|100",
+   "drug": "M344",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 218,
+   "n_rep1": 74,
+   "n_rep2": 144
+  },
+  {
+   "condition": "A549|M344|1000",
+   "drug": "M344",
+   "dose_nM": 1000.0,
+   "split": "val",
+   "n_cells": 225,
+   "n_rep1": 108,
+   "n_rep2": 117
+  },
+  {
+   "condition": "A549|M344|10000",
+   "drug": "M344",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 165,
+   "n_rep1": 59,
+   "n_rep2": 106
+  },
+  {
+   "condition": "A549|MC1568|10",
+   "drug": "MC1568",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 207,
+   "n_rep1": 64,
+   "n_rep2": 143
+  },
+  {
+   "condition": "A549|MC1568|100",
+   "drug": "MC1568",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 208,
+   "n_rep1": 57,
+   "n_rep2": 151
+  },
+  {
+   "condition": "A549|MC1568|1000",
+   "drug": "MC1568",
+   "dose_nM": 1000.0,
+   "split": "test",
+   "n_cells": 231,
+   "n_rep1": 82,
+   "n_rep2": 149
+  },
+  {
+   "condition": "A549|MC1568|10000",
+   "drug": "MC1568",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 162,
+   "n_rep1": 44,
+   "n_rep2": 118
+  },
+  {
+   "condition": "A549|Mocetinostat (MGCD0103)|10",
+   "drug": "Mocetinostat (MGCD0103)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 140,
+   "n_rep1": 38,
+   "n_rep2": 102
+  },
+  {
+   "condition": "A549|Mocetinostat (MGCD0103)|100",
+   "drug": "Mocetinostat (MGCD0103)",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 204,
+   "n_rep1": 68,
+   "n_rep2": 136
+  },
+  {
+   "condition": "A549|Mocetinostat (MGCD0103)|1000",
+   "drug": "Mocetinostat (MGCD0103)",
+   "dose_nM": 1000.0,
+   "split": "val",
+   "n_cells": 209,
+   "n_rep1": 63,
+   "n_rep2": 146
+  },
+  {
+   "condition": "A549|Mocetinostat (MGCD0103)|10000",
+   "drug": "Mocetinostat (MGCD0103)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 146,
+   "n_rep1": 62,
+   "n_rep2": 84
+  },
+  {
+   "condition": "A549|PCI-34051|10",
+   "drug": "PCI-34051",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 196,
+   "n_rep1": 59,
+   "n_rep2": 137
+  },
+  {
+   "condition": "A549|PCI-34051|100",
+   "drug": "PCI-34051",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 217,
+   "n_rep1": 63,
+   "n_rep2": 154
+  },
+  {
+   "condition": "A549|PCI-34051|1000",
+   "drug": "PCI-34051",
+   "dose_nM": 1000.0,
+   "split": "test",
+   "n_cells": 195,
+   "n_rep1": 72,
+   "n_rep2": 123
+  },
+  {
+   "condition": "A549|PCI-34051|10000",
+   "drug": "PCI-34051",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 149,
+   "n_rep1": 55,
+   "n_rep2": 94
+  },
+  {
+   "condition": "A549|Panobinostat (LBH589)|10",
+   "drug": "Panobinostat (LBH589)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 225,
+   "n_rep1": 83,
+   "n_rep2": 142
+  },
+  {
+   "condition": "A549|Panobinostat (LBH589)|100",
+   "drug": "Panobinostat (LBH589)",
+   "dose_nM": 100.0,
+   "split": "test",
+   "n_cells": 130,
+   "n_rep1": 53,
+   "n_rep2": 77
+  },
+  {
+   "condition": "A549|Panobinostat (LBH589)|1000",
+   "drug": "Panobinostat (LBH589)",
+   "dose_nM": 1000.0,
+   "split": "train",
+   "n_cells": 113,
+   "n_rep1": 39,
+   "n_rep2": 74
+  },
+  {
+   "condition": "A549|Panobinostat (LBH589)|10000",
+   "drug": "Panobinostat (LBH589)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 139,
+   "n_rep1": 49,
+   "n_rep2": 90
+  },
+  {
+   "condition": "A549|Pracinostat (SB939)|10",
+   "drug": "Pracinostat (SB939)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 215,
+   "n_rep1": 71,
+   "n_rep2": 144
+  },
+  {
+   "condition": "A549|Pracinostat (SB939)|100",
+   "drug": "Pracinostat (SB939)",
+   "dose_nM": 100.0,
+   "split": "test",
+   "n_cells": 193,
+   "n_rep1": 64,
+   "n_rep2": 129
+  },
+  {
+   "condition": "A549|Pracinostat (SB939)|1000",
+   "drug": "Pracinostat (SB939)",
+   "dose_nM": 1000.0,
+   "split": "train",
+   "n_cells": 212,
+   "n_rep1": 72,
+   "n_rep2": 140
+  },
+  {
+   "condition": "A549|Pracinostat (SB939)|10000",
+   "drug": "Pracinostat (SB939)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 133,
+   "n_rep1": 33,
+   "n_rep2": 100
+  },
+  {
+   "condition": "A549|Quisinostat (JNJ-26481585) 2HCl|10",
+   "drug": "Quisinostat (JNJ-26481585) 2HCl",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 185,
+   "n_rep1": 69,
+   "n_rep2": 116
+  },
+  {
+   "condition": "A549|Quisinostat (JNJ-26481585) 2HCl|100",
+   "drug": "Quisinostat (JNJ-26481585) 2HCl",
+   "dose_nM": 100.0,
+   "split": "test",
+   "n_cells": 144,
+   "n_rep1": 64,
+   "n_rep2": 80
+  },
+  {
+   "condition": "A549|Quisinostat (JNJ-26481585) 2HCl|1000",
+   "drug": "Quisinostat (JNJ-26481585) 2HCl",
+   "dose_nM": 1000.0,
+   "split": "train",
+   "n_cells": 104,
+   "n_rep1": 31,
+   "n_rep2": 73
+  },
+  {
+   "condition": "A549|Quisinostat (JNJ-26481585) 2HCl|10000",
+   "drug": "Quisinostat (JNJ-26481585) 2HCl",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 113,
+   "n_rep1": 30,
+   "n_rep2": 83
+  },
+  {
+   "condition": "A549|Resminostat|10",
+   "drug": "Resminostat",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 220,
+   "n_rep1": 84,
+   "n_rep2": 136
+  },
+  {
+   "condition": "A549|Resminostat|100",
+   "drug": "Resminostat",
+   "dose_nM": 100.0,
+   "split": "test",
+   "n_cells": 231,
+   "n_rep1": 86,
+   "n_rep2": 145
+  },
+  {
+   "condition": "A549|Resminostat|1000",
+   "drug": "Resminostat",
+   "dose_nM": 1000.0,
+   "split": "train",
+   "n_cells": 211,
+   "n_rep1": 101,
+   "n_rep2": 110
+  },
+  {
+   "condition": "A549|Resminostat|10000",
+   "drug": "Resminostat",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 179,
+   "n_rep1": 62,
+   "n_rep2": 117
+  },
+  {
+   "condition": "A549|Sodium Phenylbutyrate|10",
+   "drug": "Sodium Phenylbutyrate",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 278,
+   "n_rep1": 99,
+   "n_rep2": 179
+  },
+  {
+   "condition": "A549|Sodium Phenylbutyrate|100",
+   "drug": "Sodium Phenylbutyrate",
+   "dose_nM": 100.0,
+   "split": "test",
+   "n_cells": 237,
+   "n_rep1": 91,
+   "n_rep2": 146
+  },
+  {
+   "condition": "A549|Sodium Phenylbutyrate|1000",
+   "drug": "Sodium Phenylbutyrate",
+   "dose_nM": 1000.0,
+   "split": "train",
+   "n_cells": 260,
+   "n_rep1": 107,
+   "n_rep2": 153
+  },
+  {
+   "condition": "A549|Sodium Phenylbutyrate|10000",
+   "drug": "Sodium Phenylbutyrate",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 281,
+   "n_rep1": 131,
+   "n_rep2": 150
+  },
+  {
+   "condition": "A549|TMP195|10",
+   "drug": "TMP195",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 191,
+   "n_rep1": 60,
+   "n_rep2": 131
+  },
+  {
+   "condition": "A549|TMP195|100",
+   "drug": "TMP195",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 154,
+   "n_rep1": 34,
+   "n_rep2": 120
+  },
+  {
+   "condition": "A549|TMP195|1000",
+   "drug": "TMP195",
+   "dose_nM": 1000.0,
+   "split": "val",
+   "n_cells": 199,
+   "n_rep1": 61,
+   "n_rep2": 138
+  },
+  {
+   "condition": "A549|TMP195|10000",
+   "drug": "TMP195",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 186,
+   "n_rep1": 31,
+   "n_rep2": 155
+  },
+  {
+   "condition": "A549|Tacedinaline (CI994)|10",
+   "drug": "Tacedinaline (CI994)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 236,
+   "n_rep1": 96,
+   "n_rep2": 140
+  },
+  {
+   "condition": "A549|Tacedinaline (CI994)|100",
+   "drug": "Tacedinaline (CI994)",
+   "dose_nM": 100.0,
+   "split": "val",
+   "n_cells": 256,
+   "n_rep1": 98,
+   "n_rep2": 158
+  },
+  {
+   "condition": "A549|Tacedinaline (CI994)|1000",
+   "drug": "Tacedinaline (CI994)",
+   "dose_nM": 1000.0,
+   "split": "train",
+   "n_cells": 226,
+   "n_rep1": 80,
+   "n_rep2": 146
+  },
+  {
+   "condition": "A549|Tacedinaline (CI994)|10000",
+   "drug": "Tacedinaline (CI994)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 238,
+   "n_rep1": 95,
+   "n_rep2": 143
+  },
+  {
+   "condition": "A549|Trichostatin A (TSA)|10",
+   "drug": "Trichostatin A (TSA)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 271,
+   "n_rep1": 103,
+   "n_rep2": 168
+  },
+  {
+   "condition": "A549|Trichostatin A (TSA)|100",
+   "drug": "Trichostatin A (TSA)",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 227,
+   "n_rep1": 88,
+   "n_rep2": 139
+  },
+  {
+   "condition": "A549|Trichostatin A (TSA)|1000",
+   "drug": "Trichostatin A (TSA)",
+   "dose_nM": 1000.0,
+   "split": "test",
+   "n_cells": 215,
+   "n_rep1": 87,
+   "n_rep2": 128
+  },
+  {
+   "condition": "A549|Trichostatin A (TSA)|10000",
+   "drug": "Trichostatin A (TSA)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 170,
+   "n_rep1": 63,
+   "n_rep2": 107
+  },
+  {
+   "condition": "A549|Tubastatin A HCl|10",
+   "drug": "Tubastatin A HCl",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 262,
+   "n_rep1": 101,
+   "n_rep2": 161
+  },
+  {
+   "condition": "A549|Tubastatin A HCl|100",
+   "drug": "Tubastatin A HCl",
+   "dose_nM": 100.0,
+   "split": "val",
+   "n_cells": 269,
+   "n_rep1": 117,
+   "n_rep2": 152
+  },
+  {
+   "condition": "A549|Tubastatin A HCl|1000",
+   "drug": "Tubastatin A HCl",
+   "dose_nM": 1000.0,
+   "split": "train",
+   "n_cells": 244,
+   "n_rep1": 96,
+   "n_rep2": 148
+  },
+  {
+   "condition": "A549|Tubastatin A HCl|10000",
+   "drug": "Tubastatin A HCl",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 268,
+   "n_rep1": 101,
+   "n_rep2": 167
+  },
+  {
+   "condition": "A549|Tucidinostat (Chidamide)|10",
+   "drug": "Tucidinostat (Chidamide)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 210,
+   "n_rep1": 64,
+   "n_rep2": 146
+  },
+  {
+   "condition": "A549|Tucidinostat (Chidamide)|100",
+   "drug": "Tucidinostat (Chidamide)",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 130,
+   "n_rep1": 45,
+   "n_rep2": 85
+  },
+  {
+   "condition": "A549|Tucidinostat (Chidamide)|1000",
+   "drug": "Tucidinostat (Chidamide)",
+   "dose_nM": 1000.0,
+   "split": "test",
+   "n_cells": 221,
+   "n_rep1": 69,
+   "n_rep2": 152
+  },
+  {
+   "condition": "A549|Tucidinostat (Chidamide)|10000",
+   "drug": "Tucidinostat (Chidamide)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 194,
+   "n_rep1": 39,
+   "n_rep2": 155
+  },
+  {
+   "condition": "A549|Valproic acid sodium salt (Sodium valproate)|10",
+   "drug": "Valproic acid sodium salt (Sodium valproate)",
+   "dose_nM": 10.0,
+   "split": "train",
+   "n_cells": 255,
+   "n_rep1": 113,
+   "n_rep2": 142
+  },
+  {
+   "condition": "A549|Valproic acid sodium salt (Sodium valproate)|100",
+   "drug": "Valproic acid sodium salt (Sodium valproate)",
+   "dose_nM": 100.0,
+   "split": "train",
+   "n_cells": 221,
+   "n_rep1": 123,
+   "n_rep2": 98
+  },
+  {
+   "condition": "A549|Valproic acid sodium salt (Sodium valproate)|1000",
+   "drug": "Valproic acid sodium salt (Sodium valproate)",
+   "dose_nM": 1000.0,
+   "split": "test",
+   "n_cells": 247,
+   "n_rep1": 129,
+   "n_rep2": 118
+  },
+  {
+   "condition": "A549|Valproic acid sodium salt (Sodium valproate)|10000",
+   "drug": "Valproic acid sodium salt (Sodium valproate)",
+   "dose_nM": 10000.0,
+   "split": "train",
+   "n_cells": 286,
+   "n_rep1": 136,
+   "n_rep2": 150
+  }
+ ]
+}

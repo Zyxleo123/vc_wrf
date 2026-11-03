@@ -1,0 +1,24 @@
+{
+  "choices": {
+    "0": {
+      "checkpoint": {
+        "trial": "wrf_l0p1_h0p3",
+        "seed": 0,
+        "step": 20000,
+        "selection_keys": [
+          "wrf_err_pp_q0.95",
+          "w1_r"
+        ],
+        "selection_scores": [
+          5.329405513339669,
+          0.4069292405916136
+        ],
+        "selected_on": "validation only",
+        "test_evaluated": false
+      },
+      "model_sha256": "2579981625eb5d63a15ad1ecd034fa2670a1253ef63e66941d34063d35da2214"
+    }
+  },
+  "config_sha256": "34882a38854289268d44d335d036fde1cb294362727f6d4e628ff753d7381c88",
+  "protocol_sha256": "5e966018f8fab38ce71051f932476920461af50938befd01504962853858467c"
+}
