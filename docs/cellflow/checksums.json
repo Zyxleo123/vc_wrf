@@ -1,0 +1,20 @@
+{
+  "artifacts/eval_spec_v1/arrays.npz": "b2ba491630975785ab0a5ab7c63a83013bfd4bbf88ddfefdda5a5cf239860542",
+  "artifacts/eval_spec_v1/pilot.json": "0f6bac03e5d39d7710948d712f2937db78af4c746f0594b114e941692627dea4",
+  "artifacts/eval_spec_v1/spec.json": "68d1d06c661dcbaff02eb59887892a3f10897f6e212fb46d0d4812dfc7d93774",
+  "configs/eval_grid13_v1.json": "e70c25b98588910e987f8526b45ce7c5d818351a5413f24aa256e1a08f60759b",
+  "configs/split_v1.json": "42d8b919cbdec837af932678dc7b57686fa0ad25b9b0dad9f1c0bb0bf3061541",
+  "docs/cellflow/comparison.csv": "71175fb448c174968055fbfaa1e134c4b0c64378f2181648a4a4b5eb5870ab4f",
+  "docs/cellflow/metrics.csv": "5ef9422c47e7033b365665d701957fa818c869d3125160b47e196c208684141f",
+  "docs/cellflow/paired_differences.csv": "454c23444e741c061f886ab2f368174943635bdcc8bcc11236df6281d56190b2",
+  "docs/cellflow/per_condition.csv": "3f8aa115153d4bc96190dd40fdff1e807e20cad16e1ec661544e3ec6f1d426fa",
+  "docs/cellflow/per_seed.csv": "637b522c50e42178ff9ea24a58abc86148ac3f89d4e2cc17b73d389a013190a7",
+  "docs/cellflow/thresholds.csv": "62c7e249d33a9d256d58c64077a63d6dd7a7cf8d35f570ae33d26fb8012e29a0",
+  "experiments/cellflow/config_13.json": "bb52a5c9ea9889bb8e2614223d28329d28bd8ec6c988742d36855e4af54cc3ee",
+  "experiments/cellflow/config_3.json": "3aba7df3bc13e8d25e33dee556f589334a15a8ef8855e2a5a5d31da7b1978014",
+  "sciplex_eval/__init__.py": "ee1d035005aa909d3fbaab2050b1ae79d636d733984ecb96f57b4b0641a3607d",
+  "sciplex_eval/evaluate.py": "38369c15b66c221387b162eeacf47f29f8309381cc99ba62f60749938fa655ab",
+  "sciplex_eval/metrics.py": "d2c68a246c2e2c36fd244d5a86dc28b40dcfe74bf7b1c8ec16be76e6bb0a8c86",
+  "sciplex_eval/programs.py": "c9bdfcb284daf2015cc7b49fa0b8062f7eb0614fccc2a345b1f1656ac3a8028a",
+  "sciplex_eval/spec.py": "3b9f559790e3c9a0e0bce13684e1b9913d887eedf3c1c25b9587ee547ef59bc0"
+}

@@ -1,0 +1,127 @@
+{
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "test_conditions": 17,
+  "generated_cells_per_condition": 512,
+  "selection": [
+    "validation WRF q=.95",
+    "validation response W1"
+  ],
+  "selected_models": [
+    {
+      "method": "cellflow",
+      "seed": 0,
+      "selected_step": 1000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/cellflow/seed_0/best_CellFlow.pkl",
+      "sha256": "04e47a5dcc01ffcd54426bc479334876a79f37fcc44eee34f345084b8458538a"
+    },
+    {
+      "method": "cellflow",
+      "seed": 1,
+      "selected_step": 1000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/cellflow/seed_1/best_CellFlow.pkl",
+      "sha256": "78797e8a6a1f7b6001e45ced37aa286e2d1ac94fbb9eb725cdafda3c72ee7cba"
+    },
+    {
+      "method": "cellflow",
+      "seed": 2,
+      "selected_step": 2000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/cellflow/seed_2/best_CellFlow.pkl",
+      "sha256": "83acf63ff53e3bca15630f8e654f1ad036baf4b3616f91c9c595630d40644f5d"
+    },
+    {
+      "method": "cellflow_mmd",
+      "seed": 0,
+      "selected_step": 30000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/mmd_l1/seed_0/best_CellFlow.pkl",
+      "sha256": "4be4b3a8b0fd85c0aed76e11be7748b91dec4f36ecfa508be69c8ed746737f7f"
+    },
+    {
+      "method": "cellflow_mmd",
+      "seed": 1,
+      "selected_step": 10000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/mmd_l1/seed_1/best_CellFlow.pkl",
+      "sha256": "1f47eb5909b0048bdbc9c72babc2d3973ac7affab3d7b6f48a8a9eb2bfb08a1d"
+    },
+    {
+      "method": "cellflow_mmd",
+      "seed": 2,
+      "selected_step": 10000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/mmd_l1/seed_2/best_CellFlow.pkl",
+      "sha256": "c362e319917108f52d5f016dbdc3c705bb5fb4d9febb537081e35332097e7250"
+    },
+    {
+      "method": "cellflow_wrf",
+      "seed": 0,
+      "selected_step": 5000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run3/trials/wrf_l0p1_h0p3/seed_0/best_CellFlow.pkl",
+      "sha256": "55a9466c46f57d93df52e730737b0ff82dcea1cd880eb25630c769ca6a24fead"
+    },
+    {
+      "method": "cellflow_wrf",
+      "seed": 1,
+      "selected_step": 30000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run3/trials/wrf_l0p1_h0p3/seed_1/best_CellFlow.pkl",
+      "sha256": "ce1aea9b38a95e52668d340b36de4b82c982bdbe3715af3c062aee0ab883a6ac"
+    },
+    {
+      "method": "cellflow_wrf",
+      "seed": 2,
+      "selected_step": 10000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run3/trials/wrf_l0p1_h0p3/seed_2/best_CellFlow.pkl",
+      "sha256": "1c6a6e0438362477495e0d57d60e2e2971e7446946414e55a337321db8bbb3ac"
+    },
+    {
+      "method": "cellflow_wrf13",
+      "seed": 0,
+      "selected_step": 20000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run13/trials/wrf_l0p1_h0p3/seed_0/best_CellFlow.pkl",
+      "sha256": "85ca8acd9080bf760a67d4a67bbb8a9fc819ae842da4d334b92df7d26ac16344"
+    },
+    {
+      "method": "cellflow_wrf13",
+      "seed": 1,
+      "selected_step": 10000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run13/trials/wrf_l0p1_h0p3/seed_1/best_CellFlow.pkl",
+      "sha256": "912e279aaa3e69395e87b1cbf6cb4ba2f55dc5fcfcc8bee124812c1bf5054329"
+    },
+    {
+      "method": "cellflow_wrf13",
+      "seed": 2,
+      "selected_step": 10000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run13/trials/wrf_l0p1_h0p3/seed_2/best_CellFlow.pkl",
+      "sha256": "9a493cb0205f2212ded796cf9fe597eef60cc76d029f1f64bbbf44745f8cbc1f"
+    }
+  ],
+  "wrf_weight": 0.1,
+  "wrf_smoothing": 0.3,
+  "wrf_precision": "float64 auxiliary; float32 base loss, parameters and optimizer",
+  "mmd_precision": "float32",
+  "wrf_checkpoint_steps": [
+    5000,
+    10000,
+    20000,
+    30000
+  ],
+  "standard_checkpoint_steps": [
+    500,
+    1000,
+    2000,
+    3000,
+    5000,
+    10000,
+    20000,
+    30000
+  ],
+  "prediction_steps": 64,
+  "auxiliary_steps": 8,
+  "exploratory": true,
+  "limitations": [
+    "Auxiliary 8-step integration accuracy is not established.",
+    "q=.975 lies at the zero-program-count boundary.",
+    "chemCPA uses different generation, selection and 13-threshold seed aggregation."
+  ]
+}

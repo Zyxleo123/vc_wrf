@@ -5,6 +5,10 @@ Every baseline (nearest-dose, adjacent-dose mixtures, WRF regression, scVIDR, FM
 FM+fraction loss, ...) is scored by the same code against the same frozen spec:
 `sciplex_eval` + `artifacts/eval_spec_v1`.
 
+## Results
+
+[Baseline index](docs/baselines/README.md) · [CellFlow results](docs/cellflow/README.md)
+
 ## Setup
 
 ```bash
