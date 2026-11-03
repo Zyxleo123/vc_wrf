@@ -1,0 +1,297 @@
+{
+  "panel_sha256": "8d07db08aa0323b35b65f2e2742492ac1c71d291e27f6bdce733cacb701cf8ff",
+  "panel_relative_path": "processed/a549_hdaci_v1.h5ad",
+  "evaluation_commit": "1d8b173f8d4120c8ba4487d7e03511b26e7a71ad",
+  "models": [
+    {
+      "method": "cellflow",
+      "seed": 0,
+      "selected_step": 1000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/cellflow/seed_0/best_CellFlow.pkl",
+      "sha256": "04e47a5dcc01ffcd54426bc479334876a79f37fcc44eee34f345084b8458538a"
+    },
+    {
+      "method": "cellflow",
+      "seed": 1,
+      "selected_step": 1000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/cellflow/seed_1/best_CellFlow.pkl",
+      "sha256": "78797e8a6a1f7b6001e45ced37aa286e2d1ac94fbb9eb725cdafda3c72ee7cba"
+    },
+    {
+      "method": "cellflow",
+      "seed": 2,
+      "selected_step": 2000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/cellflow/seed_2/best_CellFlow.pkl",
+      "sha256": "83acf63ff53e3bca15630f8e654f1ad036baf4b3616f91c9c595630d40644f5d"
+    },
+    {
+      "method": "cellflow_mmd",
+      "seed": 0,
+      "selected_step": 30000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/mmd_l1/seed_0/best_CellFlow.pkl",
+      "sha256": "4be4b3a8b0fd85c0aed76e11be7748b91dec4f36ecfa508be69c8ed746737f7f"
+    },
+    {
+      "method": "cellflow_mmd",
+      "seed": 1,
+      "selected_step": 10000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/mmd_l1/seed_1/best_CellFlow.pkl",
+      "sha256": "1f47eb5909b0048bdbc9c72babc2d3973ac7affab3d7b6f48a8a9eb2bfb08a1d"
+    },
+    {
+      "method": "cellflow_mmd",
+      "seed": 2,
+      "selected_step": 10000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/mmd_l1/seed_2/best_CellFlow.pkl",
+      "sha256": "c362e319917108f52d5f016dbdc3c705bb5fb4d9febb537081e35332097e7250"
+    },
+    {
+      "method": "cellflow_wrf",
+      "seed": 0,
+      "selected_step": 5000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run3/trials/wrf_l0p1_h0p3/seed_0/best_CellFlow.pkl",
+      "sha256": "55a9466c46f57d93df52e730737b0ff82dcea1cd880eb25630c769ca6a24fead"
+    },
+    {
+      "method": "cellflow_wrf",
+      "seed": 1,
+      "selected_step": 30000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run3/trials/wrf_l0p1_h0p3/seed_1/best_CellFlow.pkl",
+      "sha256": "ce1aea9b38a95e52668d340b36de4b82c982bdbe3715af3c062aee0ab883a6ac"
+    },
+    {
+      "method": "cellflow_wrf",
+      "seed": 2,
+      "selected_step": 10000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run3/trials/wrf_l0p1_h0p3/seed_2/best_CellFlow.pkl",
+      "sha256": "1c6a6e0438362477495e0d57d60e2e2971e7446946414e55a337321db8bbb3ac"
+    },
+    {
+      "method": "cellflow_wrf13",
+      "seed": 0,
+      "selected_step": 20000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run13/trials/wrf_l0p1_h0p3/seed_0/best_CellFlow.pkl",
+      "sha256": "85ca8acd9080bf760a67d4a67bbb8a9fc819ae842da4d334b92df7d26ac16344"
+    },
+    {
+      "method": "cellflow_wrf13",
+      "seed": 1,
+      "selected_step": 10000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run13/trials/wrf_l0p1_h0p3/seed_1/best_CellFlow.pkl",
+      "sha256": "912e279aaa3e69395e87b1cbf6cb4ba2f55dc5fcfcc8bee124812c1bf5054329"
+    },
+    {
+      "method": "cellflow_wrf13",
+      "seed": 2,
+      "selected_step": 10000,
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run13/trials/wrf_l0p1_h0p3/seed_2/best_CellFlow.pkl",
+      "sha256": "9a493cb0205f2212ded796cf9fe597eef60cc76d029f1f64bbbf44745f8cbc1f"
+    }
+  ],
+  "predictions": [
+    {
+      "method": "cellflow",
+      "seed": 0,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/cellflow/seed_0/preds_val.h5ad",
+      "sha256": "9ca82ca0a268db782e2d4b30c5bae4a513fef95f3a4200b36b73573984bb70f4"
+    },
+    {
+      "method": "cellflow",
+      "seed": 0,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/cellflow/seed_0/preds_test.h5ad",
+      "sha256": "d12dc16f65a35af9fe67c430ac1a31600850c17491863492279abedec8cf5fa4"
+    },
+    {
+      "method": "cellflow",
+      "seed": 1,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/cellflow/seed_1/preds_val.h5ad",
+      "sha256": "8a270665d518cc47391e07cbe20a015b2336755a48061146e420f98be30fdb6c"
+    },
+    {
+      "method": "cellflow",
+      "seed": 1,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/cellflow/seed_1/preds_test.h5ad",
+      "sha256": "008e807c8374ffccdafce3184593f4951f978165c88c73f4cdd21d43f6912c61"
+    },
+    {
+      "method": "cellflow",
+      "seed": 2,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/cellflow/seed_2/preds_val.h5ad",
+      "sha256": "4c3e2c3f587969e55cbf49205604899b4b7a8fd489d2858b761e2b5531da6849"
+    },
+    {
+      "method": "cellflow",
+      "seed": 2,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/cellflow/seed_2/preds_test.h5ad",
+      "sha256": "caabe3e034bedb811200c76008d21893a891b7fa61632d2aba76c9bd24c8c449"
+    },
+    {
+      "method": "cellflow_wrf",
+      "seed": 0,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run3/trials/wrf_l0p1_h0p3/seed_0/preds_val.h5ad",
+      "sha256": "462b7694156d48c29badf821cedf80822685bb539c4d07900b1043dc3f9ce05a"
+    },
+    {
+      "method": "cellflow_wrf",
+      "seed": 0,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run3/trials/wrf_l0p1_h0p3/seed_0/preds_test.h5ad",
+      "sha256": "be9ca4b4540904a0aaf58aba2580b60c910f0be4c9c65b8655bc4f713962ed3b"
+    },
+    {
+      "method": "cellflow_wrf",
+      "seed": 1,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run3/trials/wrf_l0p1_h0p3/seed_1/preds_val.h5ad",
+      "sha256": "d49adc1c7d9afdbc0ce398b1dd5889bdd699f01a7f98461f527522953f284035"
+    },
+    {
+      "method": "cellflow_wrf",
+      "seed": 1,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run3/trials/wrf_l0p1_h0p3/seed_1/preds_test.h5ad",
+      "sha256": "f7b58958704b655d8985ad0d1129326e6b98eb1fb36f070bec5dae4723dd54ed"
+    },
+    {
+      "method": "cellflow_wrf",
+      "seed": 2,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run3/trials/wrf_l0p1_h0p3/seed_2/preds_val.h5ad",
+      "sha256": "cdb331038097d18bee863a28f01d088fef89384faec86a24d205967357d37882"
+    },
+    {
+      "method": "cellflow_wrf",
+      "seed": 2,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run3/trials/wrf_l0p1_h0p3/seed_2/preds_test.h5ad",
+      "sha256": "11592f740d514a00922d23a4ca58a249cb1a663d0f393d6557146b1c87e92da8"
+    },
+    {
+      "method": "cellflow_mmd",
+      "seed": 0,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/mmd_l1/seed_0/preds_val.h5ad",
+      "sha256": "664d2326421d4d3bef7db4c98737e5acb1807559387b49a809b57945b0329c4c"
+    },
+    {
+      "method": "cellflow_mmd",
+      "seed": 0,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/mmd_l1/seed_0/preds_test.h5ad",
+      "sha256": "c9b3ad9ddbd3c4536a286746009eff46fe8ae44ef7ecca68d72babd168fc2e20"
+    },
+    {
+      "method": "cellflow_mmd",
+      "seed": 1,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/mmd_l1/seed_1/preds_val.h5ad",
+      "sha256": "f42b29ac09966152643da3717c92728a7cda56377db5af126cdd67e9f5498f19"
+    },
+    {
+      "method": "cellflow_mmd",
+      "seed": 1,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/mmd_l1/seed_1/preds_test.h5ad",
+      "sha256": "413baec47e9c50e0497ff515193f6ff617e94554076e6f774bd51f55cb1caae4"
+    },
+    {
+      "method": "cellflow_mmd",
+      "seed": 2,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/mmd_l1/seed_2/preds_val.h5ad",
+      "sha256": "00be77a32901c24126fed9a6f3a5399b2daad3a4f5fe78a484d94a081a454d81"
+    },
+    {
+      "method": "cellflow_mmd",
+      "seed": 2,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/trials/mmd_l1/seed_2/preds_test.h5ad",
+      "sha256": "b29a455e7db7e998358de11f7f80d5c89d54fe6a9cd2a96761f6d24104f85d2c"
+    },
+    {
+      "method": "cellflow_wrf13",
+      "seed": 0,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run13/trials/wrf_l0p1_h0p3/seed_0/preds_val.h5ad",
+      "sha256": "85541798dea457127a18606330e311a0fa35d4219d088813220bc3190d23a3eb"
+    },
+    {
+      "method": "cellflow_wrf13",
+      "seed": 0,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run13/trials/wrf_l0p1_h0p3/seed_0/preds_test.h5ad",
+      "sha256": "e2c6102311581477d796919f42e694ac8319f3ec34e26eedc8ec99e3c4dd9694"
+    },
+    {
+      "method": "cellflow_wrf13",
+      "seed": 1,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run13/trials/wrf_l0p1_h0p3/seed_1/preds_val.h5ad",
+      "sha256": "0ae8d8da569f6a0cdf7c65f688ed53d434181be3444939d4f69710e9fa860c38"
+    },
+    {
+      "method": "cellflow_wrf13",
+      "seed": 1,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run13/trials/wrf_l0p1_h0p3/seed_1/preds_test.h5ad",
+      "sha256": "c346f552c8e7994f99f3a39c2923da1057751b24399b87a0755210dddabdd0de"
+    },
+    {
+      "method": "cellflow_wrf13",
+      "seed": 2,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run13/trials/wrf_l0p1_h0p3/seed_2/preds_val.h5ad",
+      "sha256": "6be519b0d52f23f99cac810b9d2cc11f69f8580af308c99e3a0785398c98d887"
+    },
+    {
+      "method": "cellflow_wrf13",
+      "seed": 2,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_q13_precision_repair_20261030/run13/trials/wrf_l0p1_h0p3/seed_2/preds_test.h5ad",
+      "sha256": "dc832b128f44b5ece0fbf5618d09f81de2a26538f5cd6cb62f49ca66fd311926"
+    },
+    {
+      "method": "unchanged_control",
+      "seed": 0,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/reference_predictions/unchanged_control_val.h5ad"
+    },
+    {
+      "method": "unchanged_control",
+      "seed": 0,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/reference_predictions/unchanged_control_test.h5ad"
+    },
+    {
+      "method": "nearest_dose",
+      "seed": 0,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/reference_predictions/nearest_dose_val.h5ad"
+    },
+    {
+      "method": "nearest_dose",
+      "seed": 0,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/reference_predictions/nearest_dose_test.h5ad"
+    },
+    {
+      "method": "adjacent_dose_mixture",
+      "seed": 0,
+      "split": "val",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/reference_predictions/adjacent_dose_mixture_val.h5ad"
+    },
+    {
+      "method": "adjacent_dose_mixture",
+      "seed": 0,
+      "split": "test",
+      "path": "/ocean/projects/cis260266p/shared/response-fraction/results/cellflow_vc_wrf_v1_50003709/reference_predictions/adjacent_dose_mixture_test.h5ad"
+    }
+  ]
+}

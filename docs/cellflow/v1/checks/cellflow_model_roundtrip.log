@@ -1,12 +1,0 @@
-[                                        ] | 0% Completed | 265.03 us[########################################] | 100% Completed | 101.03 ms
-[                                        ] | 0% Completed | 178.39 us[########################################] | 100% Completed | 101.09 ms
-[                                        ] | 0% Completed | 235.85 us[########################################] | 100% Completed | 100.57 ms
-SYNTHETIC_STEP 1 0.20022204518318176 elapsed 3.057689673267305
-SYNTHETIC_STEP 100 0.1978965550661087 elapsed 3.953839481808245
-SYNTHETIC_STEP 1000 0.13268940150737762 elapsed 11.897342142648995
-[                                        ] | 0% Completed | 299.32 us[########################################] | 100% Completed | 101.10 ms
-[                                        ] | 0% Completed | 148.02 us[########################################] | 100% Completed | 100.52 ms
-SYNTHETIC_CHECK_PASSED 20
-[                                        ] | 0% Completed | 180.40 us[########################################] | 100% Completed | 100.87 ms
-[                                        ] | 0% Completed | 163.02 us[########################################] | 100% Completed | 100.45 ms
-MODEL_SAVE_LOAD_PREDICTION_CHECK_PASSED 134863296

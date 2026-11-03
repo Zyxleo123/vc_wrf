@@ -1,13 +1,0 @@
-METRIC_PARITY_AND_GRADIENT_PASSED 0.009684205055236816 0.009684074815010879 0.05140827223658562
-[                                        ] | 0% Completed | 204.33 us[########################################] | 100% Completed | 101.10 ms
-[                                        ] | 0% Completed | 110.00 us[########################################] | 100% Completed | 101.03 ms
-[                                        ] | 0% Completed | 246.67 us[########################################] | 100% Completed | 100.60 ms
-SYNTHETIC_STEP 1 0.20022204518318176 elapsed 3.216962610371411
-SYNTHETIC_STEP 100 0.1978965550661087 elapsed 4.105826880782843
-SYNTHETIC_STEP 1000 0.13269592821598053 elapsed 11.992582488805056
-[                                        ] | 0% Completed | 254.08 us[########################################] | 100% Completed | 101.06 ms
-[                                        ] | 0% Completed | 192.42 us[########################################] | 100% Completed | 100.45 ms
-SYNTHETIC_CHECK_PASSED 20
-INACTIVE_AUX_MATCHES_BASELINE 0.13185186684131622
-POPULATION_LOSS_GPU_PASSED wrf 100_steps_seconds 3.79295193310827 auxiliary_loss_mean 0.0005666682100240906
-POPULATION_LOSS_GPU_PASSED mmd 100_steps_seconds 3.9594606468454003 auxiliary_loss_mean 0.0003454923629760742

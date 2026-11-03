@@ -1,17 +1,0 @@
-[                                        ] | 0% Completed | 362.74 us[########################################] | 100% Completed | 101.36 ms
-[                                        ] | 0% Completed | 225.79 us[###############                         ] | 38% Completed | 101.02 ms[########################################] | 100% Completed | 201.34 ms
-[                                        ] | 0% Completed | 214.83 us[########################################] | 100% Completed | 101.73 ms
-PROGRESS wrf_l0p1_h0p3 2 1 mean_loss 0.2795659005641937 seconds 8.5
-PROGRESS wrf_l0p1_h0p3 2 1000 mean_loss 0.28950402888655663 seconds 20.4
-PROGRESS wrf_l0p1_h0p3 2 2000 mean_loss 0.2829805971980095 seconds 32.3
-PROGRESS wrf_l0p1_h0p3 2 3000 mean_loss 0.2727813959568739 seconds 44.2
-Traceback (most recent call last):
-  File "/ocean/projects/cis260266p/ywang179/response-fraction/experiments/cellflow_q13_20261030/src/run_threshold_comparison.py", line 284, in <module>
-    train(args.run, args.baseline, args.seed)
-  File "/ocean/projects/cis260266p/ywang179/response-fraction/experiments/cellflow_q13_20261030/src/run_threshold_comparison.py", line 108, in train
-    base.train_seed(run, seed, TRIAL)
-  File "/ocean/projects/cis260266p/ywang179/response-fraction/experiments/cellflow_q13_20261030/src/run_cellflow_v1.py", line 276, in train_seed
-    assert np.isfinite(loss),(step,loss)
-           ^^^^^^^^^^^^^^^^^
-AssertionError: (3150, nan)
-srun: error: v025: task 0: Exited with exit code 1

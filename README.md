@@ -5,13 +5,9 @@ Every baseline (nearest-dose, adjacent-dose mixtures, WRF regression, scVIDR, FM
 FM+fraction loss, ...) is scored by the same code against the same frozen spec:
 `sciplex_eval` + `artifacts/eval_spec_v1`.
 
-## Team baselines and results
+## Results
 
-- [Baseline/run index](docs/baselines/README.md): completion status, code and result links.
-- [Collaboration and submission guide](CONTRIBUTING.md): separate baseline branches,
-  shared evaluation, per-seed reporting and shared-storage artifacts.
-- [CellFlow three-versus-thirteen-threshold results](docs/cellflow/q13_repair_20261030/README.md):
-  completed precision reruns, with the original and incomplete attempts preserved separately.
+[Baseline index](docs/baselines/README.md) · [CellFlow results](docs/cellflow/README.md)
 
 ## Setup
 
