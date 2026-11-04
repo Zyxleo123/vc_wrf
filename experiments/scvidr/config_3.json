@@ -1,0 +1,91 @@
+{
+  "experiment": "scvidr_population_loss_v1",
+  "evaluation_commit": "1d8b173f8d4120c8ba4487d7e03511b26e7a71ad",
+  "scvidr_repository": "https://github.com/BhattacharyaLab/scVIDR",
+  "scvidr_commit": "bcb6a96c85cddc4eef052be739c122efb737fe0e",
+  "spec_version": "v1",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "sample_representation": "all 2085 frozen evaluation genes in log1p(CP10K), without PCA compression",
+  "training_cells": "all train and permitted vehicle controls in frozen split_v1",
+  "batch_key": "drug_dose",
+  "labels_key": "cell_type, constant A549",
+  "hidden_dim": 800,
+  "latent_dim": 100,
+  "n_hidden_layers": 2,
+  "dropout_rate": 0.2,
+  "kl_weight": 5e-05,
+  "linear_decoder": false,
+  "max_epochs": 100,
+  "batch_size": 256,
+  "train_size": 0.8,
+  "early_stopping": false,
+  "early_stopping_patience": 25,
+  "optimizer": "scvi-tools 0.13 default Adam, learning rate 0.001, weight decay 1e-06, eps 0.01",
+  "validation_epochs": [
+    10,
+    25,
+    50,
+    75,
+    100
+  ],
+  "checkpoint_selection": [
+    "wrf_err_pp_q0.95",
+    "w1_r"
+  ],
+  "max_dose": 10000.0,
+  "dose_scaling": "log1p(dose_nM)/log1p(10000)",
+  "delta": "mean posterior latent of the drug's 10000 nM training cells minus mean posterior latent of all vehicle controls",
+  "regression": false,
+  "prediction_cells_per_condition": 512,
+  "prediction_source": "512 vehicle controls drawn without replacement per condition with numpy default_rng(10000 + seed)",
+  "prediction_decoder": "deterministic decoder mean px, module in eval mode",
+  "prediction_postprocessing": "clip negative predicted log-expression to zero; no renormalization or rounding",
+  "auxiliary_every": 5,
+  "auxiliary_start_epoch": 10,
+  "auxiliary_batch_size": 128,
+  "auxiliary_validation_epochs": [
+    25,
+    50,
+    75,
+    100
+  ],
+  "auxiliary_generation": "each active step samples one of the 78 training conditions; 128 vehicle cells are encoded to posterior means, shifted by delta*log1p(dose)/log1p(10000) with delta from 128 of the drug's 10000 nM cells minus 128 other vehicle cells, decoded in eval mode with gradients, and clipped at zero",
+  "auxiliary_target": "up to 128 measured cells of the sampled condition, held fixed (no gradient)",
+  "auxiliary_loss_scale": "weight multiplied by update frequency so expected auxiliary coefficient equals the named weight",
+  "loss_scale_note": "scVIDR base loss is about 106 per cell against about 0.22 for CellFlow flow matching, so the CellFlow weight grids are multiplied by about 486",
+  "wrf_weight_grid": [
+    5,
+    15,
+    50,
+    150
+  ],
+  "wrf_bandwidth_grid": [
+    0.1,
+    0.3
+  ],
+  "mmd_weight_grid": [
+    50,
+    500
+  ],
+  "fraction_loss_definition": "Mean squared difference of real and generated soft fractions sigmoid((tau - r)/h) over training_taus, float64.",
+  "mmd_loss_definition": "unbiased three-bandwidth RBF MMD squared in the frozen evaluation PCA space, float32",
+  "hyperparameter_selection": "seed 0 validation only; repeat the selected WRF and MMD settings with seeds 1 and 2; the 13-threshold run reuses the selected 3-threshold WRF setting",
+  "methods": [
+    "scvidr_wrf",
+    "scvidr_mmd"
+  ],
+  "training_quantiles": [
+    0.9,
+    0.95,
+    0.975
+  ],
+  "training_taus": [
+    1.1095672933460157,
+    1.7442177466402176,
+    3.5204538589651126
+  ]
+}
