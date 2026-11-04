@@ -102,7 +102,25 @@ def load_panel(root):
     return ad.read_h5ad(root / 'panel_legacy.h5ad')
 
 
-def train_seed(root, seed):
+def trial_options(config):
+    trials = {'scvidr': dict(method='base', weight=0., h=0.)}
+
+    def token(v):
+        return f'{v:g}'.replace('.', 'p')
+
+    for weight in config.get('wrf_weight_grid', []):
+        for h in config['wrf_bandwidth_grid']:
+            trials[f'wrf_l{token(weight)}_h{token(h)}'] = dict(method='wrf', weight=weight, h=h)
+    for weight in config.get('mmd_weight_grid', []):
+        trials[f'mmd_l{token(weight)}'] = dict(method='mmd', weight=weight, h=0.)
+    return trials
+
+
+def trial_directory(root, trial, seed):
+    return root / f'seed_{seed}' if trial == 'scvidr' else root / 'trials' / trial / f'seed_{seed}'
+
+
+def train_seed(root, seed, trial='scvidr'):
     CONFIG = root / 'config.json'
     import scvi
     import torch
@@ -110,8 +128,13 @@ def train_seed(root, seed):
     from scvi.data import setup_anndata
     from vidr import VIDR
     config = json.loads(CONFIG.read_text())
-    directory = root / f'seed_{seed}'
+    options = trial_options(config)[trial]
+    directory = trial_directory(root, trial, seed)
+    if (directory / 'training_complete.json').exists():
+        print('ALREADY_COMPLETE', trial, seed, flush=True)
+        return
     directory.mkdir(parents=True, exist_ok=False)
+    save_json(directory / 'trial_config.json', dict(trial=trial, **options))
     scvi.settings.seed = seed
     spec = EvalSpec.load(REPO / 'artifacts/eval_spec_v1')
     panel = load_panel(root)
@@ -123,20 +146,32 @@ def train_seed(root, seed):
     train.obs[['condition', 'split', 'replicate', 'drug_dose']].to_csv(directory / 'training_cell_ids.csv')
     setup_anndata(train, batch_key='drug_dose', labels_key='cell_type')
     model = VIDR(train, hidden_dim=config['hidden_dim'], latent_dim=config['latent_dim'], n_hidden_layers=config['n_hidden_layers'], dropout_rate=config['dropout_rate'], kl_weight=config['kl_weight'], linear_decoder=config['linear_decoder'])
-    states = {}
+    states, progress = {}, dict(epoch=0)
+    checkpoints = config['validation_epochs'] if options['method'] == 'base' else config['auxiliary_validation_epochs']
+    log = None
+    if options['method'] != 'base':
+        from population_loss import attach
+        log = open(directory / 'auxiliary_loss.csv', 'w', buffering=1)
+        attach(model, train, spec, options, config, seed, progress, log)
 
     class Snapshot(Callback):
+        def on_train_epoch_start(self, trainer, module, *args):
+            progress['epoch'] = trainer.current_epoch
+
         def on_train_epoch_end(self, trainer, module, *args):
             epoch = trainer.current_epoch + 1
-            if epoch in config['validation_epochs']:
+            if epoch in checkpoints:
                 states[epoch] = copy.deepcopy(model.module.state_dict())
 
     start = time.monotonic()
     model.train(max_epochs=config['max_epochs'], batch_size=config['batch_size'], train_size=config['train_size'], early_stopping=config['early_stopping'], early_stopping_patience=config['early_stopping_patience'], callbacks=[Snapshot()])
     elapsed = time.monotonic() - start
+    if log is not None:
+        log.close()
     pd.concat(list(model.history.values()), axis=1).to_csv(directory / 'training_history.csv')
     epochs = len(model.history['elbo_train'])
-    states[epochs] = copy.deepcopy(model.module.state_dict())
+    if epochs in checkpoints:
+        states[epochs] = copy.deepcopy(model.module.state_dict())
     best, validations = (float('inf'), float('inf')), []
     for epoch in sorted(states):
         model.module.load_state_dict(states[epoch])
@@ -148,41 +183,78 @@ def train_seed(root, seed):
         validations.append(dict(epoch=epoch, score=list(score), selected=selected, negative_fraction=float(pred.uns['negative_fraction_before_clipping']), **{k: v['mean'] for k, v in summary.items() if isinstance(v, dict)}))
         if selected:
             best, best_epoch, best_pred = score, epoch, pred
-        print('VALIDATION', seed, epoch, 'primary', score[0], 'w1', score[1], 'selected', selected, flush=True)
+        print('VALIDATION', trial, seed, epoch, 'primary', score[0], 'w1', score[1], 'selected', selected, flush=True)
     save_json(directory / 'validation_history.json', validations)
     model.module.load_state_dict(states[best_epoch])
     model.save(str(directory / 'model'), overwrite=True)
     best_pred.write_h5ad(directory / 'preds_val.h5ad', compression='gzip')
-    save_json(directory / 'selected_checkpoint.json', dict(seed=seed, epoch=best_epoch, epochs_trained=epochs, selection_keys=config['checkpoint_selection'], selection_scores=list(best), selected_on='validation only', model_sha256=digest(directory / 'model/model_params.pt')))
+    save_json(directory / 'selected_checkpoint.json', dict(trial=trial, seed=seed, epoch=best_epoch, epochs_trained=epochs, selection_keys=config['checkpoint_selection'], selection_scores=list(best), selected_on='validation only', model_sha256=digest(directory / 'model/model_params.pt')))
     pred = predict(model, train, config, 'test', seed)
     pred.write_h5ad(directory / 'preds_test.h5ad', compression='gzip')
     save_json(directory / 'training_complete.json', dict(seed=seed, epochs=epochs, elapsed_seconds=elapsed, gpu=torch.cuda.get_device_name(0) if torch.cuda.is_available() else None, job_id=os.environ.get('SLURM_JOB_ID'), versions={'torch': torch.__version__, 'scvi-tools': scvi.__version__, 'anndata': ad.__version__}))
-    print('TRAINING_COMPLETE', seed, best_epoch, flush=True)
+    print('TRAINING_COMPLETE', trial, seed, best_epoch, flush=True)
+
+
+def select(root, source=None):
+    if source is not None:
+        chosen = json.loads((source / 'selected_methods.json').read_text())
+        save_json(root / 'selected_methods.json', dict(scvidr_wrf13=chosen['scvidr_wrf']))
+        return
+    config = json.loads((root / 'config.json').read_text())
+    scores = {}
+    for trial, options in trial_options(config).items():
+        if options['method'] != 'base':
+            scores[trial] = (options['method'], tuple(json.loads((trial_directory(root, trial, 0) / 'selected_checkpoint.json').read_text())['selection_scores']))
+    chosen = {f'scvidr_{method}': min((score, trial) for trial, (m, score) in scores.items() if m == method)[1] for method in ['wrf', 'mmd']}
+    save_json(root / 'selected_methods.json', chosen)
+    save_json(root / 'hyperparameter_selection.json', dict(selected_on='seed 0 validation only', keys=config['checkpoint_selection'], scores={t: dict(method=m, score=list(v)) for t, (m, v) in scores.items()}, selected=chosen))
+    print('SELECTED', json.dumps(chosen), flush=True)
 
 
 def index(root):
     CONFIG = root / 'config.json'
     config = json.loads(CONFIG.read_text())
     cellflow = json.loads((REPO / 'docs/cellflow/artifacts.json').read_text())
+    methods = json.loads((root / 'selected_methods.json').read_text()) if (root / 'selected_methods.json').exists() else dict(scvidr='scvidr')
     entries = []
-    for seed in config['seeds']:
-        directory = root / f'seed_{seed}'
-        selected = json.loads((directory / 'selected_checkpoint.json').read_text())
-        assert digest(directory / 'model/model_params.pt') == selected['model_sha256']
-        for split in ['val', 'test']:
-            path = directory / f'preds_{split}.h5ad'
-            entries.append(dict(method='scvidr', seed=seed, split=split, path=str(path.resolve()), sha256=digest(path)))
+    for method, trial in methods.items():
+        for seed in config['seeds']:
+            directory = trial_directory(root, trial, seed)
+            selected = json.loads((directory / 'selected_checkpoint.json').read_text())
+            assert digest(directory / 'model/model_params.pt') == selected['model_sha256']
+            for split in ['val', 'test']:
+                path = directory / f'preds_{split}.h5ad'
+                entries.append(dict(method=method, seed=seed, split=split, path=str(path.resolve()), sha256=digest(path)))
     entries += [p for p in cellflow['predictions'] if p['method'] in ['unchanged_control', 'nearest_dose', 'adjacent_dose_mixture']]
     save_json(root / 'artifacts.json', dict(panel_sha256=json.loads((root / 'panel_legacy.json').read_text())['source_sha256'], panel_relative_path='processed/a549_hdaci_v1.h5ad', evaluation_commit=config['evaluation_commit'], predictions=entries))
 
 
+def merge(out, sources):
+    entries, panels = [], set()
+    for source in sources:
+        artifacts = json.loads((source / 'artifacts.json').read_text())
+        panels.add(artifacts['panel_sha256'])
+        entries += [p for p in artifacts['predictions'] if p not in entries]
+    assert len(panels) == 1
+    keys = [(p['method'], p['seed'], p['split']) for p in entries]
+    assert len(keys) == len(set(keys)), 'duplicate prediction entry'
+    save_json(out / 'artifacts.json', dict(artifacts, predictions=entries))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('stage', choices=['convert', 'train', 'index'])
+    parser.add_argument('stage', choices=['convert', 'train', 'select', 'index', 'merge'])
     parser.add_argument('--root', type=Path, required=True)
     parser.add_argument('--seed', type=int, choices=[0, 1, 2])
+    parser.add_argument('--trial', default='scvidr')
+    parser.add_argument('--source', type=Path)
+    parser.add_argument('--sources', type=Path, nargs='+')
     parser.add_argument('--config', type=Path, default=Path(__file__).with_name('config.json'))
     args = parser.parse_args()
+    if args.stage == 'merge':
+        args.root.mkdir(parents=True, exist_ok=True)
+        merge(args.root, args.sources)
+        return
     args.root.mkdir(parents=True, exist_ok=True)
     if (args.root / 'config.json').exists():
         assert json.loads((args.root / 'config.json').read_text()) == json.loads(args.config.read_text()), 'root was initialized with a different config'
@@ -193,7 +265,9 @@ def main():
     elif args.stage == 'train':
         if args.seed is None:
             parser.error('train requires --seed')
-        train_seed(args.root, args.seed)
+        train_seed(args.root, args.seed, args.trial)
+    elif args.stage == 'select':
+        select(args.root, args.source)
     else:
         index(args.root)
 

@@ -1,6 +1,7 @@
 # scVIDR
 
-[Results](../../docs/scvidr/README.md) · [Configuration](config.json)
+[Results](../../docs/scvidr/README.md) · [Base configuration](config.json) ·
+[WRF and MMD, 3 thresholds](config_3.json) · [WRF, 13 thresholds](config_13.json)
 
 `run_scvidr.py` trains the unmodified scVIDR VAE
 ([BhattacharyaLab/scVIDR](https://github.com/BhattacharyaLab/scVIDR) at
@@ -33,6 +34,29 @@ Architecture and training otherwise use the scVIDR defaults from its sci-Plex no
 2 hidden layers of 800, 100 latent dimensions, dropout 0.2, KL weight 5e-05, nonlinear
 decoder, batch size 256, train size 0.8, 100 epochs, Adam with learning rate 1e-3.
 
+## WRF and MMD variants
+
+`population_loss.py` adds CellFlow's generated-population losses to the scVIDR objective
+without changing the model or the dose rule. Every 5th training step from epoch 10, one of
+the 78 training conditions is sampled. 128 vehicle cells are encoded, shifted by
+δ · log1p(d) / log1p(10000), with δ from 128 of the drug's 10 µM cells and 128 other
+vehicle cells under the current encoder, decoded in eval mode with gradients and clipped
+at zero. These generated cells are compared with up to 128 measured cells of that
+condition, which are held fixed:
+
+- WRF: mean squared difference of soft fractions sigmoid((τ − r(x)) / h) over the
+  training thresholds, in float64, with CellFlow's overflow-safe r(x). `config_3.json`
+  uses the three frozen thresholds and `config_13.json` the 13-threshold grid; the two
+  differ only in their thresholds.
+- MMD: unbiased three-bandwidth RBF MMD² in the frozen evaluation PCA space.
+
+The weight is multiplied by 5 so its expected coefficient is λ, as for CellFlow. scVIDR's
+base loss is about 106 per cell against 0.22 for CellFlow flow matching, so the CellFlow
+grids are multiplied by about 486: λ∈{5, 15, 50, 150} × h∈{0.1, 0.3} for WRF and
+λ∈{50, 500} for MMD. Settings are chosen on seed 0 validation, then repeated with seeds 1
+and 2, and the 13-threshold run reuses the selected WRF setting. Checkpoints are chosen
+among epochs 25, 50, 75 and 100, after the loss starts.
+
 ## Setup
 
 scVIDR needs its 2023 stack (Python 3.8, torch 1.8.1+cu111, scvi-tools 0.13.0,
@@ -52,16 +76,39 @@ EVAL=/path/to/envs/sciplex_eval/bin/python; SCVIDR=/path/to/envs/scvidr/bin/pyth
 $EVAL experiments/scvidr/run_scvidr.py convert --root $ROOT
 for seed in 0 1 2; do $SCVIDR experiments/scvidr/run_scvidr.py train --root $ROOT --seed $seed; done
 $SCVIDR experiments/scvidr/run_scvidr.py index --root $ROOT
-$EVAL experiments/cellflow/source/evaluate.py --artifacts $ROOT/artifacts.json --out $ROOT/metrics
-$EVAL experiments/scvidr/report.py --root $ROOT --panel "$RESPONSE_FRACTION_DATA/processed/a549_hdaci_v1.h5ad"
 ```
+
+For the variants, with `R3=results/scvidr_aux3` and `R13=results/scvidr_aux13`:
+
+```bash
+$EVAL experiments/scvidr/run_scvidr.py convert --root $R3 --config experiments/scvidr/config_3.json
+$EVAL experiments/scvidr/run_scvidr.py convert --root $R13 --config experiments/scvidr/config_13.json
+for trial in wrf_l5_h0p1 wrf_l5_h0p3 wrf_l15_h0p1 wrf_l15_h0p3 wrf_l50_h0p1 wrf_l50_h0p3 wrf_l150_h0p1 wrf_l150_h0p3 mmd_l50 mmd_l500; do
+  $SCVIDR experiments/scvidr/run_scvidr.py train --root $R3 --config experiments/scvidr/config_3.json --trial $trial --seed 0
+done
+$SCVIDR experiments/scvidr/run_scvidr.py select --root $R3 --config experiments/scvidr/config_3.json
+for seed in 1 2; do for trial in wrf_l5_h0p1 mmd_l50; do
+  $SCVIDR experiments/scvidr/run_scvidr.py train --root $R3 --config experiments/scvidr/config_3.json --trial $trial --seed $seed
+done; done
+$SCVIDR experiments/scvidr/run_scvidr.py select --root $R13 --config experiments/scvidr/config_13.json --source $R3
+for seed in 0 1 2; do $SCVIDR experiments/scvidr/run_scvidr.py train --root $R13 --config experiments/scvidr/config_13.json --trial wrf_l5_h0p1 --seed $seed; done
+$SCVIDR experiments/scvidr/run_scvidr.py index --root $R3 --config experiments/scvidr/config_3.json
+$SCVIDR experiments/scvidr/run_scvidr.py index --root $R13 --config experiments/scvidr/config_13.json
+$SCVIDR experiments/scvidr/run_scvidr.py merge --root results/scvidr_all --sources $ROOT $R3 $R13
+$EVAL experiments/cellflow/source/evaluate.py --artifacts results/scvidr_all/artifacts.json --out results/scvidr_all/metrics
+$EVAL experiments/scvidr/report.py --root results/scvidr_all --runs $ROOT $R3 $R13 --panel "$RESPONSE_FRACTION_DATA/processed/a549_hdaci_v1.h5ad"
+```
+
+`select` writes the chosen trials (here `wrf_l5_h0p1` and `mmd_l50`) to
+`selected_methods.json`; replace the trial names in the later loops if it picks others.
 
 Training saves each seed's model, validation history and predictions under `$ROOT`, and
 `index` writes a local `artifacts.json` of the predictions. Scoring uses
 `experiments/cellflow/source/evaluate.py`, the same evaluator and 13-threshold grid as the
-CellFlow results. One V100 trains, predicts and scores all three seeds in about ten
-minutes. `report.py` writes the shareable tables to `docs/scvidr/`: the evaluator tables,
-the comparison table, paired differences with CellFlow and spread diagnostics.
+CellFlow results. On one V100 each training takes about 1.5 minutes, and all 20 runs
+(3 standard, 10 grid, 7 repeats) finish in about 35 minutes. `report.py` writes the
+shareable tables to `docs/scvidr/`: the evaluator tables, the comparison table, paired
+differences and spread diagnostics.
 
 To verify the saved metrics without a GPU or dataset:
 

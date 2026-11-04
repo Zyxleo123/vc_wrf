@@ -8,7 +8,7 @@ from statistics import fmean, stdev
 
 REPO = Path(__file__).resolve().parents[2]
 RESULTS = REPO / 'docs/scvidr'
-MODELS = ['scvidr']
+MODELS = ['scvidr', 'scvidr_wrf', 'scvidr_wrf13', 'scvidr_mmd']
 METRICS = ['wrf_err_pp_q0.9', 'wrf_err_pp_q0.95', 'wrf_err_pp_q0.975', 'w1_r',
            'mmd2', 'rmse_mean_all', 'rmse_mean_deg50', 'rmse_mean_program', 'wrf_err_pp_grid13_mean']
 
@@ -85,7 +85,12 @@ def verify():
             close(float(r['mean']), float(match[0]['mean']), ('reference', r['method'], r['metric']))
     config = read(REPO / 'experiments/scvidr/config.json')
     assert config['seeds'] == [0, 1, 2] and config['max_epochs'] == 100 and not config['early_stopping']
-    return dict(passed=True, metrics=len(METRICS), model_test_rows=51, conditions=17)
+    configs = [read(REPO / f'experiments/scvidr/config_{count}.json') for count in [3, 13]]
+    assert [k for k in configs[0] if configs[0][k] != configs[1][k]] == ['methods', 'training_quantiles', 'training_taus']
+    assert configs[0]['training_taus'] == specification['taus'][10:13]
+    assert configs[1]['training_quantiles'] == specification['quantiles'] and configs[1]['training_taus'] == specification['taus']
+    assert all(configs[0][k] == config[k] for k in ['hidden_dim', 'latent_dim', 'n_hidden_layers', 'dropout_rate', 'kl_weight', 'max_epochs', 'batch_size', 'train_size', 'early_stopping', 'checkpoint_selection', 'prediction_cells_per_condition'])
+    return dict(passed=True, metrics=len(METRICS), model_test_rows=204, conditions=17)
 
 
 if __name__ == '__main__':
