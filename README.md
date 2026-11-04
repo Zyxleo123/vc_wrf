@@ -7,7 +7,7 @@ FM+fraction loss, ...) is scored by the same code against the same frozen spec:
 
 ## Results
 
-[Baseline index](docs/baselines/README.md) · [CellFlow results](docs/cellflow/README.md)
+[Baseline index](docs/baselines/README.md) · [CellFlow results](docs/cellflow/README.md) · [scVIDR results](docs/scvidr/README.md)
 
 ## Setup
 
