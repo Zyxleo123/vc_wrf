@@ -19,6 +19,13 @@ done
 
 export REPO="${REPO:-/zfsauton2/home/yixiz/vc_wrf}"
 export VENV="${VENV:-$REPO/.venv}"
+# CellFlow's pinned JAX environment (experiments/cellflow/requirements.lock.txt at 2c478b8, python 3.12).
+export CELLFLOW_VENV="${CELLFLOW_VENV:-/zfsauton/scratch/yixiz/envs/cellflow}"
+# Optional config path overriding configs/interp/cellflow_<variant>.json (short test runs).
+export CELLFLOW_CONFIG="${CELLFLOW_CONFIG:-}"
+# cellflow_compare: the matched baseline and optional variant=label table names (no spaces in a label).
+export CELLFLOW_BASE="${CELLFLOW_BASE:-base}"
+export CELLFLOW_LABELS="${CELLFLOW_LABELS:-}"
 export DATA_DIR="${DATA_DIR:-/zfsauton/scratch/yixiz/sciplex3}"
 export PANEL="${PANEL:-$DATA_DIR/processed/a549_hdaci_v1.h5ad}"
 export CHEMICALS="${CHEMICALS:-$DATA_DIR/raw/GSE139944/GSM4150378_sciPlex3_A549_MCF7_K562_hashTable_metadata.txt.gz}"
