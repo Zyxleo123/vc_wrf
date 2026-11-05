@@ -8,6 +8,10 @@
 #   chemcpa_eval (CPU array) after chemcpa_train   population metrics, in-sample fit (sciplex_interp)
 #   chemcpa_test (CPU array) after chemcpa_train   official evaluation, original pipeline ($EVALS)
 #   chemcpa_compare (CPU)    after chemcpa_test    paired comparison with original chemCPA / CellFlow
+#   teacher (CPU)                             mean-level dose-response teacher for CellFlow
+#   cellflow_train (GPU array: variant x seed)    configs/interp/cellflow_<variant>.json; after teacher
+#   cellflow_test (GPU array)  after cellflow_train  generation + frozen evaluator for each of $EVALS
+#   cellflow_compare (CPU)     after cellflow_test   paired comparison with the base, published CellFlow, chemCPA
 #   report (CPU)           after every other stage submitted with it
 #
 # usage: slurm/interp/submit.sh [VAR=value ...]
@@ -27,7 +31,7 @@ source slurm/interp/defaults.sh "$@"
 logs="$INTERP_ROOT/logs"
 mkdir -p "$logs" "$INTERP_ROOT/submissions"
 env_file="$INTERP_ROOT/submissions/$(date +%Y%m%d-%H%M%S).env"
-for name in REPO VENV DATA_DIR PANEL CHEMICALS INTERP_ROOT STAGES TASK_SETS CHEMCPA_ROOT BASE_CHEMCPA_ROOT VARIANTS SEEDS EVALS STATS_SHARDS CHEMCPA_TASK_SETS SHIFT_PREDICTORS EVAL_TASKS AFTER POP_PREDICTORS POP_KINDS POP_SEEDS COMPARE_PRIMARY; do
+for name in REPO VENV CELLFLOW_VENV CELLFLOW_CONFIG CELLFLOW_BASE CELLFLOW_LABELS DATA_DIR PANEL CHEMICALS INTERP_ROOT STAGES TASK_SETS CHEMCPA_ROOT BASE_CHEMCPA_ROOT VARIANTS SEEDS EVALS STATS_SHARDS CHEMCPA_TASK_SETS SHIFT_PREDICTORS EVAL_TASKS AFTER POP_PREDICTORS POP_KINDS POP_SEEDS COMPARE_PRIMARY; do
   printf '%s=%q\n' "$name" "${!name}"
 done > "$env_file"
 
@@ -46,10 +50,13 @@ all=()
 for stage in $STAGES; do
   deps=()
   case "$stage" in
-    diagnose|stats|chemcpa_train|tests) ;;
+    diagnose|stats|chemcpa_train|teacher|tests|cellflow_tests) ;;
+    cellflow_train) [[ -n "${id[teacher]:-}" ]] && deps=("${id[teacher]}") ;;
     populations) [[ -n "${id[stats]:-}" ]] && deps=("${id[stats]}") ;;
     chemcpa_eval|chemcpa_test) [[ -n "${id[chemcpa_train]:-}" ]] && deps=("${id[chemcpa_train]}") ;;
     chemcpa_compare) [[ -n "${id[chemcpa_test]:-}" ]] && deps=("${id[chemcpa_test]}") ;;
+    cellflow_test) [[ -n "${id[cellflow_train]:-}" ]] && deps=("${id[cellflow_train]}") ;;
+    cellflow_compare) [[ -n "${id[cellflow_test]:-}" ]] && deps=("${id[cellflow_test]}") ;;
     report) deps=("${all[@]}") ;;
     *) echo "unknown stage: $stage" >&2; exit 2 ;;
   esac
@@ -67,6 +74,12 @@ for stage in $STAGES; do
       n_tasks=$n_runs
       [[ "$stage" != chemcpa_train ]] && n_tasks=$(( n_runs < EVAL_TASKS ? n_runs : EVAL_TASKS ))
       extra=(--array="0-$(( n_tasks - 1 ))" --output="$logs/%x-%A_%a.out") ;;
+    cellflow_train|cellflow_test)
+      (( n_runs > 0 )) || { echo "$stage needs VARIANTS and SEEDS" >&2; exit 2; }
+      for v in "${variants[@]}"; do
+        [[ -n "$CELLFLOW_CONFIG" || -f "configs/interp/cellflow_$v.json" ]] || { echo "missing configs/interp/cellflow_$v.json" >&2; exit 2; }
+      done
+      extra=(--array="0-$(( n_runs - 1 ))" --output="$logs/%x-%A_%a.out") ;;
   esac
   [[ -n "$AFTER" ]] && deps+=("$AFTER")  # jobs of an earlier submission
   dep=()

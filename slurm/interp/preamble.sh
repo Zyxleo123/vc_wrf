@@ -7,9 +7,12 @@ export OMP_NUM_THREADS="$THREADS" OPENBLAS_NUM_THREADS="$THREADS" MKL_NUM_THREAD
 export SCIPLEX_PANEL="$PANEL" INTERP_ROOT PYTHONUNBUFFERED=1 MPLBACKEND=Agg
 
 cd "$REPO"
-source "$VENV/bin/activate"
-if [[ "$(command -v python)" != "$VENV/bin/python" ]]; then
-  echo "preamble: $VENV/bin/python is not the active python" >&2
+# A job needing another environment names its variable first: JOB_VENV_VAR=CELLFLOW_VENV.
+job_venv_var="${JOB_VENV_VAR:-VENV}"
+active_venv="${!job_venv_var}"
+source "$active_venv/bin/activate"
+if [[ "$(command -v python)" != "$active_venv/bin/python" ]]; then
+  echo "preamble: $active_venv/bin/python is not the active python" >&2
   return 1
 fi
 

@@ -1,0 +1,43 @@
+{
+  "batch_size": 256,
+  "training_steps": 30000,
+  "hidden_dims": [
+    512,
+    512,
+    512
+  ],
+  "decoder_dims": [
+    1024,
+    1024,
+    512
+  ],
+  "time_encoder_dims": [
+    256,
+    256
+  ],
+  "time_freqs": 128,
+  "condition_embedding_dim": 128,
+  "condition_mlp_dims": [
+    128,
+    128
+  ],
+  "condition_output_dropout": 0.1,
+  "constant_noise": 0.0,
+  "ot_epsilon": 0.1,
+  "weight_decay": 1e-06,
+  "learning_rate_peak": 0.001,
+  "learning_rate_end": 3e-05,
+  "warmup_steps": 1000,
+  "ema": 0.001,
+  "validation_steps": [
+    500,
+    1000,
+    2000,
+    3000,
+    5000,
+    10000,
+    20000,
+    30000
+  ],
+  "source": "experiments/cellflow/config_3.json at 2c478b8; validation_steps = the published standard_checkpoint_steps"
+}
