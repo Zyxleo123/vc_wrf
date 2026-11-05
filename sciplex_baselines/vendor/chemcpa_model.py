@@ -299,6 +299,7 @@ class ComPert(torch.nn.Module):
         multi_task: bool = False,
         enable_cpa_mode=False,
         loss_ae="gauss",
+        num_outputs=None,
     ):
         super(ComPert, self).__init__()
         # set generic attributes
@@ -316,6 +317,11 @@ class ComPert(torch.nn.Module):
         self.enable_cpa_mode = enable_cpa_mode
         assert loss_ae in ("gauss", "nb")
         self.loss_ae = loss_ae
+        # Local extension: decoder features may differ from encoder inputs (NB only,
+        # where the reconstruction target is `counts`, not the input `genes`).
+        num_outputs = num_genes if num_outputs is None else num_outputs
+        assert num_outputs == num_genes or loss_ae == "nb"
+        self.num_outputs = num_outputs
 
         # set hyperparameters
         if isinstance(hparams, dict):
@@ -335,6 +341,7 @@ class ComPert(torch.nn.Module):
             "hparams": hparams,
             "use_drugs_idx": use_drugs_idx,
             "loss_ae": loss_ae,
+            "num_outputs": num_outputs,
         }
 
         self.encoder = MLP(
@@ -348,7 +355,7 @@ class ComPert(torch.nn.Module):
         self.decoder = MLP(
             [self.hparams["dim"]]
             + [self.hparams["autoencoder_width"]] * self.hparams["autoencoder_depth"]
-            + [num_genes * 2],
+            + [num_outputs * 2],
             last_layer_act=decoder_activation,
             append_layer_width=2 * append_layer_width if append_layer_width else None,
             append_layer_position="last",

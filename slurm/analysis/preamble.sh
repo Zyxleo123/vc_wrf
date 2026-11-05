@@ -18,5 +18,5 @@ if [[ -n "${SLURM_JOB_ID:-}" ]]; then
   echo "== request: $(scontrol show job -o "$SLURM_JOB_ID" | tr ' ' '\n' | grep -E '^(Partition|NodeList|NumCPUs|MinMemoryNode|TimeLimit|ReqTRES|TresPerNode)=' | tr '\n' ' ')"
 fi
 nvidia-smi -L 2>/dev/null || echo "== no GPU visible (CPU job)"
-echo "== config: PANEL=$PANEL ANALYSIS_ROOT=$ANALYSIS_ROOT STAGES='$STAGES' N_BOOT=$N_BOOT THREADS=$THREADS"
+echo "== config: PANEL=$PANEL ANALYSIS_ROOT=$ANALYSIS_ROOT STAGES='$STAGES' N_BOOT=$N_BOOT AUDIT_SAMPLING_SEEDS=$AUDIT_SAMPLING_SEEDS THREADS=$THREADS"
 echo "== code: $(git rev-parse --short HEAD) on $(git rev-parse --abbrev-ref HEAD) + $(git status --porcelain | wc -l) uncommitted paths; python $(python -c 'import sys; print(sys.version.split()[0])')"

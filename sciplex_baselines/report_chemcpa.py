@@ -5,6 +5,9 @@ tables and figures can be redrawn without the model. Besides the frozen v1 metri
 writes a supplementary threshold-sensitivity table: WRF error at control quantiles
 beyond the frozen ones, using the same r(x) and the same tau rule (q-quantile of
 control r). It is not a metric choice; the frozen thresholds stay primary.
+
+Runs whose decoder generates only the program genes ("output_genes": "program") are
+reported on the metrics those genes determine: WRF error, W1(r), program-gene RMSE.
 """
 from __future__ import annotations
 
@@ -19,27 +22,46 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from sciplex_eval import EvalSpec, response_score, summarize
+from sciplex_eval import EvalSpec, response_score, response_score_from_program, summarize
 from sciplex_eval.evaluate import DEFAULT_PANEL, DEFAULT_SPEC, _real, load_panel, replicate_reference, split_conditions
 from sciplex_eval.metrics import evaluate_condition, weak_responder_fraction
 from .chemcpa import GENERATIONS, write_json
 
 SENSITIVITY_QS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.975]
-# Fixed per entity (dataviz reference palette, categorical slots 1-3); references are neutral.
-COLORS = {"nb": "#2a78d6", "gauss": "#eb6834", "nbwrf": "#1baf7a"}
-INK, INK_2, GRID = "#0b0b0b", "#52514e", "#e4e3df"
+# Categorical slots 1-4 of the dataviz reference palette, in fixed order.
+SLOTS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]
+# Fixed per entity; references are neutral. Composite encoding for the gene-set control:
+# hue = loss (no WRF loss / WRF loss), marker = decoder outputs (filled circle: all eval
+# genes; hollow square: program genes only), so the 2x2 reads off two channels.
+COLORS = {"nb": SLOTS[0], "gauss": SLOTS[1], "nbwrf": SLOTS[2], "nbprog": SLOTS[0], "nbprogwrf": SLOTS[2]}
+PROGRAM_OUTPUT_FAMILIES = {"nbprog", "nbprogwrf"}
+INK, INK_2, GRID, SURFACE = "#0b0b0b", "#52514e", "#e4e3df", "#ffffff"
 REFERENCE_STYLE = {"vehicle": (INK_2, (0, (6, 3))), "replicate": (INK_2, (0, (1, 2.5)))}
 LABELS = {"nb": "chemCPA-NB", "gauss": "chemCPA-Gauss", "nbwrf": "chemCPA-NB + WRF loss",
+          "nbprog": "chemCPA-NB, program-gene output",
+          "nbprogwrf": "chemCPA-NB, program-gene output + WRF loss",
           "vehicle": "Vehicle as prediction", "replicate": "Replicate well (noise floor)"}
+SELECTION_LABELS = {"mmd2": "validation MMD²", "w1_r": "validation W1(r)", "rmse_mean_all": "validation all-gene RMSE"}
 
 
 def family_and_label(config):
-    """Plot identity of a run: its likelihood, or nbwrf when trained with the fraction loss."""
+    """Plot identity of a run: its likelihood, or nbwrf when trained with the fraction loss;
+    the nbprog families are the same with program-gene decoder outputs."""
+    program = config.get("output_genes", "all") == "program"
     if "fraction_loss" in config:
+        family = "nbprogwrf" if program else "nbwrf"
         settings = config["fraction_loss"]
         n_taus = len(settings["quantiles"]) if "quantiles" in settings else "spec"
-        return "nbwrf", f"{LABELS['nbwrf']} ({n_taus} τs, λ={settings['weight']:g}, h={settings['h']:g})"
+        return family, f"{LABELS[family]} ({n_taus} τs, λ={settings['weight']:g}, h={settings['h']:g})"
+    if program:
+        return "nbprog", LABELS["nbprog"]
     return config["likelihood"], LABELS[config["likelihood"]]
+
+
+def prediction_r(spec, prediction, mask=None):
+    """r(x) of generated cells, from their program-gene columns (any gene coverage)."""
+    X = prediction.X if mask is None else prediction.X[mask]
+    return response_score_from_program(spec.align_program(X, prediction.var_names), spec)
 
 
 def style(ax):
@@ -60,7 +82,7 @@ def threshold_sensitivity(spec, panel, split, predictions, qs=SENSITIVITY_QS):
     controls = spec.align(panel.X[panel.obs.split.eq("control").to_numpy()], panel.var_names)
     r_ctrl = response_score(controls, spec)
     taus = np.quantile(r_ctrl, qs)
-    pred_r = {seed: (response_score(spec.align(p.X, p.var_names), spec), p.obs.condition.astype(str).to_numpy())
+    pred_r = {seed: (prediction_r(spec, p), p.obs.condition.astype(str).to_numpy())
               for seed, p in predictions.items()}
     rows = []
     for cond in split_conditions(panel, split):
@@ -83,22 +105,29 @@ def threshold_sensitivity(spec, panel, split, predictions, qs=SENSITIVITY_QS):
         err_pp=("err_pp", "mean"), bias_pp=("bias_pp", "mean"), n_conditions=("condition", "nunique"))
 
 
-def plot_sensitivity(ax, curves, primary_q, frozen_qs, colors=None):
+def plot_sensitivity(ax, curves, primary_q, frozen_qs, colors=None, direct=None):
     """curves: list of (key, label, DataFrame with q, err_pp); colors: optional
-    per-curve overrides for model curves (None keeps the key's fixed color)."""
+    per-curve overrides for model curves (None keeps the key's fixed color); direct:
+    optional shorter direct labels (the legend keeps the full ones)."""
     colors = colors or [None] * len(curves)
+    direct = direct or [label for _, label, _ in curves]
     for (key, label, frame), override in zip(curves, colors):
         color, dash = REFERENCE_STYLE.get(key, (override or COLORS.get(key, INK), "solid"))
-        marker = None if key in REFERENCE_STYLE else "o"
-        ax.plot(frame.q, frame.err_pp, color=color, linestyle=dash, linewidth=2, marker=marker,
-                markersize=5, markeredgecolor="white", markeredgewidth=1, label=label)
+        if key in REFERENCE_STYLE:
+            marker = {"marker": None}
+        elif key in PROGRAM_OUTPUT_FAMILIES:
+            marker = {"marker": "s", "markersize": 5.5, "markerfacecolor": SURFACE,
+                      "markeredgecolor": color, "markeredgewidth": 1.5}
+        else:
+            marker = {"marker": "o", "markersize": 5, "markeredgecolor": SURFACE, "markeredgewidth": 1}
+        ax.plot(frame.q, frame.err_pp, color=color, linestyle=dash, linewidth=2, label=label, **marker)
     for q in frozen_qs:
         ax.axvline(q, color=INK_2, linewidth=0.8, alpha=0.6 if q == primary_q else 0.3)
     ax.set_ylim(bottom=0)
     # Direct labels at the right end, nudged apart so they never overlap.
     low, high = ax.get_ylim()
     gap, previous = 0.05 * (high - low), -np.inf
-    for y, label, x in sorted((f.err_pp.iloc[-1], label, f.q.iloc[-1]) for _, label, f in curves):
+    for y, label, x in sorted((f.err_pp.iloc[-1], d, f.q.iloc[-1]) for (_, _, f), d in zip(curves, direct)):
         previous = max(y, previous + gap)
         ax.annotate(label, (x, y), xytext=(1.0, previous), textcoords="data", va="center",
                     fontsize=8, color=INK_2)
@@ -185,7 +214,7 @@ def main(argv=None):
     axes[2].step(np.sort(reference_r), np.arange(1, len(reference_r) + 1) / len(reference_r), where="post",
                  color=INK, linewidth=2, label="Measured")
     for i, (seed, prediction) in enumerate(predictions.items()):
-        r = response_score(spec.align(prediction.X[prediction.obs.condition.eq(worst).to_numpy()], prediction.var_names), spec)
+        r = prediction_r(spec, prediction, prediction.obs.condition.eq(worst).to_numpy())
         axes[2].step(np.sort(r), np.arange(1, len(r) + 1) / len(r), where="post", color=color,
                      alpha=1 - 0.25 * i, linewidth=1.5, label=f"{label} seed {seed}")
     axes[2].axvline(spec.tau_by_q[spec.primary_q], color=INK_2, linestyle="--", linewidth=1, label="Primary threshold")
@@ -202,15 +231,23 @@ def main(argv=None):
     fig.savefig(out / "diagnostics.pdf")
     plt.close(fig)
 
+    program = family in PROGRAM_OUTPUT_FAMILIES
     if family == "gauss":
         support = ("Gaussian decoder samples retain negative log-expression values; the shared response scorer "
                    "clips negative program-gene values as specified in v1. The Gaussian decoder has no count "
                    "sparsity, so it cannot place cells at the zero/low-UMI program values the v1 thresholds fall on.")
+    elif program:
+        support = (f"Control for supervision on the program genes: the encoder reads all {spec.n_genes} eval genes, "
+                   f"but the decoder generates only the {len(spec.program_gene_ids)} program genes plus one feature "
+                   "for all other human UMIs, so the whole NB reconstruction loss falls on the genes behind r(x). "
+                   "Samples are normalized by their generated total like real cells; each generated cell keeps "
+                   "the library size of its source control cell. MMD² and the all-gene and DEG RMSEs need the "
+                   "other genes and are not reported.")
     else:
         support = ("NB samples are integer UMI draws over the eval genes plus one rest-of-transcriptome feature, "
                    "normalized by their generated total like real cells. Each generated cell keeps the library "
                    "size of its source control cell; treatment-induced library-size shifts are not modelled.")
-    if family == "nbwrf":
+    if family in ("nbwrf", "nbprogwrf"):
         settings = runs[0]["config"]["fraction_loss"]
         support += (f" Trained with the response-fraction loss (weight {settings['weight']:g}, h {settings['h']:g}, "
                     "spec taus) on training doses and vehicle only; held-out doses supply no fractions.")
@@ -237,8 +274,11 @@ def main(argv=None):
                      + " | ".join(f"{wide.loc[qv, k]:.2f}" for k, _, _ in curves) + " |")
     lines += ["", "The bootstrap interval resamples conditions after averaging seed-specific errors. Seed SD reports training variability. These intervals do not establish uncertainty over biological experiments; models were not retrained on resampled wells.", "",
               "The existing v1 threshold is weakly sensitive to drug response, and q=0.975 is degenerate (see the main README). The split remains labelled proposed in the repository. These are exploratory benchmark results under that fixed split.", "",
-              "The model uses the pinned 2022 chemCPA code, fixed Morgan fingerprints, a smaller network, and no pretraining. Checkpoints were chosen by validation MMD²; test expression was used only after model selection. "
-              + ("No WRF auxiliary loss was applied. " if family != "nbwrf" else "") + "No posthoc response calibration was applied.", "",
+              "The model uses the pinned 2022 chemCPA code, fixed Morgan fingerprints, a smaller network, and no pretraining. "
+              f"Checkpoints were chosen by {SELECTION_LABELS.get(runs[0]['config']['selection_metric'], runs[0]['config']['selection_metric'])}; "
+              "test expression was used only after model selection. "
+              + ("No WRF auxiliary loss was applied. " if "fraction_loss" not in runs[0]["config"] else "")
+              + "No posthoc response calibration was applied.", "",
               support + " Decoder-mean predictions, when reported, are a separate diagnostic. Control reconstruction metrics in summary.json help assess score distortion.", "",
               "Per-condition and per-well results, seed summaries, configuration, software versions, fingerprints/SMILES provenance, and data/checkpoint hashes accompany this report.", "",
               "![Diagnostics](diagnostics.png)", ""]

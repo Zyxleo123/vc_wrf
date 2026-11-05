@@ -9,13 +9,18 @@ All expression inputs are cells x genes in the spec gene order, log1p(CP10K).
   MMD^2                unbiased, multi-scale RBF kernel, in the spec's PCA space
   mean-expression RMSE between per-gene population means: all spec genes, the top-k
                        DEGs of the real condition vs. controls, and the program genes
+
+Program-only predictions (cells generated over the program genes alone) get the
+metrics that depend only on those genes: WRF error, W1(r) and the program-gene RMSE.
+They are computed by the same code as for full predictions; MMD^2 and the all-gene
+and DEG RMSEs are omitted, not imputed.
 """
 from __future__ import annotations
 
 import numpy as np
 from scipy.stats import wasserstein_distance
 
-from .spec import EvalSpec, response_score
+from .spec import EvalSpec, response_score, response_score_from_program
 
 
 def weak_responder_fraction(r: np.ndarray, taus) -> np.ndarray:
@@ -68,21 +73,35 @@ def qkey(q: float) -> str:
 
 
 def evaluate_condition(spec: EvalSpec, X_real, X_pred=None, wrf_pred: dict | None = None,
-                       seed: int = 0) -> dict:
+                       seed: int = 0, program_only: bool = False) -> dict:
     """Metrics for one condition.
 
     Give X_pred (generated cells) for the full metric set, or wrf_pred ({q: fraction})
     for methods that only predict the weak-responder fraction (WRF error only).
     Use all generated cells (>= the number of real cells is recommended); MMD caps
-    both samples at spec.mmd_n_max cells.
+    both samples at spec.mmd_n_max cells. With program_only, X_pred holds only the
+    program-gene columns (spec.program_gene_ids order) and the metrics are WRF error,
+    W1(r) and rmse_mean_program. X_real is always in spec gene order.
     """
     if (X_pred is None) == (wrf_pred is None):
         raise ValueError("pass exactly one of X_pred / wrf_pred")
+    if program_only and X_pred is None:
+        raise ValueError("program_only needs X_pred")
     r_real = response_score(X_real, spec)
     f_real = weak_responder_fraction(r_real, spec.taus)
     out = {"n_real": int(X_real.shape[0])}
 
-    if X_pred is not None:
+    if program_only:
+        r_pred = response_score_from_program(X_pred, spec)
+        f_pred = weak_responder_fraction(r_pred, spec.taus)
+        out.update({
+            "n_pred": int(X_pred.shape[0]),
+            "w1_r": response_w1(r_real, r_pred),
+            "rmse_mean_program": _rmse(_mean(X_real)[spec.program_idx], _mean(X_pred)),
+            "mean_r_real": float(r_real.mean()),
+            "mean_r_pred": float(r_pred.mean()),
+        })
+    elif X_pred is not None:
         r_pred = response_score(X_pred, spec)
         f_pred = weak_responder_fraction(r_pred, spec.taus)
         rng = np.random.default_rng(seed)

@@ -176,6 +176,80 @@ a 13-threshold mean of 9.3 vs 15.9. Its single test run, against the same baseli
 - Iteration stopped after two rounds. Any further round would be tuned with knowledge of
   two test results.
 
+### Control: is the gain just extra supervision on the program genes?
+
+The fraction loss reads only the 97 program genes, while chemCPA-NB's likelihood is a mean over
+2,086 features, so the loss adds gradient signal exactly where the baseline's is thinnest. To
+test this, `"output_genes": "program"` keeps the encoder on all 2,085 eval genes but has the
+decoder generate only the 97 program genes, plus one feature for all other human UMIs. Every NB
+term then falls on the genes behind r(x), and generated cells are still normalized by a
+whole-transcriptome total. Configs: [`nbprog_v1`](configs/chemcpa_nbprog_v1.json) (chemCPA-NB) and
+[`nbprogwrf_l10_h0.5`](configs/chemcpa_nbprogwrf_l10_h0.5.json) (round-1 pick). Each differs from its
+source only in `output_genes` and the checkpoint rule, which is min validation W1(r) because MMD²
+needs the other genes; no hyperparameter was tuned. This was decided after both test results
+above had been seen ([sweep log](docs/chemcpa/wrf_sweep_log.md)). Submission `20261103-211951`:
+
+```bash
+slurm/chemcpa/submit.sh SKIP_DATA=1 VARIANTS="nb_v1 nbwrf_l10_h0.5 nbprog_v1 nbprogwrf_l10_h0.5" COMPARE_NAME=prog97
+```
+
+Test, 17 conditions, mean ± seed SD. Program-output runs have no MMD² or DEG50 RMSE.
+
+| test | WRF err q0.95 | 13-τ mean | W1(r) | RMSE program |
+|---|---|---|---|---|
+| chemCPA-NB | 7.1 ± 0.5 | 16.2 | 0.59 | 0.102 |
+| chemCPA-NB + WRF loss (round 1) | 5.3 ± 0.5 | 12.9 | 0.51 | 0.135 |
+| program-gene output | 5.2 ± 0.05 | 10.9 | 0.40 | 0.094 |
+| program-gene output + WRF loss | **4.3 ± 0.3** | **7.3** | **0.28** | **0.072** |
+| vehicle cells as the prediction | 4.9 | 15.1 | 0.48 | 0.099 |
+| replicate well (noise floor) | 3.8 | 8.0 | 0.27 | 0.086 |
+
+Paired condition bootstrap at q0.95 on test (Δ = new − ref, 95% CI, 2,000 resamples, so the
+round-1 row differs slightly from the [−4.7, +0.7] quoted above). From `results/chemcpa/prog97_test_s0/`:
+
+| ref → new | Δ pp | 95% CI | conditions improved |
+|---|---|---|---|
+| chemCPA-NB → program-gene output | −1.9 | [−2.9, −0.8] | 13/17 |
+| chemCPA-NB → + WRF loss (round 1) | −1.9 | [−4.6, +0.6] | 12/17 |
+| + WRF loss (round 1) → program-gene output | −0.04 | [−2.2, +2.3] | 12/17 |
+| program-gene output → program-gene output + WRF loss | −0.9 | [−3.0, +0.6] | 10/17 |
+| + WRF loss (round 1) → program-gene output + WRF loss | −1.0 | [−2.0, −0.03] | 13/17 |
+
+- **At the frozen q0.95, the round-1 gain is reproduced without the WRF loss.** Restricting the
+  decoder to the program genes alone gives the same −1.9 pp. So this control *cannot* rule out
+  that the headline gain is extra supervision on the program genes. Validation agrees
+  (chemCPA-NB 7.44, round 1 4.95, program-gene output 5.48), and so does the second sampling seed.
+- **Mechanism:** chemCPA-NB loses the low-program control tail (above). With program-gene outputs,
+  reconstructing controls with no drug gives WRF 94.0–97.6% (target 95%; chemCPA-NB 97.7–98.9%)
+  and W1(r) 0.05–0.13 (chemCPA-NB 0.18–0.25).
+- **The loss still adds on top of the subset-supervised model:** program-gene output + WRF loss is
+  the best chemCPA on every program metric, and the only one whose mean q0.95 error is below
+  vehicle (4.3 vs 4.9; no paired test against vehicle). Its −0.9 pp over the program-output control
+  holds in all 9 seed pairs but is not conclusive over 17 conditions.
+- **With program-gene outputs the loss stops distorting low thresholds:** error at q ≤ 0.4 is
+  2.3–9.2 pp, against 16.5–17.4 for the full-gene WRF-loss model.
+- **Caveats:** program-output models generate no other genes, so they are a control, not a
+  usable generator, and MMD²/DEG costs cannot be compared. Their checkpoint rule differs: on the
+  existing histories (validation only), W1(r) selection would move chemCPA-NB from 7.44 to
+  7.31 pp, too little to explain the gap. A control that keeps the model a full generator
+  (all 2,085 outputs, program genes up-weighted about 21× in the NB loss) has not been run.
+
+
+## Held-out doses from adjacent doses (population metrics)
+
+Why the adjacent-dose mixture beats CellFlow and chemCPA, whether a simple network can infer a
+condition's average from the other conditions, what chemCPA outputs (UMI counts vs per-gene
+distributions), and a training term that fixes chemCPA's main failure: [`docs/interp/`](docs/interp/README.md).
+
+- The mixture's *shape* is nearly right and its *average* is wrong (oracle average shift: val MMD²
+  0.020 → 0.005). A small MLP with a learned code per drug predicts held-out averages best (val DEG50
+  RMSE 0.153 vs 0.210 for averaging the neighbours; floor ≈ 0.08).
+- chemCPA does not fit even its training doses when generating from controls: training only rebuilds
+  each cell from itself. The opt-in `mean_loss` makes generated training-condition populations match
+  the measured averages (in-sample MMD² 3.7× lower).
+- Test, scored once: chemCPA-Gauss + `mean_loss` beats CellFlow on MMD², DEG50, all-gene and program
+  RMSE (CIs exclude zero; W1(r) worse) and beats original chemCPA on DEG50 and program RMSE. Its MMD²
+  gain over original chemCPA is not conclusive, and it is still behind the adjacent mixture.
 
 ## Setup
 

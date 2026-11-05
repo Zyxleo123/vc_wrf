@@ -7,6 +7,7 @@
 #   e.g. slurm/analysis/submit.sh                         # everything
 #        slurm/analysis/submit.sh STAGES="analyze figures" # after copying CellFlow extracts in
 #        slurm/analysis/submit.sh STAGES=figures           # redraw only
+#        slurm/analysis/submit.sh STAGES="adjacent adjacent_compare"   # adjacent-dose-mixture audit
 # Defaults are in defaults.sh. The resolved configuration is written to one env file
 # per submission and passed to every job as a positional argument.
 set -euo pipefail
@@ -19,7 +20,7 @@ source slurm/analysis/defaults.sh "$@"
 logs="$ANALYSIS_ROOT/logs"
 mkdir -p "$logs" "$ANALYSIS_ROOT/submissions"
 env_file="$ANALYSIS_ROOT/submissions/$(date +%Y%m%d-%H%M%S).env"
-for name in REPO VENV DATA_DIR PANEL ANALYSIS_ROOT STAGES N_BOOT; do
+for name in REPO VENV DATA_DIR PANEL ANALYSIS_ROOT STAGES N_BOOT AUDIT_SAMPLING_SEEDS; do
   printf '%s=%q\n' "$name" "${!name}"
 done > "$env_file"
 
@@ -36,7 +37,8 @@ ids=()
 for stage in $STAGES; do
   case "$stage" in
     extract) extra=(--array="0-$(( ${#configs[@]} - 1 ))" --output="$logs/%x-%A_%a.out") ;;
-    measured|analyze|figures) extra=(--output="$logs/%x-%j.out") ;;
+    adjacent) extra=(--output="$logs/%x-%A_%a.out") ;;  # --array is in the script header
+    measured|analyze|figures|adjacent_compare) extra=(--output="$logs/%x-%j.out") ;;
     *) echo "unknown stage: $stage" >&2; exit 2 ;;
   esac
   id=$(submit "${after[@]}" "${extra[@]}" "slurm/analysis/$stage.sbatch" "$env_file")

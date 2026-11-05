@@ -12,8 +12,9 @@ torch = pytest.importorskip("torch")
 pytest.importorskip("rdkit")
 
 from sciplex_baselines.chemcpa import (
-    FractionLoss, cell_inputs, decode, evaluate_run, fraction_conditions, generate, make_model,
-    minibatches, n_features, prediction_inputs, train_one, training_arrays, validate_panel,
+    FractionLoss, MeanLoss, cell_inputs, decode, encode_dose, evaluate_run, fraction_conditions, generate,
+    make_model, mean_conditions, minibatches, n_features, n_outputs, output_gene_ids, output_program_idx,
+    prediction_inputs, train_one, training_arrays, validate_panel,
 )
 from sciplex_baselines.fraction_loss import expected_soft_indicator, supervised_taus
 from sciplex_eval.spec import EPS
@@ -24,10 +25,13 @@ from test_metrics import toy_spec
 FRACTION = {"weight": 10.0, "h": 0.25, "conditions_per_step": 2, "cells_per_condition": 8, "max_count": 64}
 
 
-def small_config(likelihood="gauss", fraction=None):
+def small_config(likelihood="gauss", fraction=None, outputs="all"):
     extra = {} if fraction is None else {"fraction_loss": fraction}
+    if outputs != "all":
+        extra["output_genes"] = outputs
     return {**extra, "likelihood": likelihood, "epochs": 2, "validate_every": 1, "batch_size": 16,
-            "n_prediction_cells": 20, "generation": "sample", "selection_metric": "mmd2",
+            "n_prediction_cells": 20, "generation": "sample",
+            "selection_metric": "mmd2" if outputs == "all" else "w1_r",
             "hparams": {"dim": 4, "autoencoder_width": 8, "autoencoder_depth": 1,
                         "adversary_width": 8, "adversary_depth": 1,
                         "embedding_encoder_width": 8, "embedding_encoder_depth": 1,
@@ -116,6 +120,31 @@ def test_nb_inputs_match_normalization_and_decoding():
     assert np.array_equal(zero, np.zeros((1, 2)))
 
 
+def test_program_outputs_keep_inputs_and_target_program_counts_plus_rest():
+    panel, _ = fixture_panel()
+    spec = toy_spec()  # program genes g1, g3
+    mask = panel.obs.split.eq("control").to_numpy()
+    full, prog = cell_inputs(panel, spec, mask, "nb"), cell_inputs(panel, spec, mask, "nb", "program")
+    np.testing.assert_array_equal(prog.features, full.features)
+    np.testing.assert_array_equal(prog.library, full.library)
+    assert prog.counts.shape == (20, 3)
+    np.testing.assert_array_equal(prog.counts[:, :2], panel.layers["counts"][mask][:, [1, 3]])
+    np.testing.assert_allclose(prog.counts.sum(axis=1), prog.library)
+    config = small_config("nb", outputs="program")
+    assert output_gene_ids(spec, config) == ["g1", "g3"] and n_outputs(spec, config) == 3
+    assert n_outputs(spec, small_config("nb")) == 7
+    # The fraction loss reads the program genes at their output positions: the same
+    # expectation from a program-only output as from the matching full-gene output.
+    rng = np.random.default_rng(2)
+    mean, theta = torch.tensor(rng.uniform(0.1, 3, (5, 7))), torch.tensor(rng.uniform(0.5, 5, (5, 7)))
+    lib = torch.full((5,), 50.0)
+    cols = list(spec.program_idx) + [6]
+    full_soft = expected_soft_indicator(mean, theta, lib, spec, 0.3, spec.taus, 64)
+    prog_soft = expected_soft_indicator(mean[:, cols], theta[:, cols], lib, spec, 0.3, spec.taus, 64,
+                                        program_idx=output_program_idx(spec, config))
+    torch.testing.assert_close(prog_soft, full_soft)
+
+
 def test_expected_soft_indicator_matches_count_sampling():
     spec = toy_spec()  # program genes g1, g3; mu0 1, s0 0.5, taus 0.5 / 1.0
     rng = np.random.default_rng(1)
@@ -197,9 +226,11 @@ def test_zero_dose_single_cell_and_training_updates(likelihood):
         assert sorted(torch.cat(batches).tolist()) == list(range(n))
 
 
-@pytest.mark.parametrize("likelihood,fraction", [("gauss", None), ("nb", None), ("nb", FRACTION),
-                                                 ("nb", {**FRACTION, "quantiles": [0.2, 0.5, 0.95]})])
-def test_checkpoint_roundtrip_and_real_evaluator(tmp_path, likelihood, fraction):
+@pytest.mark.parametrize("likelihood,fraction,outputs", [
+    ("gauss", None, "all"), ("nb", None, "all"), ("nb", FRACTION, "all"),
+    ("nb", {**FRACTION, "quantiles": [0.2, 0.5, 0.95]}, "all"),
+    ("nb", None, "program"), ("nb", FRACTION, "program")])
+def test_checkpoint_roundtrip_and_real_evaluator(tmp_path, likelihood, fraction, outputs):
     torch.set_num_threads(1)
     panel, manifest = fixture_panel()
     spec = toy_spec()
@@ -209,22 +240,32 @@ def test_checkpoint_roundtrip_and_real_evaluator(tmp_path, likelihood, fraction)
     args = argparse.Namespace(out=str(tmp_path / "runs"), device="cpu", spec=str(tmp_path / "spec"),
                               split_config=str(tmp_path / "split.json"), data=str(tmp_path / "panel.h5ad"),
                               split="test", generation=None, sampling_seed=0)
-    train_one(panel, spec, small_config(likelihood, fraction), ["DrugA", "Vehicle"], np.eye(2, dtype=np.float32), {}, args, 0)
+    config = small_config(likelihood, fraction, outputs)
+    train_one(panel, spec, config, ["DrugA", "Vehicle"], np.eye(2, dtype=np.float32), {}, args, 0)
     evaluate_run(panel, spec, args, 0)
     out = tmp_path / "runs/seed_0/test_sample_s0"
     # Resubmission skips finished work; a different config refuses to reuse the run.
     stamp = (tmp_path / "runs/seed_0/model.pt").stat().st_mtime_ns, (out / "summary.json").stat().st_mtime_ns
-    train_one(panel, spec, small_config(likelihood, fraction), ["DrugA", "Vehicle"], np.eye(2, dtype=np.float32), {}, args, 0)
+    train_one(panel, spec, config, ["DrugA", "Vehicle"], np.eye(2, dtype=np.float32), {}, args, 0)
     evaluate_run(panel, spec, args, 0)
     assert stamp == ((tmp_path / "runs/seed_0/model.pt").stat().st_mtime_ns, (out / "summary.json").stat().st_mtime_ns)
     with pytest.raises(ValueError, match="different config"):
-        train_one(panel, spec, {**small_config(likelihood, fraction), "epochs": 3}, ["DrugA", "Vehicle"],
+        train_one(panel, spec, {**config, "epochs": 3}, ["DrugA", "Vehicle"],
                   np.eye(2, dtype=np.float32), {}, args, 0)
     result = json.loads((out / "summary.json").read_text())
     assert result["n_conditions"] == 1 and result["split"] == "test"
     assert np.isfinite(result["wrf_err_pp_q0.95"]["mean"])
     assert len((out / "per_well.jsonl").read_text().splitlines()) == 2
-    assert ad.read_h5ad(out / "predictions.h5ad").shape == (20, 6)
+    prediction = ad.read_h5ad(out / "predictions.h5ad")
+    assert prediction.shape == (20, 6 if outputs == "all" else 2)
+    assert list(prediction.var_names) == output_gene_ids(spec, config)
+    assert ("mmd2" in result) == (outputs == "all") and np.isfinite(result["w1_r"]["mean"])
+    checkpoint = torch.load(tmp_path / "runs/seed_0/model.pt", weights_only=True)
+    assert checkpoint["output_gene_ids"] == output_gene_ids(spec, config)
+    decoder_out = [v for k, v in checkpoint["model"].items() if k.startswith("decoder.") and v.ndim == 2][-1]
+    assert decoder_out.shape[0] == 2 * n_outputs(spec, config)
+    diagnostic = json.loads((out / "control_diagnostic.json").read_text())
+    assert np.isfinite(diagnostic["sample"]["wrf_err_pp_q0.95"])
     from sciplex_baselines.report_chemcpa import main as report_main
     report_main(["--runs", args.out, "--data", args.data, "--spec", args.spec,
                  "--seeds", "0", "--out", str(tmp_path / "report")])
@@ -232,10 +273,12 @@ def test_checkpoint_roundtrip_and_real_evaluator(tmp_path, likelihood, fraction)
     assert report["across_seeds"]["wrf_err_pp_q0.95"]["mean"] == pytest.approx(result["wrf_err_pp_q0.95"]["mean"])
     assert report["likelihood"] == likelihood and (tmp_path / "report/diagnostics.pdf").is_file()
     sensitivity = pd.read_csv(tmp_path / "report/threshold_sensitivity.csv")
-    family = "nbwrf" if fraction else likelihood
+    family = {("all", True): "nbwrf", ("program", True): "nbprogwrf", ("program", False): "nbprog"}.get(
+        (outputs, bool(fraction)), likelihood)
     assert report["family"] == family and set(sensitivity.method) == {family, "vehicle", "replicate"}
     run = json.loads((tmp_path / "runs/seed_0/run.json").read_text())
     assert run["method"].endswith("_wrf") == bool(fraction)
+    assert ("_program" in run["method"]) == (outputs == "program") and run["output_genes"] == outputs
     assert all(np.isfinite(json.loads(line)["loss_auxiliary"]) for line in (tmp_path / "runs/seed_0/history.jsonl").open())
     from sciplex_baselines.compare_chemcpa import main as compare_main
     compare_main(["--reports", str(tmp_path / "report"), "--out", str(tmp_path / "compare")])
@@ -244,3 +287,85 @@ def test_checkpoint_roundtrip_and_real_evaluator(tmp_path, likelihood, fraction)
     (tmp_path / "spec/spec.json").write_text((tmp_path / "spec/spec.json").read_text() + "\n")
     with pytest.raises(ValueError, match="spec differs"):
         evaluate_run(panel, spec, args, 0)
+
+
+def test_compare_mixes_full_and_program_output_reports(tmp_path):
+    torch.set_num_threads(1)
+    panel, manifest = fixture_panel()
+    spec = toy_spec()
+    spec.save(tmp_path / "spec")
+    panel.write_h5ad(tmp_path / "panel.h5ad")
+    (tmp_path / "split.json").write_text(json.dumps(manifest))
+    from sciplex_baselines.compare_chemcpa import main as compare_main
+    from sciplex_baselines.report_chemcpa import main as report_main
+    reports = []
+    for name, config in (("nb", small_config("nb")), ("nbprog", small_config("nb", outputs="program")),
+                         ("nbprogwrf", small_config("nb", FRACTION, "program"))):
+        args = argparse.Namespace(out=str(tmp_path / name), device="cpu", spec=str(tmp_path / "spec"),
+                                  split_config=str(tmp_path / "split.json"), data=str(tmp_path / "panel.h5ad"),
+                                  split="test", generation=None, sampling_seed=0)
+        train_one(panel, spec, config, ["DrugA", "Vehicle"], np.eye(2, dtype=np.float32), {}, args, 0)
+        evaluate_run(panel, spec, args, 0)
+        report_main(["--runs", args.out, "--data", args.data, "--spec", args.spec, "--seeds", "0",
+                     "--out", str(tmp_path / f"report_{name}")])
+        reports.append(str(tmp_path / f"report_{name}"))
+    # Program-output report first: the metric list still covers the full-gene report.
+    compare_main(["--reports", *reports[::-1], "--out", str(tmp_path / "compare")])
+    table = pd.read_csv(tmp_path / "compare/comparison.csv").set_index("variant")
+    assert np.isfinite(table.loc["nb", "mmd2_mean"]) and np.isnan(table.loc["nbprog", "mmd2_mean"])
+    assert np.isfinite(table.loc["nbprog", "wrf_err_pp_q0.95_mean"])
+    text = (tmp_path / "compare/comparison.md").read_text()
+    assert "| – |" in text and "not scored" in text
+    assert (tmp_path / "compare/threshold_sensitivity.png").is_file()
+    paired = pd.read_csv(tmp_path / "compare/paired_differences.csv")
+    assert len(paired.groupby(["ref_variant", "new_variant"])) == 3  # all pairs of three reports
+    assert "mmd2" not in set(paired.metric)  # only metrics both sides score
+    row = paired[(paired.ref_variant == "nbprog") & (paired.new_variant == "nb") & (paired.metric == "wrf_err_pp_q0.95")]
+    assert row.delta_new_minus_ref.item() == pytest.approx(row.mean_new.item() - row.mean_ref.item())
+    assert "Paired differences" in text
+
+
+def test_dose_encodings_default_unchanged_and_log10_evenly_spaced():
+    doses = np.array([0, 10, 100, 1000, 10000], dtype=np.float64)
+    np.testing.assert_allclose(encode_dose(doses, "log1p_uM"), np.log1p(doses / 1000))
+    np.testing.assert_allclose(encode_dose(doses, "log10_nM"), [0, 0.25, 0.5, 0.75, 1.0])
+    assert make_model(7, np.eye(2, dtype=np.float32), small_config("nb"), 0, "cpu").dose_transform == "log1p_uM"
+    panel, _ = fixture_panel()
+    spec = toy_spec()
+    _, _, default = training_arrays(panel, spec, ["DrugA", "Vehicle"], "nb")
+    _, _, log10 = training_arrays(panel, spec, ["DrugA", "Vehicle"], "nb", transform="log10_nM")
+    np.testing.assert_allclose(np.unique(default), [0.0, np.log1p(0.01)], rtol=1e-6)
+    np.testing.assert_allclose(np.unique(log10), [0.0, 0.25])
+
+
+@pytest.mark.parametrize("likelihood", ["gauss", "nb"])
+def test_mean_loss_targets_training_conditions_and_reaches_the_doser(likelihood):
+    torch.set_num_threads(1)
+    panel, _ = fixture_panel()
+    spec = toy_spec()
+    drugs = ["DrugA", "Vehicle"]
+    conditions = mean_conditions(panel, spec, drugs, likelihood)
+    n_out = spec.n_genes + (likelihood == "nb")
+    assert conditions[2].shape == (2, n_out) and conditions[0].tolist() == [0, 1]
+    changed = panel.copy()
+    heldout = changed.obs.split.isin(["val", "test"]).to_numpy()
+    changed.X[heldout] = np.nan
+    changed.layers["counts"][heldout] = np.nan
+    for a, b in zip(conditions, mean_conditions(changed, spec, drugs, likelihood)):
+        np.testing.assert_array_equal(a, b)
+    train = (panel.obs.split == "train").to_numpy()
+    if likelihood == "nb":
+        counts, lib = panel.layers["counts"][train], panel.obs.n_counts_human.to_numpy()[train]
+        np.testing.assert_allclose(conditions[2][0, :-1], np.log1p(1e4 * (counts / lib[:, None]).mean(0)), rtol=1e-5)
+    else:
+        np.testing.assert_allclose(conditions[2][0], panel.X[train].mean(0), rtol=1e-5)
+    settings = {"weight": 10.0, "conditions_per_step": 2, "cells_per_condition": 8}
+    config = {**small_config(likelihood), "mean_loss": settings}
+    model = make_model(n_features(spec, likelihood), np.eye(2, dtype=np.float32), config, 0, "cpu",
+                       n_outputs(spec, config))
+    controls, _ = prediction_inputs(panel, spec, "test", likelihood)
+    loss = MeanLoss(model, controls, tuple(v[:1] for v in conditions), settings, 0)()
+    assert loss.ndim == 0 and loss.item() > 0
+    loss.backward()
+    for module in (model.decoder, model.dosers, model.drug_embedding_encoder, model.encoder):
+        assert any(p.grad is not None and p.grad.abs().sum() > 0 for p in module.parameters())

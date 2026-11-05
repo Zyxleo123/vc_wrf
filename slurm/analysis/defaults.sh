@@ -27,3 +27,5 @@ export ANALYSIS_ROOT="${ANALYSIS_ROOT:-$REPO/results/analysis}"
 export STAGES="${STAGES:-measured extract analyze figures}"
 # Bootstrap resamples for every paired comparison.
 export N_BOOT="${N_BOOT:-10000}"
+# Sampling seeds per adjacent-dose-mixture ablation (stages adjacent, adjacent_compare).
+export AUDIT_SAMPLING_SEEDS="${AUDIT_SAMPLING_SEEDS:-20}"

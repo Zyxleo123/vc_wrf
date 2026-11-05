@@ -14,7 +14,10 @@ which was fixed before any sweep result, and every configuration tried.
 | [`wrf_round1_test`](wrf_round1_test/comparison.md) | test | round-1 pick, chemCPA-NB, chemCPA-Gauss | `20261030-173429` |
 | [`wrf_round2_val`](wrf_round2_val/comparison.md) | val | round 2: 6 loss settings (13 τs), chemCPA-NB, round-1 pick | `20261030-175952` |
 | [`wrf_round2_test`](wrf_round2_test/comparison.md) | test | round-2 pick, chemCPA-NB, round-1 pick | `20261030-180637` |
+| [`prog97_val`](prog97_val/comparison.md) | val | program-gene-output control: 2×2 of decoder genes × WRF loss | `20261103-211951` |
+| [`prog97_test`](prog97_test/comparison.md) | test | program-gene-output control: 2×2 of decoder genes × WRF loss | `20261103-211951` |
 
 Each folder holds `comparison.md` (the frozen v1 metrics, plus WRF error at 13 control-quantile
 thresholds), `comparison.csv`, and `threshold_sensitivity.png`. Rows are means over 3 seeds;
-vehicle and replicate rows are the shared references. Figures plot at most three models.
+vehicle and replicate rows are the shared references. Figures plot at most three models
+(four since the program-gene-output control, whose comparison is a 2×2).

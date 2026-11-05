@@ -24,16 +24,26 @@ with `NBLoss`. This follows the count-likelihood design of later CPA releases
 
 Local hook: `update(..., aux_loss=callable)` adds the callable's value to the
 autoencoder objective on autoencoder steps (used for the project's
-response-fraction loss; without it, training is unchanged). No other upstream
-model changes.
+response-fraction loss; without it, training is unchanged).
+
+Local extension (opt-in, NB only): `num_outputs` gives the decoder its own
+feature count, so the encoder can read every gene while the decoder generates a
+subset (used for the program-gene-output control). Left unset, the decoder has
+`num_genes` outputs as upstream and existing checkpoints load unchanged. No other
+upstream model changes.
 
 The adapter trains from scratch with frozen RDKit Morgan fingerprints (radius 2,
 2048 bits), rather than the paper's pretrained molecular embeddings. It uses a
-smaller configurable network, log1p(dose in micromolar) for the amortized doser,
+smaller configurable network, log1p(dose in micromolar) for the amortized doser
+(or, opt-in, `dose_transform: "log10_nM"`, log10(dose in nM) / 4),
 one constant A549 covariate, and the project's fixed expression genes and splits.
 The NB variant adds one feature holding all other human UMIs, so generated
 cells are normalized by their generated total exactly as real cells are; the
 source control cell supplies the library size (treatment-induced library-size
 shifts are not modelled).
+An opt-in adapter term, `mean_loss` (`MeanLoss` in `chemcpa.py`, passed through the
+`aux_loss` hook), supervises the counterfactual path at the population level: control cells
+pushed through a training condition must reproduce that condition's measured average expression.
+Upstream training only reconstructs each cell through its own encoding.
 This is a chemCPA-Morgan baseline, not a reproduction of the published benchmark
 or LINCS pretraining. The WRF loss is not included.

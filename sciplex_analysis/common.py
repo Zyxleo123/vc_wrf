@@ -52,6 +52,10 @@ def _chemcpa_methods() -> dict:
     for path in sorted((REPO / "configs").glob("chemcpa_*.json")):
         name = path.stem.removeprefix("chemcpa_")
         config = json.loads(path.read_text())
+        if config.get("output_genes", "all") != "all":
+            # Program-gene-output controls have no non-program genes to extract (mean
+            # expression, non-program MMD); they are scored by sciplex_baselines' reports.
+            continue
         loss = config.get("fraction_loss")
         if loss is None:
             entry = {"lam": 0.0, "h": None, "train_qs": [], "likelihood": config["likelihood"]}

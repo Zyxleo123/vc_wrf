@@ -10,6 +10,20 @@ library size (see vendor/chemCPA_NOTICE.md). An NB config may add "fraction_loss
 the project's response-fraction regularizer (fraction_loss.py), fitted on training
 conditions only. Both commands skip finished work, so a job that hits its time limit
 is resubmitted rather than restarted.
+
+An NB config may also set "output_genes": "program". The encoder still reads every
+spec gene, but the decoder generates only the program genes plus one feature for
+all other human UMIs. The whole reconstruction loss then falls on the genes behind
+r(x): a control for attributing the fraction loss's gain to extra supervision on
+that subset. Such runs are scored on the program-only metrics (WRF, W1(r),
+program-gene RMSE).
+
+Two more opt-in config keys (docs/interp/README.md); without them training is unchanged.
+"dose_transform": "log10_nM" feeds the doser log10(dose_nM) / 4 instead of chemCPA's
+log1p(dose in µM), which nearly merges 10 and 100 nM. "mean_loss" (MeanLoss) adds
+weight x the squared difference between the counterfactual population's average (permitted
+controls pushed through a training condition, as at prediction time) and that training
+condition's measured average, for both likelihoods.
 """
 from __future__ import annotations
 
@@ -40,6 +54,7 @@ from .vendor.chemcpa_model import ComPert
 REPO = Path(__file__).resolve().parents[1]
 UPSTREAM = "a4a4ded0c3b949c64ff1ea51033be1b7c301c36b"
 LIKELIHOODS = ("gauss", "nb")
+OUTPUT_GENES = ("all", "program")
 GENERATIONS = ("sample", "mean")
 EVAL_OUTPUTS = ("predictions.h5ad", "summary.json", "per_condition.jsonl", "per_well.jsonl",
                 "control_diagnostic.json")
@@ -106,7 +121,8 @@ def validate_panel(panel, spec, manifest):
 
 @dataclass
 class Cells:
-    """Model inputs for a set of cells; `expression` is their spec log1p(CP10K) view."""
+    """Model inputs for a set of cells; `expression` is their spec log1p(CP10K) view
+    and `counts` the NB reconstruction target over the decoder's output features."""
     features: np.ndarray
     expression: np.ndarray
     counts: np.ndarray | None = None
@@ -114,17 +130,39 @@ class Cells:
 
 
 def n_features(spec, likelihood):
+    """Encoder input features."""
     return spec.n_genes + (likelihood == "nb")
 
 
+def output_genes(config):
+    return config.get("output_genes", "all")
+
+
+def output_gene_ids(spec, config):
+    """Genes the decoder generates: every spec gene, or the program genes alone."""
+    return spec.gene_ids if output_genes(config) == "all" else list(spec.program_gene_ids)
+
+
+def n_outputs(spec, config):
+    """Decoder output features: the generated genes, plus the NB rest feature."""
+    return len(output_gene_ids(spec, config)) + (config["likelihood"] == "nb")
+
+
+def output_program_idx(spec, config):
+    """Positions of the program genes among the decoder's output features."""
+    return spec.program_idx if output_genes(config) == "all" else np.arange(len(spec.program_gene_ids))
+
+
 def method_name(config):
-    return f"chemcpa_morgan_{config['likelihood']}" + ("_wrf" if "fraction_loss" in config else "")
+    return (f"chemcpa_morgan_{config['likelihood']}" + ("_program" if output_genes(config) == "program" else "")
+            + ("_wrf" if "fraction_loss" in config else ""))
 
 
-def cell_inputs(panel, spec, mask, likelihood):
+def cell_inputs(panel, spec, mask, likelihood, outputs="all"):
     """Gaussian: the spec genes' log1p(CP10K). NB: those plus one log1p(CP10K) feature
-    for all other human UMIs, with raw counts over the same features and the
-    human-UMI library size that normalizes X."""
+    for all other human UMIs, with raw counts over the output features and the
+    human-UMI library size that normalizes X. With outputs="program" the counts are
+    the program genes plus one feature for all other human UMIs; inputs are unchanged."""
     expression = _dense(spec.align(panel.X[mask], panel.var_names)).astype(np.float32)
     if not np.isfinite(expression).all() or (expression < 0).any():
         raise ValueError("expression must be finite nonnegative log1p(CP10K)")
@@ -138,24 +176,43 @@ def cell_inputs(panel, spec, mask, likelihood):
     if not np.allclose(np.log1p(counts / library[:, None] * 1e4), expression, atol=1e-3):
         raise ValueError("X is not log1p(counts / n_counts_human * 1e4)")
     features = np.hstack([expression, np.log1p(rest / library * 1e4)[:, None]])
-    return Cells(features.astype(np.float32), expression,
-                 np.hstack([counts, rest[:, None]]).astype(np.float32), library.astype(np.float32))
+    if outputs == "program":
+        counts = counts[:, spec.program_idx]
+    target = np.hstack([counts, (library - counts.sum(axis=1))[:, None]])
+    return Cells(features.astype(np.float32), expression, target.astype(np.float32), library.astype(np.float32))
 
 
-def training_arrays(panel, spec, drugs, likelihood):
+DOSE_TRANSFORMS = {
+    # chemCPA's convention (µM, log1p): 10/100/1000/10000 nM -> 0.010/0.095/0.69/2.40
+    "log1p_uM": lambda dose_nM: np.log1p(dose_nM / 1000),
+    # evenly spaced decades: 10/100/1000/10000 nM -> 0.25/0.5/0.75/1; vehicle stays 0
+    "log10_nM": lambda dose_nM: np.where(dose_nM > 0, np.log10(np.maximum(dose_nM, 1)) / 4, 0.0),
+}
+
+
+def dose_transform(config):
+    return config.get("dose_transform", "log1p_uM")
+
+
+def encode_dose(dose_nM, transform):
+    """Doser input for doses in nM (vehicle = 0 maps to 0, which the doser gates off)."""
+    return np.asarray(DOSE_TRANSFORMS[transform](np.asarray(dose_nM, dtype=np.float64)), dtype=np.float64)
+
+
+def training_arrays(panel, spec, drugs, likelihood, outputs="all", transform="log1p_uM"):
     mask = panel.obs.split.isin(["train", "control"]).to_numpy()
     obs = panel.obs.loc[mask]
-    cells = cell_inputs(panel, spec, mask, likelihood)
+    cells = cell_inputs(panel, spec, mask, likelihood, outputs)
     lookup = {drug: i for i, drug in enumerate(drugs)}
     indices = np.array([lookup[d] for d in obs.drug.astype(str)], dtype=np.int64)
     # Frozen unit conversion; no statistics from withheld expression or doses.
-    doses = np.log1p(obs.dose.to_numpy(dtype=np.float64) / 1000).astype(np.float32)
+    doses = encode_dose(obs.dose.to_numpy(dtype=np.float64), transform).astype(np.float32)
     if not np.isfinite(doses).all() or (doses < 0).any():
         raise ValueError("doses must be finite and nonnegative")
     return cells, indices, doses
 
 
-def fraction_conditions(panel, spec, drugs, h, taus):
+def fraction_conditions(panel, spec, drugs, h, taus, transform="log1p_uM"):
     """Measured training conditions (train doses and vehicle) and their smoothed
     weak-responder fractions at `taus`; validation and test cells are never read."""
     allowed = panel.obs.split.isin(["train", "control"]).to_numpy()
@@ -165,7 +222,7 @@ def fraction_conditions(panel, spec, drugs, h, taus):
         mask = allowed & panel.obs.condition.eq(cond).to_numpy()
         expression = _dense(spec.align(panel.X[mask], panel.var_names))
         drug_idx.append(lookup[str(group.drug.iloc[0])])
-        doses.append(np.log1p(float(group.dose.iloc[0]) / 1000))
+        doses.append(float(encode_dose(float(group.dose.iloc[0]), transform)))
         targets.append(real_targets(spec, expression, h, taus))
     return (np.array(drug_idx, dtype=np.int64), np.array(doses, dtype=np.float32),
             np.array(targets, dtype=np.float32))
@@ -175,8 +232,10 @@ class FractionLoss:
     """weight x mean over sampled training conditions and spec taus of the squared
     difference between generated and measured smoothed weak-responder fractions."""
 
-    def __init__(self, model, spec, controls, conditions, settings, taus, seed):
+    def __init__(self, model, spec, controls, conditions, settings, taus, seed, program_idx=None):
         self.model, self.spec, self.settings, self.taus = model, spec, settings, taus
+        # Program genes' columns among the decoder outputs (spec order by default).
+        self.program_idx = spec.program_idx if program_idx is None else program_idx
         device = model.device
         self.features = torch.from_numpy(controls.features).to(device)
         self.library = torch.from_numpy(controls.library).to(device)
@@ -194,12 +253,75 @@ class FractionLoss:
                                        covariates=[torch.ones((len(cells), 1), device=device)])
         mean, theta = output.chunk(2, dim=1)
         soft = expected_soft_indicator(mean, theta, self.library[cells], self.spec,
-                                       self.settings["h"], self.taus, self.settings["max_count"])
+                                       self.settings["h"], self.taus, self.settings["max_count"],
+                                       program_idx=self.program_idx)
         generated = soft.view(n_cond, n_cells, -1).mean(1)
         return self.settings["weight"] * ((generated - self.target[conds]) ** 2).mean()
 
 
-def make_model(n_inputs, fingerprints, config, seed, device):
+def mean_conditions(panel, spec, drugs, likelihood, outputs="all", transform="log1p_uM"):
+    """Every training condition and vehicle with its measured population mean over the decoder's
+    output features: log1p(1e4 x mean count proportion) under NB (the rest feature included),
+    mean log1p(CP10K) under the Gaussian likelihood. Validation and test cells are never read."""
+    allowed = panel.obs.split.isin(["train", "control"]).to_numpy()
+    lookup = {drug: i for i, drug in enumerate(drugs)}
+    drug_idx, doses, targets = [], [], []
+    for cond, group in panel.obs[allowed].groupby("condition", observed=True):
+        mask = allowed & panel.obs.condition.eq(cond).to_numpy()
+        cells = cell_inputs(panel, spec, mask, likelihood, outputs)
+        if likelihood == "nb":
+            target = np.log1p(1e4 * (cells.counts / cells.library[:, None]).mean(0))
+        else:
+            target = cells.expression.mean(0)
+        drug_idx.append(lookup[str(group.drug.iloc[0])])
+        doses.append(float(encode_dose(float(group.dose.iloc[0]), transform)))
+        targets.append(target)
+    return (np.array(drug_idx, dtype=np.int64), np.array(doses, dtype=np.float32),
+            np.array(targets, dtype=np.float32))
+
+
+class MeanLoss:
+    """weight x mean over sampled training conditions and output features of the squared
+    difference between the counterfactual population's mean (permitted controls pushed through
+    the condition, as at prediction time) and the measured condition's mean. chemCPA's own
+    objective only reconstructs each cell through its own encoding, so this is the only term
+    that supervises the counterfactual path at the population level."""
+
+    def __init__(self, model, controls, conditions, settings, seed):
+        self.model, self.settings = model, settings
+        device = model.device
+        self.features = torch.from_numpy(controls.features).to(device)
+        self.library = None if controls.library is None else torch.from_numpy(controls.library).to(device)
+        self.drug, self.dose, self.target = (torch.from_numpy(v).to(device) for v in conditions)
+        self.generator = torch.Generator().manual_seed(seed + 40000)
+
+    def __call__(self):
+        n_cond, n_cells = self.settings["conditions_per_step"], self.settings["cells_per_condition"]
+        device = self.model.device
+        conds = torch.randint(len(self.target), (n_cond,), generator=self.generator).to(device)
+        cells = torch.randint(len(self.features), (n_cond * n_cells,), generator=self.generator).to(device)
+        per_cell = conds.repeat_interleave(n_cells)
+        library = None if self.library is None else self.library[cells]
+        output, _ = self.model.predict(self.features[cells], drugs_idx=self.drug[per_cell],
+                                       dosages=self.dose[per_cell], library=library,
+                                       covariates=[torch.ones((len(cells), 1), device=device)])
+        mean, _ = output.chunk(2, dim=1)
+        if self.model.loss_ae == "nb":
+            mean = torch.log1p(1e4 * (mean / library[:, None]).view(n_cond, n_cells, -1).mean(1))
+        else:
+            mean = mean.view(n_cond, n_cells, -1).mean(1)
+        return self.settings["weight"] * ((mean - self.target[conds]) ** 2).mean()
+
+
+class SumLoss:
+    def __init__(self, parts):
+        self.parts = parts
+
+    def __call__(self):
+        return sum(part() for part in self.parts)
+
+
+def make_model(n_inputs, fingerprints, config, seed, device, n_outputs=None):
     # Upstream randomizes hyperparameters when seed != 0 unless a complete dict
     # is supplied. Hold architecture/optimizer settings fixed across seeds.
     hparams = dict(ComPert.defaults())
@@ -210,12 +332,14 @@ def make_model(n_inputs, fingerprints, config, seed, device):
         raise ValueError("adversary_steps must be >= 2 so the autoencoder is updated")
     seed_all(seed)
     embedding = torch.nn.Embedding.from_pretrained(torch.as_tensor(fingerprints), freeze=True)
-    return ComPert(
+    model = ComPert(
         num_genes=n_inputs, num_drugs=len(fingerprints), num_covariates=[1],
         drug_embeddings=embedding, device=str(device), seed=seed,
         doser_type="amortized", decoder_activation="linear", hparams=hparams,
-        use_drugs_idx=True, loss_ae=config["likelihood"],
+        use_drugs_idx=True, loss_ae=config["likelihood"], num_outputs=n_outputs,
     )
+    model.dose_transform = dose_transform(config)
+    return model
 
 
 def minibatches(n, batch_size, generator):
@@ -229,9 +353,9 @@ def minibatches(n, batch_size, generator):
     return batches
 
 
-def prediction_inputs(panel, spec, split, likelihood):
+def prediction_inputs(panel, spec, split, likelihood, outputs="all"):
     """Separate permitted expression from held-out metadata before prediction."""
-    controls = cell_inputs(panel, spec, panel.obs.split.eq("control").to_numpy(), likelihood)
+    controls = cell_inputs(panel, spec, panel.obs.split.eq("control").to_numpy(), likelihood, outputs)
     if len(controls.features) < 2:
         raise ValueError("at least two permitted control cells are required")
     # Grouping metadata is allowed; withheld expression is never passed to generate.
@@ -245,7 +369,7 @@ def prediction_inputs(panel, spec, split, likelihood):
 
 
 def decode(mean, spread, likelihood, mode, rng):
-    """Map decoder outputs to log1p(CP10K) cells over the spec genes.
+    """Map decoder outputs to log1p(CP10K) cells over the generated genes.
 
     Gaussian samples keep their original support (no posthoc clipping or threshold
     calibration); the shared response score clips negatives itself. NB samples are
@@ -287,7 +411,8 @@ def generate(model, controls, conditions, drugs, gene_ids, *, n_cells, seed, mod
             x = torch.as_tensor(controls.features[batch], device=model.device)
             library = None if controls.library is None else torch.as_tensor(controls.library[batch], device=model.device)
             idx = torch.full((len(x),), lookup[cond["drug"]], dtype=torch.long, device=model.device)
-            dose = torch.full((len(x),), float(np.log1p(cond["dose_nM"] / 1000)), device=model.device)
+            dose = torch.full((len(x),), float(encode_dose(cond["dose_nM"], model.dose_transform)),
+                              device=model.device)
             output, _ = model.predict(x, drugs_idx=idx, dosages=dose, library=library,
                                       covariates=[torch.ones((len(x), 1), device=model.device)])
             mean, spread = np.split(output.cpu().numpy().astype(np.float64), 2, axis=1)
@@ -301,10 +426,11 @@ def generate(model, controls, conditions, drugs, gene_ids, *, n_cells, seed, mod
                       var=pd.DataFrame(index=gene_ids))
 
 
-def save_scores(out, spec, panel, pred, split, meta):
+def save_scores(out, spec, panel, pred, split, meta, program_only=False):
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
-    records = evaluate_predictions(spec, panel, pred, split=split, seed=meta["seed"])
+    records = evaluate_predictions(spec, panel, pred, split=split, seed=meta["seed"], program_only=program_only)
+    align = spec.align_program if program_only else spec.align
     write_json(out / "summary.json", {**meta, **summarize(records)})
     with (out / "per_condition.jsonl").open("w") as f:
         for record in records:
@@ -312,12 +438,12 @@ def save_scores(out, spec, panel, pred, split, meta):
     wells = []
     for cond in sorted(set(pred.obs.condition)):
         real_obs = panel.obs[panel.obs.condition == cond]
-        xp = spec.align(pred.X[(pred.obs.condition == cond).to_numpy()], pred.var_names)
+        xp = align(pred.X[(pred.obs.condition == cond).to_numpy()], pred.var_names)
         for key, group in real_obs.groupby(["replicate", "culture_plate", "well_oligo"], observed=True):
             real = spec.align(panel[group.index].X, panel.var_names)
             wells.append({**meta, "condition": cond, "replicate": str(key[0]),
                           "culture_plate": str(key[1]), "well_oligo": str(key[2]),
-                          **evaluate_condition(spec, real, X_pred=xp, seed=meta["seed"])})
+                          **evaluate_condition(spec, real, X_pred=xp, seed=meta["seed"], program_only=program_only)})
     with (out / "per_well.jsonl").open("w") as f:
         for record in wells:
             f.write(json.dumps(record) + "\n")
@@ -346,20 +472,30 @@ def train_one(panel, spec, config, drugs, fingerprints, molecular_meta, args, se
         shutil.rmtree(out)
     out.mkdir(parents=True)
     started = time.monotonic()
-    likelihood = config["likelihood"]
-    model = make_model(n_features(spec, likelihood), fingerprints, config, seed, args.device)
-    cells, idx, dose = training_arrays(panel, spec, drugs, likelihood)
+    likelihood, outputs = config["likelihood"], output_genes(config)
+    program_only, gene_ids = outputs == "program", output_gene_ids(spec, config)
+    model = make_model(n_features(spec, likelihood), fingerprints, config, seed, args.device, n_outputs(spec, config))
+    transform = dose_transform(config)
+    cells, idx, dose = training_arrays(panel, spec, drugs, likelihood, outputs, transform)
     tensors = {"x": cells.features, "idx": idx, "dose": dose}
     if likelihood == "nb":
         tensors.update(counts=cells.counts, library=cells.library)
     tensors = {k: torch.from_numpy(v) for k, v in tensors.items()}
-    controls, val_conditions = prediction_inputs(panel, spec, "val", likelihood)
+    controls, val_conditions = prediction_inputs(panel, spec, "val", likelihood, outputs)
     fraction, taus = None, None
     if "fraction_loss" in config:
         settings = config["fraction_loss"]
         taus = supervised_taus(spec, controls.expression, settings.get("quantiles"))
-        fraction = FractionLoss(model, spec, controls, fraction_conditions(panel, spec, drugs, settings["h"], taus),
-                                settings, taus, seed)
+        fraction = FractionLoss(model, spec, controls,
+                                fraction_conditions(panel, spec, drugs, settings["h"], taus, transform),
+                                settings, taus, seed, program_idx=output_program_idx(spec, config))
+    aux = [fraction] if fraction is not None else []
+    mean_loss = None
+    if "mean_loss" in config:
+        mean_loss = MeanLoss(model, controls, mean_conditions(panel, spec, drugs, likelihood, outputs, transform),
+                             config["mean_loss"], seed)
+        aux.append(mean_loss)
+    aux_loss = None if not aux else aux[0] if len(aux) == 1 else SumLoss(aux)
     n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
     meta = {
         "method": method_name(config), "seed": seed, "config": config,
@@ -375,11 +511,14 @@ def train_one(panel, spec, config, drugs, fingerprints, molecular_meta, args, se
         "molecular_inputs": molecular_meta,
         "selection": f"minimum equal-condition validation {config['selection_metric']}",
         "training_splits": ["train", "control"], "likelihood": likelihood,
+        "output_genes": outputs, "n_inputs": n_features(spec, likelihood), "n_outputs": n_outputs(spec, config),
         "fraction_loss": config.get("fraction_loss"),
         "fraction_loss_conditions": None if fraction is None else len(fraction.target),
         "fraction_loss_taus": None if taus is None else [float(t) for t in taus],
         "generation": config["generation"],
-        "dose_transform": "log1p(dose_nM / 1000)",
+        "dose_transform": {"log1p_uM": "log1p(dose_nM / 1000)", "log10_nM": "log10(dose_nM) / 4"}[transform],
+        "mean_loss": config.get("mean_loss"),
+        "mean_loss_conditions": None if mean_loss is None else len(mean_loss.target),
     }
     write_json(out / "run.json", meta)
     generator = torch.Generator().manual_seed(seed)
@@ -390,7 +529,7 @@ def train_one(panel, spec, config, drugs, fingerprints, molecular_meta, args, se
         for batch in minibatches(len(idx), config["batch_size"], generator):
             b = {k: v[batch].to(args.device) for k, v in tensors.items()}
             stats = model.update(b["x"], drugs_idx=b["idx"], dosages=b["dose"],
-                                 counts=b.get("counts"), library=b.get("library"), aux_loss=fraction,
+                                 counts=b.get("counts"), library=b.get("library"), aux_loss=aux_loss,
                                  covariates=[torch.ones((len(batch), 1), device=args.device)])
             if not all(np.isfinite(v) for v in stats.values()):
                 raise RuntimeError(f"nonfinite training loss at epoch {epoch}: {stats}")
@@ -403,23 +542,24 @@ def train_one(panel, spec, config, drugs, fingerprints, molecular_meta, args, se
                    "elapsed_seconds": time.monotonic() - started}
         if epoch % config["validate_every"] == 0 or epoch == config["epochs"]:
             # Common random numbers across checkpoints reduce simulation noise.
-            pred = generate(model, controls, val_conditions, drugs, spec.gene_ids,
+            pred = generate(model, controls, val_conditions, drugs, gene_ids,
                             n_cells=config["n_prediction_cells"], seed=seed + 10000, mode=config["generation"])
-            summary = summarize(evaluate_predictions(spec, panel, pred, "val", seed=seed))
+            summary = summarize(evaluate_predictions(spec, panel, pred, "val", seed=seed, program_only=program_only))
             history["validation"] = summary
             score = summary[config["selection_metric"]]["mean"]
             if score < best:
                 best = score
                 checkpoint = {"model": model.state_dict(), "config": config, "drugs": drugs,
                               "fingerprints": torch.from_numpy(fingerprints), "gene_ids": spec.gene_ids,
+                              "output_gene_ids": gene_ids,
                               "epoch": epoch, "seed": seed, "spec_hashes": meta["spec_hashes"],
                               "split_sha256": meta["split_sha256"], "panel_sha256": meta["panel_sha256"]}
                 torch.save(checkpoint, out / "model.pt")
                 write_json(out / "selected.json", {"epoch": epoch, "selection_metric": config["selection_metric"],
                                                      "score": best, "validation": summary})
+            shown = " ".join(f"val_{k}={summary[k]['mean']:.5f}" for k in ("mmd2", "w1_r") if k in summary)
             print(f"seed={seed} epoch={epoch} nll={history['loss_reconstruction']:.4f} "
-                  f"aux={history['loss_auxiliary']:.5f} "
-                  f"val_mmd2={summary['mmd2']['mean']:.5f} "
+                  f"aux={history['loss_auxiliary']:.5f} {shown} "
                   f"val_wrf_pp={summary[f'wrf_err_pp_q{spec.primary_q:g}']['mean']:.3f}", flush=True)
         with (out / "history.jsonl").open("a") as f:
             f.write(json.dumps(history) + "\n")
@@ -436,7 +576,10 @@ def evaluate_run(panel, spec, args, seed):
     if checkpoint["split_sha256"] != sha256(args.split_config) or checkpoint["panel_sha256"] != sha256(args.data):
         raise ValueError("panel or frozen split differs from training")
     config = checkpoint["config"]
-    likelihood = config["likelihood"]
+    likelihood, outputs = config["likelihood"], output_genes(config)
+    program_only, gene_ids = outputs == "program", output_gene_ids(spec, config)
+    if checkpoint.get("output_gene_ids", spec.gene_ids) != gene_ids:
+        raise ValueError("checkpoint output genes differ from its config")
     mode = args.generation or config["generation"]
     suffix = f"{args.split}_{mode}_s{args.sampling_seed}"
     out = run / suffix
@@ -446,29 +589,32 @@ def evaluate_run(panel, spec, args, seed):
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True)
-    model = make_model(n_features(spec, likelihood), checkpoint["fingerprints"], config, checkpoint["seed"], args.device)
+    model = make_model(n_features(spec, likelihood), checkpoint["fingerprints"], config, checkpoint["seed"],
+                       args.device, n_outputs(spec, config))
     model.load_state_dict(checkpoint["model"])
-    controls, conditions = prediction_inputs(panel, spec, args.split, likelihood)
+    controls, conditions = prediction_inputs(panel, spec, args.split, likelihood, outputs)
     sample_seed = seed + (10000 if args.split == "val" else 20000) + args.sampling_seed
-    pred = generate(model, controls, conditions, checkpoint["drugs"], spec.gene_ids,
+    pred = generate(model, controls, conditions, checkpoint["drugs"], gene_ids,
                     n_cells=config["n_prediction_cells"], seed=sample_seed, mode=mode)
     pred.uns["chemcpa"] = {"checkpoint_sha256": sha256(run / "model.pt"), "epoch": checkpoint["epoch"],
                             "seed": seed, "likelihood": likelihood, "generation": mode,
-                            "sampling_seed": sample_seed}
+                            "sampling_seed": sample_seed, "output_genes": outputs}
     pred.write_h5ad(out / "predictions.h5ad", compression="gzip")
     meta = {"method": f"{method_name(config)}_{mode}", "seed": seed, "split": args.split,
             "spec_version": spec.version, "epoch": checkpoint["epoch"],
-            "likelihood": likelihood, "generation": mode,
+            "likelihood": likelihood, "generation": mode, "output_genes": outputs,
             "sampling_seed": sample_seed, "checkpoint_sha256": sha256(run / "model.pt")}
-    summary = save_scores(out, spec, panel, pred, args.split, meta)
+    summary = save_scores(out, spec, panel, pred, args.split, meta, program_only=program_only)
     # Decoder reconstruction diagnostics on controls only, separate from scores.
     n_controls = len(controls.features)
     ctrl_cond = [{"condition": "control_diagnostic", "drug": "Vehicle", "dose_nM": 0, "n_cells": n_controls}]
     diagnostic = {}
     for diagnostic_mode in GENERATIONS:
-        control_pred = generate(model, controls, ctrl_cond, checkpoint["drugs"], spec.gene_ids,
+        control_pred = generate(model, controls, ctrl_cond, checkpoint["drugs"], gene_ids,
                                 n_cells=n_controls, seed=sample_seed, mode=diagnostic_mode)
-        diagnostic[diagnostic_mode] = evaluate_condition(spec, controls.expression, X_pred=control_pred.X, seed=seed)
+        xp = spec.align_program(control_pred.X, gene_ids) if program_only else control_pred.X
+        diagnostic[diagnostic_mode] = evaluate_condition(spec, controls.expression, X_pred=xp, seed=seed,
+                                                         program_only=program_only)
     write_json(out / "control_diagnostic.json", diagnostic)
     print(f"seed={seed} {suffix}: WRF MAE={summary[f'wrf_err_pp_q{spec.primary_q:g}']['mean']:.3f} pp", flush=True)
 
@@ -511,8 +657,18 @@ def main(argv=None):
             parser.error("fraction_loss needs the nb likelihood, weight >= 0, h > 0 and positive sizes")
         if settings is not None and not all(0 < q < 1 for q in settings.get("quantiles", [0.5])):
             parser.error("fraction_loss quantiles must lie in (0, 1)")
-        if config["selection_metric"] not in {"mmd2", "w1_r", f"wrf_err_pp_q{spec.primary_q:g}", "rmse_mean_all"}:
-            parser.error("unsupported validation selection metric")
+        if dose_transform(config) not in DOSE_TRANSFORMS:
+            parser.error(f"dose_transform must be one of {sorted(DOSE_TRANSFORMS)}")
+        ml = config.get("mean_loss")
+        if ml is not None and (ml["weight"] < 0 or min(ml["conditions_per_step"], ml["cells_per_condition"]) < 1):
+            parser.error("mean_loss needs weight >= 0 and positive sizes")
+        if output_genes(config) not in OUTPUT_GENES or (output_genes(config) == "program" and config["likelihood"] != "nb"):
+            parser.error(f"output_genes must be one of {OUTPUT_GENES}; 'program' needs the nb likelihood")
+        selectable = {"mmd2", "w1_r", f"wrf_err_pp_q{spec.primary_q:g}", "rmse_mean_all"}
+        if output_genes(config) == "program":  # no non-program genes to score MMD² or all-gene RMSE on
+            selectable -= {"mmd2", "rmse_mean_all"}
+        if config["selection_metric"] not in selectable:
+            parser.error(f"unsupported validation selection metric; choose from {sorted(selectable)}")
         obs = panel.obs[panel.obs.split.isin(["train", "control"])]
         chemicals = pd.read_csv(args.chemicals, sep="\t") if args.chemicals else None
         drugs, fingerprints, molecular_meta = molecular_inputs(obs, chemicals)

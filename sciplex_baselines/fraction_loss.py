@@ -39,17 +39,18 @@ def real_targets(spec: EvalSpec, expression, h, taus):
     return soft_fraction(response_score(expression, spec), taus, h)
 
 
-def expected_soft_indicator(mean, theta, library, spec: EvalSpec, h, taus, max_count=256):
+def expected_soft_indicator(mean, theta, library, spec: EvalSpec, h, taus, max_count=256, program_idx=None):
     """E_S[sigma((tau - r(S, T)) / h)] per cell and tau, for NB-decoded cells.
 
-    mean, theta: (cells, features) NB means and inverse dispersions in spec gene
-    order (extra trailing features are ignored); library: (cells,) T.
+    mean, theta: (cells, features) NB means and inverse dispersions; program_idx gives
+    the program genes' columns among those features (default spec.program_idx, i.e.
+    spec gene order; extra trailing features are ignored); library: (cells,) T.
     Returns (cells, len(taus)). Mass above max_count takes the indicator at
     max_count, where cells are on the weak-responder side of every tau.
     """
     if spec.score_type != "log_sum":
         raise ValueError("the analytic NB expectation needs the log_sum program score")
-    idx = torch.as_tensor(spec.program_idx, device=mean.device)
+    idx = torch.as_tensor(spec.program_idx if program_idx is None else program_idx, device=mean.device)
     mu, th = mean[:, idx].double(), theta[:, idx].double()
     m = mu.sum(1).clamp_min(1e-8)
     excess = (mu * mu / th).sum(1).clamp_min(1e-8)  # variance - mean of the program total

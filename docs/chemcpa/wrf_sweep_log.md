@@ -89,3 +89,43 @@ Jobs: evaluate 91294, report 91295 (submission 20261030-180637). Test, 17 condit
   Predicted-vs-measured WRF Pearson at q0.95: 0.63 (round 1 0.52, NB 0.02).
 - Validation overstated the primary gain (val 4.78 ± 0.75 → test 6.58 ± 0.17).
 Stopped after round 2: further rounds would be tuned with knowledge of two test results.
+
+## Control: program-gene decoder outputs (2026-11-03, decided after both test results)
+
+Question: is the WRF loss's gain just extra supervision on the 97 program genes? The fraction
+loss reads only those genes, so it adds gradient signal there that the 2,085-gene NB likelihood
+spreads thinly (NBLoss is a mean over cells × features, so each program gene carries 1/2,086 of it).
+
+Control: the same chemCPA-NB, but the decoder generates only the 97 program genes plus one feature
+for all other human UMIs (`"output_genes": "program"`). The encoder still reads all 2,085 eval genes
+plus the rest feature, so inputs are unchanged and only the supervised targets change. Every NB
+reconstruction term then falls on the genes behind r(x), about 21× the per-gene weight of chemCPA-NB.
+Generated cells are still normalized by their generated total, which covers the whole transcriptome.
+
+- `nbprog_v1`: nb_v1 with program outputs.
+- `nbprogwrf_l10_h0.5`: the round-1 pick with program outputs (completes the 2×2: gene set × loss).
+
+Only two settings change from the source configs: `output_genes`, and the checkpoint rule, which
+becomes min validation W1(r) because MMD² needs the non-program genes. W1(r) is the only
+whole-distribution distance available on these outputs. It is closer to WRF than MMD² is, so if
+anything it favours the control. On the existing histories (validation only), W1(r) selection would
+move chemCPA-NB's val WRF q0.95 from 7.44 to 7.31 and the round-1 pick's from 4.95 to 4.33. No
+hyperparameter was tuned. Both variants are scored on val and test once. Reading: the gain is
+attributable to subset supervision only if `nbprog_v1` closes most of the 7.1 → 5.3 pp test gap
+on its own.
+
+### Result (test once, val; submission 20261103-211951, jobs train 96433, evaluate 96434, report 96435/96463)
+
+| WRF err q0.95, mean ± seed SD | val (9) | test (17) | test 13-τ mean | test W1(r) |
+|---|---|---|---|---|
+| chemCPA-NB | 7.44 ± 0.27 | 7.13 ± 0.45 | 16.21 | 0.59 |
+| round-1 pick (full-gene + WRF loss) | 4.95 ± 0.04 | 5.27 ± 0.50 | 12.92 | 0.51 |
+| nbprog_v1 (program outputs) | 5.48 | 5.23 ± 0.05 | 10.88 | 0.40 |
+| nbprogwrf_l10_h0.5 (program outputs + WRF loss) | 4.52 | 4.31 ± 0.27 | 7.29 | 0.28 |
+
+- Program outputs alone reproduce the round-1 q0.95 gain on test (−1.90 pp vs chemCPA-NB, CI [−2.92, −0.85];
+  vs round-1 pick −0.04, CI [−2.20, +2.31]). The control does not separate the loss from subset supervision
+  at the frozen threshold.
+- The loss adds on top of program outputs: −0.92 pp, CI [−2.98, +0.58], 10/17 conditions, 9/9 seed pairs.
+- Control reconstruction recovers the low-program tail: predicted control WRF 94.0–97.6% (chemCPA-NB 97.7–98.9%).
+- Regression check: the regenerated nb_v1 and round-1 reports are byte-identical to the 2026-10-30 ones.
