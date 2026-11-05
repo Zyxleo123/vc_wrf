@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 import numpy as np
 import pandas as pd
@@ -10,7 +11,7 @@ from sciplex_eval.metrics import summarize
 from sciplex_eval.spec import program_activity
 
 REPO = Path(__file__).resolve().parents[1]
-PANEL = Path("/data/user_data/yixiz/sciplex3/processed/a549_hdaci_v1.h5ad")
+PANEL = Path(os.environ.get("SCIPLEX_PANEL", "/data/user_data/yixiz/sciplex3/processed/a549_hdaci_v1.h5ad"))
 
 
 def toy_spec(score_type="log_sum", G=6):
@@ -71,6 +72,35 @@ def test_shift_increases_errors_and_wrf_only_path():
     c = evaluate_condition(spec, real, wrf_pred=f)
     assert c["wrf_err_pp_q0.95"] == pytest.approx(b["wrf_err_pp_q0.95"])
     assert "mmd2" not in c
+
+
+def test_program_only_metrics_equal_the_full_gene_ones():
+    import anndata as ad
+    from sciplex_eval import evaluate_predictions
+    spec = toy_spec()
+    rng = np.random.default_rng(4)
+    real, pred = cells(rng, 300), cells(rng, 250, shift=-0.3)
+    full = evaluate_condition(spec, real, X_pred=pred, seed=1)
+    prog = evaluate_condition(spec, real, X_pred=pred[:, spec.program_idx], seed=1, program_only=True)
+    assert set(prog) == {k for k in full if not k.startswith(("mmd", "rmse_mean_all", "rmse_mean_deg"))}
+    for k, v in prog.items():
+        assert v == pytest.approx(full[k], abs=1e-12), k
+    with pytest.raises(ValueError, match="needs X_pred"):
+        evaluate_condition(spec, real, wrf_pred={0.9: 0.5, 0.95: 0.5}, program_only=True)
+    # A prediction file over the program genes only (any order): refused by the
+    # full-gene path, scored by the program-only one.
+    obs = pd.DataFrame({"condition": ["A"] * 250, "split": ["val"] * 250})
+    order = spec.program_gene_ids[::-1]
+    pred_ad = ad.AnnData(pred[:, [spec.gene_ids.index(g) for g in order]], obs=obs, var=pd.DataFrame(index=order))
+    panel = ad.AnnData(real, obs=pd.DataFrame({"condition": ["A"] * 300, "split": ["val"] * 300}),
+                       var=pd.DataFrame(index=spec.gene_ids))
+    with pytest.raises(ValueError, match="spec genes missing"):
+        evaluate_predictions(spec, panel, pred_ad, "val")
+    (rec,) = evaluate_predictions(spec, panel, pred_ad, "val", seed=1, program_only=True)
+    assert rec["wrf_err_pp_q0.95"] == pytest.approx(full["wrf_err_pp_q0.95"])
+    assert rec["w1_r"] == pytest.approx(full["w1_r"])
+    with pytest.raises(ValueError, match="program genes missing"):
+        spec.align_program(pred[:, :1], ["g1"])
 
 
 def test_spec_roundtrip_and_align(tmp_path):

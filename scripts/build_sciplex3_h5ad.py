@@ -79,6 +79,7 @@ def main():
     if OUT.exists():
         log(f"exists, skipping: {OUT}")
         return
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     obs, var = load_obs_var()
     n_cells, n_genes = len(obs), len(var)
     log(f"obs {obs.shape}, var {var.shape}")

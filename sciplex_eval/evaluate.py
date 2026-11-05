@@ -5,6 +5,8 @@ Prediction formats (one file per method x seed x split):
                    X = log1p(CP10K) (dense or sparse), obs["condition"] = condition id
                    exactly as in the panel's obs["condition"], e.g. "A549|Belinostat (PXD101)|1000".
                    Generate at least as many cells as were measured (n_cells in the split file).
+  program genes    the same .h5ad over the program genes only, scored with --program-only:
+                   WRF error, W1(r) and program-gene RMSE (no MMD or all-gene/DEG RMSE).
   fractions only   .csv with columns condition,q,wrf (q in spec.quantiles), for methods
                    such as direct WRF regression; only WRF errors are reported.
 
@@ -48,18 +50,23 @@ def _real(panel: ad.AnnData, spec: EvalSpec, cond: str, replicate: str | None = 
     return spec.align(panel.X[m], panel.var_names)
 
 
-def evaluate_predictions(spec: EvalSpec, panel: ad.AnnData, pred, split: str, seed: int = 0) -> list[dict]:
-    """pred: AnnData of generated cells, or DataFrame with columns condition,q,wrf."""
+def evaluate_predictions(spec: EvalSpec, panel: ad.AnnData, pred, split: str, seed: int = 0,
+                         program_only: bool = False) -> list[dict]:
+    """pred: AnnData of generated cells, or DataFrame with columns condition,q,wrf.
+    program_only: pred covers (at least) the program genes and gets program-only metrics."""
     conds = split_conditions(panel, split)
     records = []
+    if program_only and not isinstance(pred, ad.AnnData):
+        raise ValueError("program_only needs generated cells")
     if isinstance(pred, ad.AnnData):
-        Xp = spec.align(pred.X, pred.var_names)
+        Xp = spec.align_program(pred.X, pred.var_names) if program_only else spec.align(pred.X, pred.var_names)
         pc = pred.obs["condition"].astype(str).values
         missing = sorted(set(conds) - set(pc))
         if missing:
             raise ValueError(f"no predicted cells for {len(missing)} {split} conditions, e.g. {missing[:3]}")
         for c in conds:
-            rec = evaluate_condition(spec, _real(panel, spec, c), X_pred=Xp[pc == c], seed=seed)
+            rec = evaluate_condition(spec, _real(panel, spec, c), X_pred=Xp[pc == c], seed=seed,
+                                     program_only=program_only)
             records.append({"condition": c, **rec})
     else:
         table = pred.pivot_table(index="condition", columns="q", values="wrf")
@@ -87,6 +94,8 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--pred", help=".h5ad of generated cells or .csv of fractions")
     p.add_argument("--reference", choices=["replicate"], help="score a built-in reference instead of --pred")
+    p.add_argument("--program-only", action="store_true",
+                   help="--pred covers only the program genes: WRF, W1(r) and program RMSE")
     p.add_argument("--split", default="val", choices=["val", "test", "train"])
     p.add_argument("--method", default=None)
     p.add_argument("--seed", type=int, default=0, help="the method's training seed (recorded only)")
@@ -103,7 +112,8 @@ def main(argv=None):
         records, method = replicate_reference(spec, panel, a.split), f"reference_{a.reference}"
     else:
         pred = ad.read_h5ad(a.pred) if a.pred.endswith(".h5ad") else pd.read_csv(a.pred)
-        records, method = evaluate_predictions(spec, panel, pred, a.split), a.method or Path(a.pred).stem
+        records = evaluate_predictions(spec, panel, pred, a.split, program_only=a.program_only)
+        method = a.method or Path(a.pred).stem
 
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)

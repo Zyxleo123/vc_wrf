@@ -88,6 +88,15 @@ class EvalSpec:
             raise ValueError(f"{len(missing)} spec genes missing from predictions, e.g. {missing[:5]}")
         return X[:, [pos[g] for g in self.gene_ids]]
 
+    def align_program(self, X, var_names) -> np.ndarray | sp.spmatrix:
+        """Program-gene columns of X, in program_gene_ids order; other genes may be absent."""
+        var_names = list(map(str, var_names))
+        pos = {g: i for i, g in enumerate(var_names)}
+        missing = [g for g in self.program_gene_ids if g not in pos]
+        if missing:
+            raise ValueError(f"{len(missing)} program genes missing from predictions, e.g. {missing[:5]}")
+        return X[:, [pos[g] for g in self.program_gene_ids]]
+
     def project(self, X) -> np.ndarray:
         """PCA coordinates used for MMD."""
         Y = X @ self.pca_components.T
@@ -122,4 +131,9 @@ def program_activity(X, spec: EvalSpec) -> np.ndarray:
 
 def response_score(X, spec: EvalSpec) -> np.ndarray:
     """r(x) = (mu0 - a(x)) / (s0 + eps); larger = stronger suppression vs. controls (eq. 1)."""
-    return (spec.mu0 - program_activity(X, spec)) / (spec.s0 + EPS)
+    return response_score_from_program(X[:, spec.program_idx], spec)
+
+
+def response_score_from_program(Xp, spec: EvalSpec) -> np.ndarray:
+    """r(x) for cells given only their program-gene columns (spec.program_gene_ids order)."""
+    return (spec.mu0 - activity_from_program_genes(Xp, spec.score_type)) / (spec.s0 + EPS)
