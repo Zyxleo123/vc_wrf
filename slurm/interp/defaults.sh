@@ -26,6 +26,12 @@ export CELLFLOW_CONFIG="${CELLFLOW_CONFIG:-}"
 # cellflow_compare: the matched baseline and optional variant=label table names (no spaces in a label).
 export CELLFLOW_BASE="${CELLFLOW_BASE:-base}"
 export CELLFLOW_LABELS="${CELLFLOW_LABELS:-}"
+# cellflow_fig_*: the arm and split to draw. A split needs the arm's cellflow_test rows first.
+export FIG_ARM="${FIG_ARM:-}"
+export FIG_SPLIT="${FIG_SPLIT:-val}"
+# dose_*: the models swept over doses (validation drugs only), and FIG_ARM names the arm in the figures.
+export DOSE_CELLFLOW="${DOSE_CELLFLOW:-z70_lr3e4_mv10_t z70_k8_res_lr3e4 base}"
+export DOSE_CHEMCPA="${DOSE_CHEMCPA:-gaussmean_l100 gauss_v1}"
 export DATA_DIR="${DATA_DIR:-/zfsauton/scratch/yixiz/sciplex3}"
 export PANEL="${PANEL:-$DATA_DIR/processed/a549_hdaci_v1.h5ad}"
 export CHEMICALS="${CHEMICALS:-$DATA_DIR/raw/GSE139944/GSM4150378_sciPlex3_A549_MCF7_K562_hashTable_metadata.txt.gz}"

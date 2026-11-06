@@ -1,0 +1,7 @@
+{
+  "step": 5000,
+  "selection": "min validation mmd2",
+  "val_mmd2": 0.020796082342428173,
+  "val_rmse_mean_deg50": 0.22963845221137003,
+  "test_evaluated": false
+}
