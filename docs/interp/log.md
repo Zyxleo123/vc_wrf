@@ -3,6 +3,9 @@
 Scope: population metrics only (MMD², mean-expression RMSEs, W1(r), plus supplementary energy
 distance and Pearson Δ). WRF is out of scope here.
 
+Names (changed 2026-11-06, numbers untouched): the *condition response embedding* is the `teacher` covariate and *grouped velocity matching* is
+`aux.kind: mean_velocity` (formerly "average-arrow" or "average-velocity"). Configs and variant names keep the old identifiers.
+
 ## Protocol (fixed 2026-11-05, before any statistics model or population generator was scored)
 
 - Development uses **inner tasks** (each drug's training intermediate dose, predicted from its
@@ -179,17 +182,17 @@ effect size no longer follows the condition (SD of generated / measured effect s
 
 | variant | MMD² | DEG50 | program | W1(r) | selected steps | end MMD² | end variance | end ignores condition |
 |---|---|---|---|---|---|---|---|---|
-| average-arrow term λ=10 (`meanv_l10`) | 0.0111 ± 0.0039 | 0.201 | 0.076 | 0.409 | 30k/2k/30k | 0.0172 | 0.98 | 1/3 |
+| grouped velocity matching λ=10 (`meanv_l10`) | 0.0111 ± 0.0039 | 0.201 | 0.076 | 0.409 | 30k/2k/30k | 0.0172 | 0.98 | 1/3 |
 | latent 70, K=8, residual, peak lr 3e-4 (`z70_k8_res_lr3e4`) | 0.0123 ± 0.0007 | 0.207 | 0.077 | 0.424 | 2k/3k/2k | 0.0371 | 0.81 | 0/3 |
 | latent 50, K=8, residual (`z50_k8_res`) | 0.0124 ± 0.0014 | 0.218 | 0.074 | 0.400 | 500/500/500 | 0.0242 | 0.84 | 0/3 |
 | latent 70, K=8, inverse (`z70_k8_inv`) | 0.0124 ± 0.0008 | 0.203 | 0.049 | 0.816 | 500/1k/500 | 0.0242 | 0.14 | 0/3 |
 | latent 70, K=8, residual (`z70_k8_res`) | 0.0130 ± 0.0003 | 0.212 | 0.074 | 0.407 | 500/1k/500 | 0.0274 | 0.82 | 0/3 |
-| latent 70, K=8, residual, average-arrow λ=10 (`z70_k8_res_mv10`) | 0.0131 ± 0.0012 | 0.202 | 0.076 | 0.421 | 3k/3k/2k | 0.0350 | 0.81 | 0/3 |
+| latent 70, K=8, residual, grouped velocity matching λ=10 (`z70_k8_res_mv10`) | 0.0131 ± 0.0012 | 0.202 | 0.076 | 0.421 | 3k/3k/2k | 0.0350 | 0.81 | 0/3 |
 | latent 50, inverse decode (`z50_inv`) | 0.0155 ± 0.0020 | 0.198 | 0.048 | 0.847 | 3k/3k/20k | 0.0251 | 0.13 | 0/3 |
 | true EMA 0.01 (`ema1e2`) | 0.0160 ± 0.0031 | 0.224 | 0.078 | 0.435 | 10k/2k/5k | 0.0552 | 0.58 | 0/3 |
-| 8 × 128 + average-arrow λ=10 (`k8n128_mv10`) | 0.0164 ± 0.0047 | 0.226 | 0.081 | 0.432 | 2k/1k/500 | 0.0863 | 0.34 | 0/3 |
+| 8 × 128 + grouped velocity matching λ=10 (`k8n128_mv10`) | 0.0164 ± 0.0047 | 0.226 | 0.081 | 0.432 | 2k/1k/500 | 0.0863 | 0.34 | 0/3 |
 | latent 50, residual decode (`z50_res`) | 0.0164 ± 0.0024 | 0.214 | 0.077 | 0.428 | 3k/3k/5k | 0.0273 | 0.84 | 0/3 |
-| average-arrow term λ=100 (`meanv_l100`) | 0.0166 ± 0.0010 | 0.235 | 0.087 | 0.444 | 3k/30k/10k | 0.0178 | 1.00 | 0/3 |
+| grouped velocity matching λ=100 (`meanv_l100`) | 0.0166 ± 0.0010 | 0.235 | 0.087 | 0.444 | 3k/30k/10k | 0.0178 | 1.00 | 0/3 |
 | published recipe (`base`) | 0.0193 ± 0.0030 | 0.229 | 0.076 | 0.432 | 5k/2k/5k | 0.0525 | 0.66 | 1/3 |
 | true EMA 0.001 (`ema1e3`) | 0.0195 ± 0.0064 | 0.265 | 0.081 | 0.434 | 1k/2k/5k | 0.0581 | 0.60 | 1/3 |
 | 8 conditions × 128 cells (`k8n128`) | 0.0205 ± 0.0047 | 0.234 | 0.075 | 0.422 | 500/1k/500 | 0.0667 | 0.33 | 0/3 |
@@ -230,3 +233,60 @@ each seed at its selected checkpoint. Published generation (512 cells per condit
 robustness check. Paired condition bootstraps as declared in the protocol, primary against `base`. This comes before the dose-relationship
 step, so that step is developed with these test numbers known: its choices are made on validation only, and any later test score for
 it is a second look at the test set and will be reported as such.
+
+### CellFlow test result (scored once for the picks above; jobs 97928 evaluate, 97955 compare; tables in docs/interp/cellflow_test.md)
+
+17 conditions, 3 seeds, frozen evaluator, 512 generated cells per condition, each seed at its lowest validation MMD² checkpoint.
+
+| test | MMD² | RMSE DEG50 | RMSE all | RMSE program | W1(r) |
+|---|---|---|---|---|---|
+| CellFlow latent, 8 conditions per update (`z70_k8_res_lr3e4`) | 0.0169 ± 0.0023 | 0.211 | 0.054 | 0.080 | 0.413 |
+| CellFlow + grouped velocity matching (`meanv_l10`) | 0.0175 ± 0.0053 | 0.214 | 0.057 | 0.083 | 0.410 |
+| CellFlow retrain, lowest val MMD² (`base`) | 0.0240 ± 0.0083 | 0.224 | 0.064 | 0.085 | 0.443 |
+| chemCPA-Gauss + mean consistency | 0.0223 ± 0.0016 | 0.238 | 0.061 | 0.059 | 0.574 |
+| CellFlow (published, WRF-chosen) | 0.0538 ± 0.0276 | 0.284 | 0.092 | 0.082 | 0.419 |
+| adjacent-dose mixture (real neighbour cells) | 0.0161 | 0.198 | 0.058 | 0.060 | 0.213 |
+
+Δ = ref − new (> 0: new better), condition-bootstrap 95% CI, conditions improved.
+
+- **Checkpoint rule:** `base` vs published CellFlow, same recipe: MMD² +0.0297 [+0.0209, +0.0389] (17/17), DEG50 +0.060 [+0.037, +0.085]. Most of the
+  distance from 0.054 comes from choosing the checkpoint on a distribution metric (the runs also differ).
+- **Fixes vs `base` (primary):** `meanv_l10` MMD² +0.0065 [−0.0002, +0.0143] (16/17), DEG50 +0.010 [−0.021, +0.030], all-gene +0.006 [+0.001, +0.011],
+  W1(r) +0.033 [+0.020, +0.046]. `z70_k8_res_lr3e4` MMD² +0.0071 [−0.0012, +0.0162] (14/17), DEG50 +0.013 [−0.025, +0.046], all-gene +0.009 [+0.003, +0.016],
+  program +0.005 [+0.001, +0.009]. Neither MMD² CI excludes zero.
+- **vs the mixture:** MMD² −0.0015 [−0.0080, +0.0050] and −0.0009 [−0.0079, +0.0058]; DEG50 −0.017 [−0.045, +0.009] and −0.013 [−0.036, +0.007]; all-gene +0.000 and
+  +0.003, CIs include zero. Clearly worse on program (−0.023, −0.019) and W1(r) (−0.197, −0.200). `base` is worse on MMD² (−0.0080 [−0.0141, −0.0026]).
+- **The earlier "chemCPA + mean consistency beats CellFlow" does not hold against the fair retrain.** `base` vs chemCPA-Gauss + mean consistency: MMD² −0.0017
+  [−0.0140, +0.0091], DEG50 +0.014 [−0.017, +0.056], all-gene −0.002 [−0.012, +0.006]; program −0.026 [−0.041, −0.010] (chemCPA better); W1(r) +0.131 [+0.025, +0.231]
+  (CellFlow better). The fixes vs chemCPA-Gauss: DEG50 better for both (+0.024 [+0.006, +0.043], +0.027 [+0.004, +0.051]), W1(r) better, program worse; MMD² +0.0048
+  [−0.0012, +0.0103] and +0.0054 [+0.0000, +0.0109].
+- A second sampling seed reproduces the test numbers (0.0169 / 0.210, 0.0173 / 0.212, 0.0238 / 0.222).
+- No test evaluation produced non-finite cells. `meanv_l10` seed 1 is scored at step 2,000, before that run ended ignoring the condition.
+- Neither fix uses the relationship between a drug's doses.
+
+### Dose gain per drug: one number and two representative drugs (2026-11-06; jobs 101614 collect, 101615 draw; validation drugs only, no test cell read)
+
+`sciplex_interp/dose_gain.py`, stages `dose_gain_collect` and `dose_gain_draw`. Figures `results/interp/figures/dose/6_dose_gain_cases.png` and `7_dose_gain_cells.png`.
+Number: `gain` of `dose_sweep.py` on each drug's own direction (top-50 DEGs, measured 10 µM change), per drug rather than pooled. 0: ignores dose. 1: the full measured response.
+The response score plays no part, at the user's request; 0–5 of each drug's top-50 DEGs are program genes (0 for both plotted drugs).
+
+| 9 validation drugs | median gain | 95% CI (drugs) | per-seed medians | pooled | median, unseen-dose steps |
+|---|---|---|---|---|---|
+| Oracle: replicate well 2 vs 1 | 1.02 | 0.64, 1.16 | | 1.09 | 0.76 |
+| `z70_lr3e4_mv10_t` (arm) | 0.85 | 0.47, 0.90 | 0.82–0.86 | 0.88 | 0.68 |
+| `gaussmean_l100` (chemCPA + mean consistency) | 0.84 | 0.01, 1.00 | 0.71–0.91 | 0.95 | 0.66 |
+| `z70_k8_res_lr3e4` (same backbone, no embedding or grouped loss) | 0.58 | 0.23, 0.73 | 0.55–0.60 | 0.64 | 0.70 |
+| `base` (CellFlow retrain) | 0.50 | 0.12, 0.66 | 0.31–0.61 | 0.60 | 0.47 |
+| `gauss_v1` (chemCPA-Gauss, original) | 0.34 | −0.01, 0.49 | 0.01–0.66 | 0.37 | 0.49 |
+
+Arm minus model, difference of medians, paired drug bootstrap, drugs where the arm is higher:
+
+- `base`: gain +0.34 [+0.17, +0.39], 9/9; unseen +0.22 [−1.45, +0.35], 7/9.
+- `gauss_v1`: gain +0.50 [+0.26, +0.61], 9/9; unseen +0.19 [+0.06, +0.49], 8/9.
+- `gaussmean_l100`: gain +0.00 [−0.09, +0.50], 5/9; unseen +0.03 [−0.35, +0.42], 6/9.
+- `z70_k8_res_lr3e4`: gain +0.27 [+0.17, +0.31], 9/9; unseen −0.01 [−0.83, +0.24], 7/9.
+
+- **Cases:** drugs ranked by the mean gain of `base` and `gauss_v1`, so the arm plays no part in the pick. Median: Givinostat (arm 0.90, chemCPA + mean consistency 1.00, CellFlow retrain 0.51, original chemCPA 0.28). 75th percentile, where the baselines do better than usual: Belinostat (0.89, 1.05, 0.65, 0.38). The opposite direction would land on Droxinostat, which has almost no dose response.
+- **Dose, not condition:** at 10 µM every model orders the drugs on PC1 (across-drug r 0.98–1.00). CellFlow retrain flattens the curve rather than under-responding throughout: on the drug direction it reaches 1.80× the measured change at 1 µM and 0.67× at 10 µM. Original chemCPA is short at both (0.58×, 0.41×; across-drug slope about 0.4).
+- **Limits:** three of the four doses are training doses. On the unseen steps the arm is not separated from `base` (which overshoots there on Givinostat and Belinostat, 2.14 and 2.63) and does not beat its own backbone. chemCPA + mean consistency ties the median and is closer to 1 on the strong drugs. The arm and its embedding were chosen on these drugs, so its numbers are optimistic. The response score goes the other way (pooled gain on r: arm 0.20, original chemCPA 0.25, chemCPA + mean consistency 0.33).
+- **Axis:** the drug direction was fixed before any sweep was read, but it was preferred over PC1 for the per-drug number after both had been seen: three drugs have under 0.35 of dose range on PC1, so their ratios are noise (as low as −3.49). PC1 agrees in direction (median 0.81 / 0.63 / 0.37 for arm / `base` / `gauss_v1`, pooled 0.86 / 0.61 / 0.40), but the arm vs `base` CI on the PC1 median includes zero (+0.18 [−0.40, +1.22]). Only the Gaussian chemCPA was swept.

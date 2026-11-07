@@ -52,12 +52,13 @@ from .diagnose import floors as sampling_floors
 REPO = Path(__file__).resolve().parents[1]
 CHEMCPA = "gaussmean_l100"
 BASE = "base"
-BACKBONE = "z70_k8_res_lr3e4"  # the latent, 8-conditions arm without the average-arrow term or teacher input
+BACKBONE = "z70_k8_res_lr3e4"  # the latent, 8-conditions arm without grouped velocity matching or the condition response embedding
 IGNORED_SPREAD = 0.05  # SD of generated / measured effect size across training conditions (the log's rule)
 N_BOOT = 10000
-ARM_LABELS = {"z70_lr3e4_mv10_t": "CellFlow latent + average-arrow + teacher",
+ARM_LABELS = {"z70_lr3e4_mv10_t": "CellFlow latent + grouped velocity matching + condition response embedding",
               "z70_k8_res_lr3e4": "CellFlow latent, 8 conditions per update",
-              "meanv_l10": "CellFlow + average-arrow term"}
+              "meanv_l10": "CellFlow + grouped velocity matching"}
+BACKBONE_LABEL = "Same backbone, no embedding or grouped loss"
 ROW_LABELS = {"oracle": "Oracle: replicate well", "oracle_mean": "Oracle mean: mixture on measured mean",
               "chemcpa": "chemCPA-Gauss + mean consistency", "cellflow": "CellFlow retrain",
               "adjacent": "Adjacent-dose mixture", "dummy": "Dummy: vehicle cells"}
@@ -126,10 +127,10 @@ def arms(root: Path) -> None:
 
 
 # ---- collect ------------------------------------------------------------------------------------
-def metric_frames(root: Path, arm: str, split: str) -> dict:
+def metric_frames(root: Path, arm: str, split: str, chemcpa: str = CHEMCPA) -> dict:
     table = pd.read_csv(MODEL_TABLE)
     frames = {"arm": cellflow_rows(root, arm, split, 0), "cellflow": cellflow_rows(root, BASE, split, 0),
-              "chemcpa": variant_rows(CHEMCPA, split, 0),
+              "chemcpa": variant_rows(chemcpa, split, 0),
               "adjacent": model_rows(table, "reference/adjacent_dose_mixture", split),
               "dummy": model_rows(table, "reference/vehicle", split), "oracle": model_rows(table, "reference/replicate", split)}
     shapes = pd.DataFrame(read_jsonl(root / "diagnose" / "shapes.jsonl"))
@@ -146,8 +147,8 @@ def read_cells(path: Path, spec) -> dict:
     return {c: X[labels == c] for c in pd.unique(labels)}
 
 
-def generated_paths(root: Path, key: str, arm: str, split: str) -> list[tuple[int, Path]]:
-    base, name = ((run_root(CHEMCPA), "predictions.h5ad") if key == "chemcpa" else
+def generated_paths(root: Path, key: str, arm: str, split: str, chemcpa: str = CHEMCPA) -> list[tuple[int, Path]]:
+    base, name = ((run_root(chemcpa), "predictions.h5ad") if key == "chemcpa" else
                   (root / "cellflow" / (arm if key == "arm" else BASE), "preds.h5ad"))
     paths = sorted(base.glob(f"seed_*/{split}_sample_s0/{name}"))
     if not paths:
@@ -155,8 +156,8 @@ def generated_paths(root: Path, key: str, arm: str, split: str) -> list[tuple[in
     return [(int(p.parent.parent.name.split("_")[1]), p) for p in paths]
 
 
-def collect(arm: str, split: str, root: Path, panel: str) -> None:
-    frames = metric_frames(root, arm, split)  # first: fails at once if the arm has no rows on this split
+def collect(arm: str, split: str, root: Path, panel: str, chemcpa: str = CHEMCPA) -> None:
+    frames = metric_frames(root, arm, split, chemcpa)  # first: fails at once if the arm has no rows on this split
     data = Data(panel)
     spec, tasks = data.spec, data.tasks(split)
     out = fig_dir(root, arm, split)
@@ -197,7 +198,7 @@ def collect(arm: str, split: str, root: Path, panel: str) -> None:
         conditions.append({"condition": t.target, "drug": t.drug, "dose": t.dose, "n_real": len(r), "mean_r_real": float(r.mean())})
 
     for key in GENERATIVE:
-        for seed, path in generated_paths(root, key, arm, split):
+        for seed, path in generated_paths(root, key, arm, split, chemcpa):
             cells = read_cells(path, spec)
             saved = {row["condition"]: row["mean_r_pred"] for row in read_jsonl(path.parent / "per_condition.jsonl")}
             for t in tasks:
@@ -227,7 +228,7 @@ def collect(arm: str, split: str, root: Path, panel: str) -> None:
     np.savez_compressed(out / "profiles.npz", **arrays)
     steps = [json.loads((root / "cellflow" / arm / f"seed_{s}" / "selected.json").read_text())["step"] for s in range(3)]
     (out / "meta.json").write_text(json.dumps({"arm": arm, "split": split, "n_conditions": len(tasks), "selected_steps": steps,
-                                               "teacher": uses_teacher(arm)}, indent=2) + "\n")
+                                               "teacher": uses_teacher(arm), "chemcpa_variant": chemcpa}, indent=2) + "\n")
     print(pd.DataFrame(summary).pivot(index="method", columns="metric", values="mean")[METRICS].reindex(
         [k for k in ORDER if k in frames]).to_string(float_format=lambda v: f"{v:.4f}"))
     print(f"wrote {out}")
@@ -277,11 +278,11 @@ def footnote(ctx) -> str:
     n = ctx.meta["n_conditions"]
     if ctx.split == "val":
         text = f"Validation only: this arm was chosen on these {n} conditions"
-        text += ", and so was its teacher, so its scores are optimistic." if ctx.meta["teacher"] else ", so its scores are optimistic."
+        text += ", and so was its embedding, so its scores are optimistic." if ctx.meta["teacher"] else ", so its scores are optimistic."
     else:
         text = f"Test, {n} held-out conditions."
         if not ctx.meta["teacher"]:
-            text += " Best arm with a test score; the teacher-input arms have none."
+            text += " Best arm with a test score; the arms with the condition response embedding have none."
     return (text + " Oracles read the held-out condition itself. The adjacent mixture resamples real cells of neighbouring "
             "doses, so it is a reference, not a generator.")
 
@@ -289,7 +290,7 @@ def footnote(ctx) -> str:
 def pc1_text(axis: dict, teacher: bool) -> str:
     return (f"PC1: first principal component of all 2,085 genes, from the frozen PCA of real control and training cells; it holds "
             f"{100 * axis['between_share']:.0f}% of the variance between training conditions. Vehicle = 0. The arm's latent contains PC1"
-            + (" and its teacher predicts nearly this axis" if teacher else "") + ", so the arm has a home advantage here. ")
+            + (" and its condition response embedding predicts nearly this axis" if teacher else "") + ", so the arm has a home advantage here. ")
 
 
 def pc_note(ctx) -> str:
@@ -330,6 +331,11 @@ def margins(fig, left: float, right: float, top: float = 0.78, bottom: float = 0
     fig.subplots_adjust(left=left / w, right=1 - right / w, top=1 - top / h, bottom=bottom / h, **kw)
 
 
+def stack(label: str) -> str:
+    """A long method label over several lines, for axis labels; legends keep it on one."""
+    return label if len(label) <= 41 else label.replace(" + ", " +\n").replace(", no", ",\nno")
+
+
 def fmt(metric: str, v: float) -> str:
     return f"{v:.4f}" if metric == "mmd2" else f"{v:.3f}"
 
@@ -365,7 +371,7 @@ def fig_scoreboard(plt, ctx) -> None:
         if m in RMSE_METRICS:
             ax.axvline(ctx.floor[m], color=INK_2, lw=1.0, zorder=1)
             ax.text(ctx.floor[m], 0.012, " floor", transform=ax.get_xaxis_transform(), va="bottom", fontsize=8, color=INK_2)
-    axes[0].set_yticks(list(y.values()), [ctx.labels[k] for k in y])
+    axes[0].set_yticks(list(y.values()), [stack(ctx.labels[k]) for k in y])
     axes[0].get_yticklabels()[order.index("arm")].set_fontweight("bold")
     for t in axes[0].get_yticklabels():
         t.set_color(INK)
@@ -487,8 +493,9 @@ def fig_ecdf(plt, ctx) -> None:
     conds = ctx.conds
     ncols = 3 if len(conds) <= 9 else 5
     nrows = int(np.ceil(len(conds) / ncols))
-    fig, axes = plt.subplots(nrows, ncols, figsize=(14.5 if ncols == 5 else 11.5, 2.15 * nrows + 2.5), sharex=True, sharey=True)
-    margins(fig, 0.6, 0.2, top=1.36, bottom=1.4, hspace=0.32, wspace=0.07)
+    wide = len(ctx.labels["arm"]) > 41  # a long arm label pushes the legend onto a third row
+    fig, axes = plt.subplots(nrows, ncols, figsize=(14.5 if ncols == 5 else 11.5, 2.15 * nrows + (2.7 if wide else 2.5)), sharex=True, sharey=True)
+    margins(fig, 0.6, 0.2, top=1.56 if wide else 1.36, bottom=1.4, hspace=0.32, wspace=0.07)
     measured = {c: profile(ctx, "measured", c, "pc1")[0] for c in conds.condition}
     lo, hi = np.percentile(np.concatenate(list(measured.values())), [0.3, 99.7])
     keys = ["dummy", "adjacent", "cellflow", "chemcpa", "arm"]
@@ -518,7 +525,7 @@ def fig_ecdf(plt, ctx) -> None:
     order = [5, 4, 3, 2, 1, 0]
     w, h = fig.get_size_inches()
     fig.legend([handles[i] for i in order], [labels[i] for i in order], loc="upper left", bbox_to_anchor=(0.008, 1 - 0.68 / h),
-               ncol=3, fontsize=8.5, handlelength=1.8, columnspacing=1.3)
+               ncol=2 if wide else 3, fontsize=8.5, handlelength=1.8, columnspacing=1.3)
     finish(plt, fig, ctx.dir / "5_pc1_distributions.png", f"Whole distributions on PC1 ({ctx.split})",
            f"Cumulative share of cells along PC1, seeds pooled. Closer to the black line is better. W1: mean distance from the measured cells; "
            f"oracle (replicate wells) {np.mean(list(w1['oracle'].values())):.2f}.", pc_note(ctx) + footnote(ctx))
@@ -815,8 +822,8 @@ def fig_arms(plt, ctx, root: Path) -> None:
     table = pd.read_csv(root / "figures" / "arms.csv")
     order = table.groupby("variant").mmd2.mean().sort_values().index.tolist()
     metrics = ["mmd2", "rmse_mean_deg50", "rmse_mean_program", "w1_r"]
-    fig, axes = plt.subplots(1, len(metrics), figsize=(13.5, 0.235 * len(order) + 2.5), sharey=True)
-    margins(fig, 1.7, 0.3, top=1.05, bottom=1.0, wspace=0.09)
+    fig, axes = plt.subplots(1, len(metrics), figsize=(13.5, 0.235 * len(order) + 2.65), sharey=True)
+    margins(fig, 1.7, 0.3, top=1.2, bottom=1.0, wspace=0.09)
     y = {v: len(order) - 1 - i for i, v in enumerate(order)}
     tone = lambda v, teacher: COLORS["arm"] if v == ctx.arm else (RAMP[1] if teacher else MUTED)
     for ax, m in zip(axes, metrics):
@@ -838,19 +845,19 @@ def fig_arms(plt, ctx, root: Path) -> None:
     axes[0].set_ylim(-0.7, len(order) - 0.2)
     finish(plt, fig, ctx.dir / "7_arm_selection.png", "Every CellFlow arm on validation, sorted by MMD²",
            "Dots: the three seeds at their lowest validation MMD² checkpoint. Tick: mean. Dark blue: the pick. Light blue: other arms "
-           "with teacher input. Hollow: that seed ended ignoring the condition. Floor: sampling noise of the measured mean.", footnote(ctx))
+           "with the condition response embedding.\nHollow: that seed ended ignoring the condition. Floor: sampling noise of the measured mean.", footnote(ctx))
 
 
 def fig_curves(plt, ctx, root: Path) -> None:
     """Training curves of the arm, its no-teacher backbone and the retrain (median of seeds; thin lines: seeds)."""
     curves = pd.read_csv(root / "figures" / "curves.csv")
     arms_table = pd.read_csv(root / "figures" / "arms.csv")
-    lines = [(ctx.arm, COLORS["arm"], ctx.labels["arm"]), (BACKBONE, MUTED, "Same backbone, no teacher or average-arrow"),
+    lines = [(ctx.arm, COLORS["arm"], ctx.labels["arm"]), (BACKBONE, MUTED, BACKBONE_LABEL),
              (BASE, COLORS["cellflow"], ROW_LABELS["cellflow"])]
     panels = [("val", "mmd2", "Validation MMD²"), ("val", "rmse_mean_deg50", "Validation RMSE DEG50"),
               ("train_fit", "var_ratio_median", "In-sample variance kept (generated / real)")]
-    fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.6))
-    margins(fig, 0.6, 0.2, top=1.15, bottom=1.15, wspace=0.17)
+    fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.8))
+    margins(fig, 0.6, 0.2, top=1.35, bottom=1.15, wspace=0.17)
     ticks = [500, 1000, 2000, 5000, 10000, 30000]
     for ax, (task, m, title) in zip(axes, panels):
         tops = []
@@ -879,7 +886,7 @@ def fig_curves(plt, ctx, root: Path) -> None:
     handles, labels = axes[0].get_legend_handles_labels()
     handles.append(plt.Line2D([], [], color=INK_2, lw=1.0))
     labels.append("Reference: oracle (MMD²), sampling floor (RMSE), all variance kept")
-    fig.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.008, 1 - 0.66 / h), ncol=4, fontsize=8.5, handlelength=1.8)
+    fig.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.008, 1 - 0.66 / h), ncol=2, fontsize=8.5, handlelength=1.8)
     finish(plt, fig, ctx.dir / "8_training_curves.png", "When the arm learns, and when it gets worse",
            "Thick line: median of 3 seeds. Thin lines: seeds. Dots: each seed's selected checkpoint (lowest validation MMD²).",
            "Only the median sets the axis, so a seed that diverged can run off the top. " + footnote(ctx))
@@ -907,6 +914,7 @@ def main(argv=None):
     p.add_argument("step", choices=["arms", "collect", "draw", "umap"])
     p.add_argument("--arm")
     p.add_argument("--split", choices=["val", "test"], default="val")
+    p.add_argument("--chemcpa", default=CHEMCPA, help="chemCPA variant collected as the `chemcpa` method (default: the mean-consistency fix)")
     p.add_argument("--data", default=DEFAULT_PANEL)
     p.add_argument("--root", default=str(DEFAULT_ROOT))
     a = p.parse_args(argv)
@@ -916,7 +924,7 @@ def main(argv=None):
     elif not a.arm:
         p.error(f"{a.step} needs --arm")
     elif a.step == "collect":
-        collect(a.arm, a.split, root, a.data)
+        collect(a.arm, a.split, root, a.data, a.chemcpa)
     elif a.step == "umap":
         fig_umap_cloud(setup(), a.arm, a.split, root, a.data)
     else:

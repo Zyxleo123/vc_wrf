@@ -12,4 +12,4 @@ REPO_DIR="${SLURM_SUBMIT_DIR:-/zfsauton2/home/yixiz/vc_wrf}"
 source "$REPO_DIR/slurm/interp/preamble.sh" "$@"
 
 python -m sciplex_interp.cellflow_figures collect --arm "${FIG_ARM:?set FIG_ARM}" --split "$FIG_SPLIT" \
-  --data "$PANEL" --root "$INTERP_ROOT"
+  --chemcpa "$FIG_CHEMCPA" --data "$PANEL" --root "$INTERP_ROOT"

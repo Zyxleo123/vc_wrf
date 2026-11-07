@@ -294,7 +294,7 @@ def collect(arm: str, root: Path, panel: str) -> None:
 def draw(arm: str, root: Path) -> None:
     from matplotlib.lines import Line2D
 
-    from .cellflow_figures import (ARM_LABELS, COLORS, INK, INK_2, MUTED, RAMP, ROW_LABELS, SURFACE, dose_text, finish, margins, pc1_text, setup,
+    from .cellflow_figures import (ARM_LABELS, BACKBONE_LABEL, COLORS, INK, INK_2, MUTED, RAMP, ROW_LABELS, SURFACE, dose_text, finish, margins, pc1_text, setup, stack,
                                    uses_teacher)
 
     plt = setup()
@@ -303,12 +303,12 @@ def draw(arm: str, root: Path) -> None:
     curves, gain, paired = (pd.read_csv(out / f"{n}.csv") for n in ("curves", "gain", "gain_paired"))
     hist = np.load(out / "hist.npz")
     ax_info = json.loads(axis_file(root).read_text())
-    labels = {arm: ARM_LABELS.get(arm, arm), BACKBONE: "Same backbone, no teacher or average-arrow", BASE: ROW_LABELS["cellflow"],
+    labels = {arm: ARM_LABELS.get(arm, arm), BACKBONE: BACKBONE_LABEL, BASE: ROW_LABELS["cellflow"],
               CHEMCPA: ROW_LABELS["chemcpa"], CHEMCPA_ORIGINAL: "chemCPA-Gauss (original)"}
     style = {arm: (COLORS["arm"], "-"), BACKBONE: (MUTED, "-"), BASE: (COLORS["cellflow"], "-"), CHEMCPA: (COLORS["chemcpa"], "-"),
              CHEMCPA_ORIGINAL: ("#e87ba4", (0, (5, 2.5)))}
     models = [m for m in (arm, BACKBONE, CHEMCPA, CHEMCPA_ORIGINAL, BASE) if m in meta["models"]]
-    note = ("Validation drugs only; no test cell is used. The arm and its teacher were chosen on these drugs' held-out doses, so its "
+    note = ("Validation drugs only; no test cell is used. The arm and its embedding were chosen on these drugs' held-out doses, so its "
             "unseen-dose numbers are optimistic. Each model is at its lowest validation MMD² checkpoint.")
     pc_note = pc1_text(ax_info, uses_teacher(arm))
     ticks = list(MEASURED_NM)
@@ -404,7 +404,7 @@ def draw(arm: str, root: Path) -> None:
                     fontweight="bold" if k == arm else "normal")
         ax.set_title(title, fontsize=9.5)
         ax.grid(axis="y", visible=False)
-    axes[0].set_yticks(list(y.values()), [names[k] for k in y], color=INK)
+    axes[0].set_yticks(list(y.values()), [stack(names[k]) for k in y], color=INK)
     axes[0].get_yticklabels()[rows.index(arm)].set_fontweight("bold")
     axes[0].set_ylim(-0.6, len(rows) - 0.4)
     finish(plt, fig, out / "3_dose_gain.png", "How much of the real dose response does each model reproduce?",

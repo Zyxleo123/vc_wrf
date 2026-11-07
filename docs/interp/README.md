@@ -1,9 +1,21 @@
 # Held-out doses from adjacent doses: why the trivial baseline wins, and a fix for chemCPA
 
-Population metrics only (MMD², mean-expression errors, W1(r)); WRF is out of scope here.
+Current comparisons use MMD² and mean-expression errors; response-score and WRF metrics are obsolete.
 Decisions and every number as it was produced: [`log.md`](log.md). Test tables with paired
 bootstraps: [`chemcpa_test.md`](chemcpa_test.md). Code: [`sciplex_interp/`](../../sciplex_interp/)
 and the opt-in chemCPA options in [`sciplex_baselines/chemcpa.py`](../../sciplex_baselines/chemcpa.py).
+
+Names: the *condition response embedding* is the `teacher` covariate and *grouped velocity matching* is `aux.kind: mean_velocity` (formerly "average-arrow" or
+"average-velocity"). Configs and variant names keep the old identifiers.
+
+Latest clean ablations of the strongest CellFlow arm, using only MMD² and expression-space errors:
+[`cellflow_ablation.md`](cellflow_ablation.md).
+
+Matched non-latent CellFlow comparison of the retrained baseline, condition response embedding, grouped velocity matching and both:
+[`cellflow_gene_factorial.md`](cellflow_gene_factorial.md).
+
+Dose response in one number (dose gain, validation drugs, with limits): see the last entry of [`log.md`](log.md); code in
+[`sciplex_interp/dose_gain.py`](../../sciplex_interp/dose_gain.py).
 
 ## 1. The puzzle
 
