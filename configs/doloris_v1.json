@@ -1,0 +1,10 @@
+{
+ "name": "v1",
+ "source": "github.com/ChangxiChi/Doloris @ 1774472383a03e7b857f4ff5dc56389f7ac41fdf: config/sciplex3/sciplex3.yaml, sciplex3_mask.yaml, sciplex3_test.yaml, train.py parse_args/create_model_and_diffusion defaults, main_mask_model.py, test_util.predict (unseen-covariate branch)",
+ "model": {"hidden_dim": 1024, "time_pos_dim": 1024, "gene_wise_embed_dim": 256, "mole_dim": 512},
+ "diffusion": {"steps": 500, "respacing": 50, "clip_denoised": true},
+ "train": {"steps": 60000, "save_every": 5000, "batch_size": 32, "lr": 0.0001, "weight_decay": 0.0},
+ "mask": {"gene_init_dim": 64, "gat_heads": 2, "epochs": 2, "batch_size": 32, "lr": 0.01, "weight_decay": 0.01},
+ "grn": {"threshold_co": 0.3, "n_cells": 500, "seed": 42},
+ "inference": {"n_cells": 512, "mask_high": 0.99, "mask_low": 0.01, "mask_feature_topk": 300}
+}

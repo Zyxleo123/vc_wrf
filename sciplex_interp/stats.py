@@ -196,12 +196,16 @@ def _torch():
     return torch
 
 
-def autodecoder(ctx: Context, queries: list[tuple[str, float]], k_e: int, wd: float, seeds: int = 5,
-                steps: int = 3000, width: int = 64) -> list[np.ndarray]:
+def autodecoder_seeds(ctx: Context, queries: list[tuple[str, float]], k_e: int, wd: float, seeds: int = 5,
+                      steps: int = 3000, width: int = 64,
+                      n_basis: int = K_BASIS) -> tuple[np.ndarray, list[str], np.ndarray]:
+    """Per-seed fits: response coordinates, drug order, and each seed's learned drug codes."""
     torch = _torch()
+    if not 1 <= n_basis <= len(ctx.V):
+        raise ValueError(f"n_basis must be in [1, {len(ctx.V)}], got {n_basis}")
     drugs = sorted(set(ctx.drug))
     lookup = {d: i for i, d in enumerate(drugs)}
-    V = ctx.V[:K_BASIS]
+    V = ctx.V[:n_basis]
     Y = ctx.D @ V.T
     scale = float(Y.std())
     Yt = torch.tensor(Y / scale, dtype=torch.float32)
@@ -209,13 +213,13 @@ def autodecoder(ctx: Context, queries: list[tuple[str, float]], k_e: int, wd: fl
     x = torch.tensor(np.log10(ctx.dose)[:, None] / 4, dtype=torch.float32)
     q_idx = torch.tensor([lookup[d] for d, _ in queries])
     q_x = torch.tensor(np.log10([dd for _, dd in queries])[:, None] / 4, dtype=torch.float32)
-    preds = []
+    preds, codes = [], []
     for seed in range(seeds):
         g = torch.Generator().manual_seed(seed)
         E = torch.nn.Parameter(0.1 * torch.randn(len(drugs), k_e, generator=g))
         torch.manual_seed(seed)
         net = torch.nn.Sequential(torch.nn.Linear(k_e + 1, width), torch.nn.Tanh(), torch.nn.Linear(width, width),
-                                  torch.nn.Tanh(), torch.nn.Linear(width, K_BASIS))
+                                  torch.nn.Tanh(), torch.nn.Linear(width, n_basis))
         opt = torch.optim.AdamW([{"params": net.parameters(), "weight_decay": wd},
                                  {"params": [E], "weight_decay": wd}], lr=3e-3)
         for _ in range(steps):
@@ -225,8 +229,14 @@ def autodecoder(ctx: Context, queries: list[tuple[str, float]], k_e: int, wd: fl
             opt.step()
         with torch.no_grad():
             preds.append(net(torch.cat([E[q_idx], q_x], 1)).numpy() * scale)
-    c = np.mean(preds, 0)
-    return [ctx.m0 + ci @ V for ci in c]
+            codes.append(E.numpy().copy())
+    return np.array(preds), drugs, np.array(codes)
+
+
+def autodecoder(ctx: Context, queries: list[tuple[str, float]], k_e: int, wd: float, seeds: int = 5,
+                steps: int = 3000, width: int = 64, n_basis: int = K_BASIS) -> list[np.ndarray]:
+    c = np.mean(autodecoder_seeds(ctx, queries, k_e, wd, seeds, steps, width, n_basis)[0], 0)
+    return [ctx.m0 + ci @ ctx.V[:n_basis] for ci in c]
 
 
 def metanet_tasks(ctx: Context):

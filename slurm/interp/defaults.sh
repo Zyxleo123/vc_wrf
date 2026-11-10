@@ -26,6 +26,15 @@ export CELLFLOW_CONFIG="${CELLFLOW_CONFIG:-}"
 # cellflow_compare: the matched baseline and optional variant=label table names (no spaces in a label).
 export CELLFLOW_BASE="${CELLFLOW_BASE:-base}"
 export CELLFLOW_LABELS="${CELLFLOW_LABELS:-}"
+# cellflow_fig_*: the arm and split to draw. A split needs the arm's cellflow_test rows first.
+export FIG_ARM="${FIG_ARM:-}"
+export FIG_SPLIT="${FIG_SPLIT:-val}"
+# The chemCPA variant collected as the `chemcpa` method. The report uses the original gauss_v1 (no
+# mean-consistency); the default keeps the mean-consistency fix for the analysis figures.
+export FIG_CHEMCPA="${FIG_CHEMCPA:-gaussmean_l100}"
+# dose_*: the models swept over doses (validation drugs only), and FIG_ARM names the arm in the figures.
+export DOSE_CELLFLOW="${DOSE_CELLFLOW:-z70_lr3e4_mv10_t z70_k8_res_lr3e4 base}"
+export DOSE_CHEMCPA="${DOSE_CHEMCPA:-gaussmean_l100 gauss_v1}"
 export DATA_DIR="${DATA_DIR:-/zfsauton/scratch/yixiz/sciplex3}"
 export PANEL="${PANEL:-$DATA_DIR/processed/a549_hdaci_v1.h5ad}"
 export CHEMICALS="${CHEMICALS:-$DATA_DIR/raw/GSE139944/GSM4150378_sciPlex3_A549_MCF7_K562_hashTable_metadata.txt.gz}"
@@ -44,6 +53,9 @@ export BASE_CHEMCPA_ROOT="${BASE_CHEMCPA_ROOT:-$REPO/results/chemcpa}"
 export VARIANTS="${VARIANTS:-}"
 export SEEDS="${SEEDS:-0 1 2}"
 export EVALS="${EVALS:-val 0}"
+# Response-coordinate lengths produced by the teacher stage. The 20-coordinate artifact keeps the
+# historical name `autodec`; other lengths are named `autodec_k<length>`.
+export TEACHER_COMPONENTS="${TEACHER_COMPONENTS:-20}"
 # Shards of the stats stage (must match --array in stats.sbatch).
 export STATS_SHARDS="${STATS_SHARDS:-14}"
 # Held-out task sets scored by chemcpa_eval (val during development; test once at the end), and

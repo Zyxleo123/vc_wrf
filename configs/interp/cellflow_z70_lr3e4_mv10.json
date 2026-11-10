@@ -1,0 +1,55 @@
+{
+  "batch_size": 128,
+  "training_steps": 30000,
+  "hidden_dims": [
+    512,
+    512,
+    512
+  ],
+  "decoder_dims": [
+    1024,
+    1024,
+    512
+  ],
+  "time_encoder_dims": [
+    256,
+    256
+  ],
+  "time_freqs": 128,
+  "condition_embedding_dim": 128,
+  "condition_mlp_dims": [
+    128,
+    128
+  ],
+  "condition_output_dropout": 0.1,
+  "constant_noise": 0.0,
+  "ot_epsilon": 0.1,
+  "weight_decay": 1e-06,
+  "learning_rate_peak": 0.0003,
+  "learning_rate_end": 3e-05,
+  "warmup_steps": 1000,
+  "ema": 0.999,
+  "validation_steps": [
+    500,
+    1000,
+    2000,
+    3000,
+    5000,
+    10000,
+    20000,
+    30000
+  ],
+  "source": "z70_lr3e4_mv10_t; teacher covariate removed",
+  "aux": {
+    "kind": "mean_velocity",
+    "weight": 10,
+    "every": 1,
+    "start": 0
+  },
+  "latent": {
+    "dims": 50,
+    "mean_dirs": 20,
+    "decode": "residual"
+  },
+  "conditions_per_batch": 8
+}

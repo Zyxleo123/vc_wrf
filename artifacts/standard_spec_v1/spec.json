@@ -1,0 +1,11 @@
+{
+ "fit_on": "control + train cells (50,000 random)",
+ "n_pcs": 50,
+ "pc_variance_explained": 0.346571683883667,
+ "mmd_sigmas": [
+  3.922837575291164,
+  7.845675150582328,
+  15.691350301164656
+ ],
+ "split": "/zfsauton2/home/yixiz/vc_wrf/configs/standard_split_v1.json"
+}

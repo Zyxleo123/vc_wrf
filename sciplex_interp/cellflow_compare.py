@@ -31,7 +31,7 @@ REFS = {"cellflow/cellflow": "CellFlow (published)", "cellflow/cellflow_mmd": "C
         "reference/adjacent_dose_mixture": "Adjacent-dose mixture (real neighbour cells)",
         "reference/vehicle": "Vehicle cells (no drug effect)", "reference/replicate": "Replicate well (noise floor)"}
 CHEMCPA = {"gaussmean_l100": "chemCPA-Gauss + mean consistency", "nbmean_l10": "chemCPA-NB + mean consistency"}
-VARIANT_LABELS = {"base": "CellFlow retrain (lowest val MMD²)", "meanv_l10": "CellFlow + average-arrow term",
+VARIANT_LABELS = {"base": "CellFlow retrain (lowest val MMD²)", "meanv_l10": "CellFlow + grouped velocity matching",
                   "z70_k8_res_lr3e4": "CellFlow latent, 8 conditions per update"}
 
 
@@ -89,9 +89,11 @@ def main(argv=None):
         refs = [f"cellflow:{a.base}", *[f"chemcpa:{v}" for v in CHEMCPA], *REFS]
         md += [f"### {split}: paired differences", "",
                "| new | ref | " + " | ".join(LABELS[m] for m in METRICS) + " |", "|---" * (len(METRICS) + 2) + "|"]
-        for v in a.variants:
+        for v in [*a.variants, a.base]:  # the base too, so it is also compared with chemCPA and the references
             new = f"cellflow:{v}"
             for ref in refs:
+                if ref == new:
+                    continue
                 cells = []
                 for m in METRICS:
                     s = paired_stats(matrix(ents[ref], m), matrix(ents[new], m), rng, a.n_boot)
