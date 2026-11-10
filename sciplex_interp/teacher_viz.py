@@ -1,4 +1,4 @@
-"""What the teacher's 20 numbers are: where conditions sit in them, and what each coordinate means.
+"""What the teacher's 20 numbers are (shown to readers as the "condition response embedding"): where conditions sit in them, and what each coordinate means.
 
 The teacher (sciplex_interp.teacher) maps a free 4-number drug code + log10 dose to 20 numbers: how far the condition's mean
 moved from vehicle along each of the top 20 directions of the 78 training mean shifts. It never sees a drug's structure or
@@ -813,9 +813,9 @@ def fig_map(plt, ctx) -> None:
     axes[1].set_title("Coordinates 2 and 3: the same path, seen with coordinate 1 hidden")
     first = fig.legend(handles=class_handles(plt), loc="lower left", bbox_to_anchor=(0.05, 0.06), ncol=5, title="Selectivity class", alignment="left", fontsize=8.5, title_fontsize=8.5)
     fig.add_artist(first)
-    fig.legend(handles=dose_handles(plt), loc="lower left", bbox_to_anchor=(0.55, 0.06), ncol=4, title="Dose (lines run through the teacher's grid)", alignment="left", fontsize=8.5, title_fontsize=8.5)
+    fig.legend(handles=dose_handles(plt), loc="lower left", bbox_to_anchor=(0.55, 0.06), ncol=4, title="Dose (lines run through the embedding's dose grid)", alignment="left", fontsize=8.5, title_fontsize=8.5)
     finish(plt, fig, ctx.dir / "1_map.png", "Drugs do not form clusters: they follow one curved path and differ in how far they get",
-           "The teacher's vectors for all 26 drugs. Star: vehicle (all zeros). Test conditions appear from labels only.")
+           "The condition response embedding of all 26 drugs (its 20 numbers). Star: vehicle (all zeros). Test conditions appear from labels only.")
 
 
 def fig_each_drug(plt, ctx) -> None:
@@ -841,16 +841,16 @@ def fig_each_drug(plt, ctx) -> None:
         ax.tick_params(labelbottom=True)
     for row in axes:
         row[0].set_ylabel("Coordinate 2", fontsize=8.5)
-    finish(plt, fig, ctx.dir / "2_each_drug.png", "One panel per drug: the teacher's path against what was measured",
-           "Colored path: teacher. Black rings: measured means of training and validation doses (test means are not read). Gray: the other drugs. Ordered by class, then strength.")
+    finish(plt, fig, ctx.dir / "2_each_drug.png", "One panel per drug: the embedding's path against what was measured",
+           "Colored path: embedding. Black rings: measured means of training and validation doses (test means are not read). Gray: the other drugs. Ordered by class, then strength.")
 
 
 def fig_embeddings(plt, ctx) -> None:
     fig, axes = plt.subplots(2, 3, figsize=(13.5, 9.2))
     margins(fig, 0.45, 0.25, top=0.95, bottom=1.1, wspace=0.12, hspace=0.22)
     info = ctx.meta["embeddings"]
-    panels = [("umap_raw_s0", "UMAP of the teacher, seed 0", "class"), ("umap_raw_s0", "The same UMAP, by dose", "dose"), ("umap_measured_s0", "Control: UMAP of measured means", "class"),
-              ("umap_raw_s1", "UMAP of the teacher, seed 1", "class"), ("pca_raw", "PCA of the teacher", "class"), ("pca_standardised", "PCA, every coordinate scaled to SD 1", "class")]
+    panels = [("umap_raw_s0", "UMAP of the embedding, seed 0", "class"), ("umap_raw_s0", "The same UMAP, by dose", "dose"), ("umap_measured_s0", "Control: UMAP of measured means", "class"),
+              ("umap_raw_s1", "UMAP of the embedding, seed 1", "class"), ("pca_raw", "PCA of the embedding", "class"), ("pca_standardised", "PCA, every coordinate scaled to SD 1", "class")]
     shade = {d: RAMP[i] for i, d in enumerate((10.0, 31.6, 100.0, 1000.0, 10000.0))}
     for ax, (name, title, colour) in zip(axes.flat, panels):
         part = ctx.embedded[ctx.embedded.embedding == name]
@@ -873,8 +873,8 @@ def fig_embeddings(plt, ctx) -> None:
     fig.legend(handles=class_handles(plt), loc="lower left", bbox_to_anchor=(0.03, 0.045), ncol=5, title="Selectivity class", alignment="left", fontsize=8.5, title_fontsize=8.5)
     shades = [Line2D([], [], marker="o", color=RAMP[i], markeredgecolor=AXIS, lw=0, markersize=6, label=l) for i, l in enumerate(("10 nM", "31.6 nM", "100 nM", "1,000 nM", "10,000 nM"))]
     fig.legend(handles=shades, loc="lower left", bbox_to_anchor=(0.52, 0.045), ncol=5, title="Dose (second panel)", alignment="left", fontsize=8.5, title_fontsize=8.5)
-    finish(plt, fig, ctx.dir / "3_embeddings.png", "UMAP and PCA of the teacher's vectors",
-           "Teacher: 182 grid points + vehicle (star). Lines join one drug's doses. UMAP's axes and distances have no units, and its small islands sit within replicate noise of vehicle.")
+    finish(plt, fig, ctx.dir / "3_embeddings.png", "UMAP and PCA of the condition response embedding",
+           "Embedding: 182 grid points + vehicle (star). Lines join one drug's doses. UMAP has no units: the weak drugs' islands are about as far from vehicle as two wells of one condition.")
 
 
 def fig_heatmap(plt, ctx) -> None:
@@ -940,22 +940,22 @@ def fig_distances(plt, ctx) -> None:
             ax.plot([base + i - 0.3, base + i + 0.3], [np.median(d)] * 2, color=INK, lw=1.8, zorder=4)
     floor = ctx.distances[ctx.distances.kind == "floor"].distance.median()
     ax.plot([gap - 0.5, gap + 6.5], [floor, floor], color=INK_2, lw=1, ls="--", zorder=2)
-    ax.annotate("Two wells of one condition", (gap + 6.5, floor), xytext=(2, -3), textcoords="offset points", ha="left", va="top", fontsize=8, color=INK_2)
+    ax.annotate("Two wells of one condition", (gap + 6.5, floor), xytext=(0, -3), textcoords="offset points", ha="right", va="top", fontsize=8, color=INK_2)
     ax.set_yscale("log")
     ax.set_xticks([b + i for b in (0, gap) for i in range(7)], [c[2] for _ in (0, 1) for c in categories], fontsize=8.5)
     ax.set_xlim(-0.7, 2 * gap - 0.6)
     ax.grid(axis="x", visible=False)
     ax.set_ylabel("Distance over the 20 coordinates")
-    ax.set_title("Pair distances: teacher (left), measured means (right)")
+    ax.set_title("Pair distances: embedding (left), measured means (right)")
     ax.legend(handles=[Line2D([], [], marker="o", color=same, lw=0, label="Same drug, adjacent doses"), Line2D([], [], marker="o", color=other, lw=0, label="Different drugs, same dose"),
                        Line2D([], [], color=INK, lw=1.8, label="Median")], loc="lower right", bbox_to_anchor=(1, 1.0), ncol=3, fontsize=8.5)
     panels = [("all 20", ("teacher", "measured"), "All 20 coordinates"), ("off path", ("teacher", "measured"), "Off the path (strength removed)"),
-              ("all 20", ("teacher, no response", "measured, no response"), "Negative control: drugs with no response")]
+              ("all 20", ("teacher, no response", "measured, no response"), "Drugs with no response")]
     groups = ["all", "10.0", "100.0", "1000.0", "10000.0"]
     for i, (space, sources, title) in enumerate(panels):
         a = fig.add_subplot(grid[1, i])
         part = ctx.neighbours[(ctx.neighbours.space == space) & (ctx.neighbours.same == "drug")]
-        for s, (source, c, m, name) in enumerate(((sources[0], same, "o", "Teacher"), (sources[1], INK, "D", "Measured"))):
+        for s, (source, c, m, name) in enumerate(((sources[0], same, "o", "Embedding"), (sources[1], INK, "D", "Measured"))):
             p = part[part.source == source].set_index("group").loc[groups]
             x = np.arange(5) + (s - 0.5) * 0.28
             a.vlines(x, p.null_lo, p.null_hi, color=AXIS, lw=5, zorder=2)
@@ -963,12 +963,12 @@ def fig_distances(plt, ctx) -> None:
         a.set_xticks(np.arange(5), ["All", "10 nM", "100", "1,000", "10,000"], fontsize=8.5)
         a.set_ylim(-0.02, 1.02)
         a.grid(axis="x", visible=False)
-        a.set_title(f"Nearest neighbour is the same drug. {title}", fontsize=9.2)
+        a.set_title(f"Same drug is the nearest neighbour\n{title}", fontsize=9.2)
         if i == 0:
             a.set_ylabel("Share of conditions")
             a.legend(loc="upper left", fontsize=8.5)
     finish(plt, fig, ctx.dir / "5_are_close_conditions_close.png", "Are close conditions close?",
-           "87 training and validation conditions on both sides. Gray bars: 95% range with drug labels shuffled within each dose. Same-drug closeness is partly built in for the teacher.")
+           "87 training and validation conditions on both sides. Gray bars: 95% range with drug labels shuffled within each dose. Same-drug closeness is partly built in for the embedding.")
 
 
 def fig_similarity(plt, ctx) -> None:
@@ -1015,7 +1015,7 @@ def fig_similarity(plt, ctx) -> None:
     ax.legend(fontsize=8.5, loc="upper right")
     fig.legend(handles=class_handles(plt), loc="lower left", bbox_to_anchor=(0.05, 0.015), ncol=5, title="Selectivity class", alignment="left", fontsize=8.5, title_fontsize=8.5)
     finish(plt, fig, ctx.dir / "6_drug_similarity.png", "Do similar drugs get similar vectors?",
-           "Teacher's vectors at 10 µM, a training dose of every drug, so they nearly equal the measured means. Matrices clustered separately. The teacher never sees structure or class.")
+           "Embedding at 10 µM, a training dose of every drug, so it nearly equals the measured means. Matrices clustered separately. The embedding never sees structure or class.")
 
 
 def _ramp():
@@ -1042,30 +1042,30 @@ def fig_quality(plt, ctx) -> None:
 
     bars(axes[0], a.share_measured, "Share of squared\nlength (measured)", xlabel="Log scale")
     axes[0].set_xscale("log")
-    bars(axes[1], a.replicate_r.clip(lower=0), "Two wells agree (r),\naxis found without them", (0, 1), xlabel="Dashed: counted as real")
+    bars(axes[1], a.replicate_r.clip(lower=0), "Two wells agree (r),\naxis refit without them", (0, 1), xlabel="Dashed: counted as real")
     axes[1].axvline(ctx.meta["real_share"], color=INK_2, lw=0.9, ls="--")
     axes[1].hlines(y, a.replicate_lo.clip(0, 1), a.replicate_hi.clip(0, 1), color=INK, lw=1.1, zorder=3)
     axes[1].scatter(a.replicate_null_q99.clip(0, 1), y, marker="|", s=70, color=CLASS_COLOR[CLASS1], linewidth=1.8, zorder=4, label="Shuffled, 99th pct.")
     axes[1].legend(fontsize=7.5, loc="lower right")
     for column, label, c, m in (("fit_train_r", "Training (fit)", blue, "o"), ("fit_val_r", "Validation (9)", INK, "D")):
         axes[2].scatter(a[column], y, s=26, color=c, label=label, marker=m, edgecolor="#fcfcfb", linewidth=0.4, zorder=3)
-    axes[2].set_title("Teacher vs measured\ncoordinate (r)", fontsize=9.5)
+    axes[2].set_title("Embedding vs measured\ncoordinate (r)", fontsize=9.5)
     axes[2].set_xlim(-1, 1.05)
     axes[2].set_xticks([-1, 0, 1])
     axes[2].axvline(0, color=AXIS, lw=0.8)
     axes[2].legend(fontsize=7.5, loc="lower left")
     axes[2].grid(axis="y", visible=False)
-    bars(axes[3], a.seed_agreement_unseen.clip(lower=0), "Teacher seeds agree\n(unseen doses)", (0, 1))
+    bars(axes[3], a.seed_agreement_unseen.clip(lower=0), "Embedding seeds agree\n(unseen doses)", (0, 1))
     left = np.zeros(20)
     for column, label, c in (("dose_share", "Dose", INK_2), ("drug_share", "Drug", blue), ("interaction_share", "Drug x dose", CLASS_COLOR[CLASS1])):
         axes[4].barh(y, a[column], left=left, color=c, height=0.68, label=label, edgecolor="#fcfcfb", linewidth=1.0)
         left += a[column].to_numpy()
     axes[4].set_xlim(0, 1)
     axes[4].set_xticks(unit)
-    axes[4].set_title("What moves it\n(teacher's grid)", fontsize=9.5)
+    axes[4].set_title("What moves it\n(embedding's grid)", fontsize=9.5)
     axes[4].legend(fontsize=7.5, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.05), columnspacing=0.8, handlelength=1)
     axes[4].grid(axis="y", visible=False)
-    axes[5].scatter(a.on_c1_teacher, y, s=26, color=blue, label="Teacher", edgecolor="#fcfcfb", linewidth=0.4, zorder=3)
+    axes[5].scatter(a.on_c1_teacher, y, s=26, color=blue, label="Embedding", edgecolor="#fcfcfb", linewidth=0.4, zorder=3)
     axes[5].scatter(a.on_c1_measured, y, s=24, color=INK, marker="D", label="Measured", edgecolor="#fcfcfb", linewidth=0.4, zorder=3)
     axes[5].set_xlim(-0.02, 1.02)
     axes[5].set_xticks(unit)
@@ -1084,7 +1084,7 @@ def fig_quality(plt, ctx) -> None:
     axes[0].set_ylabel("Coordinate")
     axes[0].invert_yaxis()
     finish(plt, fig, ctx.dir / "7_axis_quality.png", "Which coordinates carry something real?",
-           "Two wells agree: a condition's two wells, on the axis as found without that condition. About 0 means the coordinate does not replicate. Whiskers: 95% CI over conditions.")
+           "Two wells agree: a condition's two wells, on the axis refit without its fold (5 folds x 5 repeats). About 0 means it does not replicate. Whiskers: 95% CI over conditions.")
 
 
 def fig_axis_curves(plt, ctx) -> None:
@@ -1111,7 +1111,7 @@ def fig_axis_curves(plt, ctx) -> None:
             ax.set_xlabel("Dose (nM)", fontsize=8.5)
     fig.legend(handles=[plt.Line2D([], [], color=CLASS_COLOR[c], lw=2, label=c) for c in CLASSES], loc="lower left", bbox_to_anchor=(0.04, 0.012), ncol=5, title="Selectivity class", alignment="left", fontsize=8.5, title_fontsize=8.5)
     finish(plt, fig, ctx.dir / "8_axis_dose_curves.png", "How each coordinate responds to dose, drug by drug",
-           "Teacher's value on its grid. Each panel has its own y scale: coordinate 1 runs to tens and the late ones stay near zero. Label: the drug furthest from zero.")
+           "The embedding on its dose grid. Each panel has its own y scale: coordinate 1 runs to tens and the late ones stay near zero. Label: the drug furthest from zero.")
 
 
 def wrap_term(term: str, width: int = 44) -> str:
@@ -1197,7 +1197,7 @@ def fig_off_path(plt, ctx) -> None:
     ax.legend(loc="lower right", fontsize=8.5)
     fig.legend(handles=class_handles(plt), loc="lower left", bbox_to_anchor=(0.03, 0.0), ncol=5, fontsize=8.5)
     finish(plt, fig, ctx.dir / "11_off_path.png", "Which drugs leave the shared path, and how",
-           "Bars: the teacher's vector at 10 µM minus the curve shared by all drugs. Rings: the same for measured means.")
+           "Bars: the embedding at 10 µM minus the curve shared by all drugs. Rings: the same for measured means.")
 
 
 def draw(root: Path) -> None:

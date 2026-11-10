@@ -11,11 +11,17 @@ Names: the *condition response embedding* is the `teacher` covariate and *groupe
 Latest clean ablations of the strongest CellFlow arm, using only MMD² and expression-space errors:
 [`cellflow_ablation.md`](cellflow_ablation.md).
 
+Condition-response embedding length ablation (10, 20, 40, and the full 78-coordinate training
+basis), including frozen test comparisons: [`cellflow_embedding_length.md`](cellflow_embedding_length.md).
+
 Matched non-latent CellFlow comparison of the retrained baseline, condition response embedding, grouped velocity matching and both:
 [`cellflow_gene_factorial.md`](cellflow_gene_factorial.md).
 
 Dose response in one number (dose gain, validation drugs, with limits): see the last entry of [`log.md`](log.md); code in
 [`sciplex_interp/dose_gain.py`](../../sciplex_interp/dose_gain.py).
+
+What the condition response embedding's 20 numbers mean, with two reportable results (the dose response is one curved path; class I
+benzamides leave it in their own direction): [`condition_embedding.md`](condition_embedding.md).
 
 ## 1. The puzzle
 

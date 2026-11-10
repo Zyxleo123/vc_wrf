@@ -290,3 +290,45 @@ Arm minus model, difference of medians, paired drug bootstrap, drugs where the a
 - **Dose, not condition:** at 10 µM every model orders the drugs on PC1 (across-drug r 0.98–1.00). CellFlow retrain flattens the curve rather than under-responding throughout: on the drug direction it reaches 1.80× the measured change at 1 µM and 0.67× at 10 µM. Original chemCPA is short at both (0.58×, 0.41×; across-drug slope about 0.4).
 - **Limits:** three of the four doses are training doses. On the unseen steps the arm is not separated from `base` (which overshoots there on Givinostat and Belinostat, 2.14 and 2.63) and does not beat its own backbone. chemCPA + mean consistency ties the median and is closer to 1 on the strong drugs. The arm and its embedding were chosen on these drugs, so its numbers are optimistic. The response score goes the other way (pooled gain on r: arm 0.20, original chemCPA 0.25, chemCPA + mean consistency 0.33).
 - **Axis:** the drug direction was fixed before any sweep was read, but it was preferred over PC1 for the per-drug number after both had been seen: three drugs have under 0.35 of dose range on PC1, so their ratios are noise (as low as −3.49). PC1 agrees in direction (median 0.81 / 0.63 / 0.37 for arm / `base` / `gauss_v1`, pooled 0.86 / 0.61 / 0.40), but the arm vs `base` CI on the PC1 median includes zero (+0.18 [−0.40, +1.22]). Only the Gaussian chemCPA was swept.
+
+### What the condition response embedding's 20 numbers mean (2026-11-06; jobs 101792 tests, 101793 collect, 101809/101814 draw; no test measurement read)
+
+Write-up: [`condition_embedding.md`](condition_embedding.md). **Reportable** (user's pick, 2026-11-06): the one-curved-path result and the
+class I off-path result (coordinate 5). The rest of this entry is internal.
+
+`sciplex_interp/teacher_viz.py`, stages `teacher_viz_tests`, `teacher_viz_collect`, `teacher_viz_draw`. Figures and tables: `results/interp/figures/teacher/`.
+The embedding (code: `teacher`, `results/interp/teacher/autodec.npz`) is the auto-decoder's prediction of a condition's mean shift in the top 20 principal
+directions of the 78 training mean shifts, so coordinate k is a dot product with a fixed gene-loading vector. A refit reproduces the saved file exactly.
+At training doses it equals the measured means (r ≥ 0.97 on every coordinate), so the geometry below is mostly the data's. Test conditions appear only
+as predictions from labels. Drug classes are hand-assigned (`SELECTIVITY`; the panel says "HDAC" for 23 of 26), structure classes come from SMILES.
+
+- **No clusters, one path.** Conditions lie along one curve out of vehicle. A degree-4 curve in coordinate 1 holds 92% of the variance of all 20
+  coordinates (measured means: 93%). Drugs differ mainly in how far along it they get: 9 drugs barely leave vehicle at 10 µM (the 3 fatty acids, 5
+  selective inhibitors, ITSA-1), 4 class I benzamides stop part way, most broad hydroxamates reach the end.
+- **Coordinate 1 = response strength** (84% of the measured squared length): E2F / G2-M genes down (Hallmark z −8.0, −7.1), sterol genes and MALAT1 up.
+  Program genes carry 3% of its weight.
+- **Coordinate 2 = the bend, not a second effect.** 93% of it is a smooth function of coordinate 1. Its genes rise at intermediate doses and fall back
+  at high doses (CYP24A1, IGFL2-AS1, TFPI2), while proliferation genes (MKI67, KRT81, ALDH3A1) drop early and stay down (`10_path_genes.png`). UMAP
+  of the embedding draws the same path and keeps neighbours well (trustworthiness 0.97), but adds nothing PCA of coordinates 1-2 misses (0.93).
+- **Which coordinates are real.** A condition's two replicate wells, on axes refit without its fold (5 folds x 5 repeats), r: c1 0.98, c2 0.93,
+  c3 0.74, c5 0.73, c9 0.60, c11 0.57, c10 0.54. The other 13 fall below 0.5, with 95% CIs from 0.02-0.31 (c14) up to 0.22-0.63 (c6). Shuffled
+  labels: mean 0.02, largest 0.23. Calibration on pure noise at this shape: refitting without one condition is badly behaved (1-3% of noise axes
+  pass 0.5, because the late axes are nearly tied). Fitting the axes on the same cells gives 0.74-0.94 on noise. The first version of "real"
+  (signal share, beyond cell sampling) passed 18 of 20 and is kept in `axes.csv` only for the record: it counts well-level technical variance.
+- **Technical axes.** c6 and c14 follow sequencing depth (between a condition's two wells r 0.69 and 0.65; across vehicle cells 0.64, 0.52). c10 is
+  plate-linked (plate partial R² 0.44, p < 0.001; mitochondrial genes 17% of its weight).
+- **Single-drug axes.** c4 is CUDC-907 (HDAC + PI3K) at 10 µM alone (76% of its squared length): sterol and lipid synthesis genes rise about twice as
+  much as with other strong inhibitors (FASN +2.37 vs +1.0-1.5, DHCR7 +1.30 vs +0.4-0.8). The fold test cannot check an axis built on one condition.
+  c7 is mostly a dose-flat offset of PCI-34051 (HDAC8-selective) and ITSA-1 (r 0.42, below the bar).
+- **Close conditions are close, but dose dominates.** Nearest neighbour is the same drug for 20% of measured means (chance ≤ 7%), 24% once position
+  on the path is removed. At 1 µM only 6% (p 0.35): a drug part way through its response is nearest to other drugs at the same stage. Adjacent doses
+  10 → 100 nM sit near replicate distance (median 0.81 vs 0.69-0.80); 1 → 10 µM moves 4.9. The embedding exaggerates drug identity (30%, 44%),
+  partly by construction: it shares one code across a drug's doses.
+- **Negative control.** Among the 9 drugs with no response, the same drug is still the nearest neighbour for 43% of measured means (chance ≤ 27%,
+  p < 0.001). Shared culture plates do not explain it (same drug, no shared plate: median distance 0.81 vs 1.13 for different drugs). Cause untested.
+- **Drug class and structure.** Across all 26, same-class drugs are closer (rho −0.52), but that is strength: after partialling out the gap in
+  coordinate 1 it is +0.14 (p 0.08). Among the 15 responders the direction of the vector separates class (−0.38 adjusted, p 0.04, measured the same).
+  The clearest case is descriptive: all 4 class I benzamides leave the path along coordinate 5 (−1.0 to −2.2 at 10 µM, measured agrees), and no
+  broad inhibitor does (`11_off_path.png`). Chemical similarity among the 13 broad inhibitors: rho −0.24 to −0.29 (p 0.02-0.05) in both. Those come
+  from about 90 tests with no correction, so treat them as weak. The embedding's own off-path class separation (−0.25, p 0.03) is absent in the
+  measured means (0.00), so it is not a property of the data.

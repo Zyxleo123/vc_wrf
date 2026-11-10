@@ -25,6 +25,7 @@ Figures (written to <root>/figures/<arm>_<split>/report/):
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
 
 import numpy as np
@@ -43,6 +44,11 @@ LABELS_METHOD = {"arm": "Ours", "cellflow": "CellFlow (baseline)", "chemcpa": "c
 SHORT = {"arm": "Ours", "cellflow": "CellFlow", "chemcpa": "chemCPA", "adjacent": "Adjacent"}
 METRICS = ["mmd2", "rmse_mean_deg50", "rmse_mean_all", "rmse_mean_program"]  # response-score/W1 excluded
 RMSE_METRICS = ["rmse_mean_deg50", "rmse_mean_all", "rmse_mean_program"]
+N_BARS = 4  # conditions shown in the per-condition bar chart, picked by measured-response quantile (a rule)
+
+
+def slug(s: str) -> str:
+    return re.sub(r"[^0-9A-Za-z]+", "_", s).strip("_")
 
 
 def report_dir(ctx) -> Path:
@@ -107,32 +113,57 @@ def fig_cmp(plt, ctx, metric: str) -> None:
            "Adjacent mixture resamples real neighbouring-dose cells, so it is a reference, not a generator.")
 
 
-def fig_paired(plt, ctx, metric: str) -> None:
-    """One metric: baseline error minus ours on the same conditions. Right of zero, ours is better."""
-    refs = present(ctx, BASELINES)
-    fig, ax = plt.subplots(figsize=(6.2, 0.52 * len(refs) + 1.5))
-    h = 0.52 * len(refs) + 1.5
-    fig.subplots_adjust(left=0.30, right=0.90, top=1 - 0.62 / h, bottom=0.9 / h)
-    y = {k: len(refs) - 1 - i for i, k in enumerate(refs)}
-    ax.axvline(0, color=INK_2, lw=1.0, zorder=1)
-    for k in refs:
-        p = ctx.paired[(ctx.paired.ref == k) & (ctx.paired.metric == metric)]
-        if p.empty:
-            continue
-        p = p.iloc[0]
-        clear = p.ci95_low > 0 or p.ci95_high < 0
-        ax.plot([p.ci95_low, p.ci95_high], [y[k], y[k]], color=COLORS[k], lw=2.6, solid_capstyle="round", zorder=2)
-        ax.scatter([p.delta_mean], [y[k]], s=58, color=COLORS[k] if clear else SURFACE, edgecolors=COLORS[k], linewidths=1.7, zorder=3)
-        ax.text(1.02, y[k], f"{int(p.n_win)}/{int(p.n_conditions)}", transform=ax.get_yaxis_transform(), va="center", color=INK_2, fontsize=8.5)
-    ax.grid(axis="y", visible=False)
-    ax.set_yticks(list(y.values()), [LABELS_METHOD[k] for k in y])
-    for t in ax.get_yticklabels():
-        t.set_color(INK)
-    ax.set_ylim(-0.6, len(refs) - 0.4)
-    ax.set_xlabel(f"Baseline − Ours, {LABELS[metric]}  (right: Ours better)")
-    finish(plt, fig, report_dir(ctx) / f"paired_{metric}.png", f"Is Ours better, condition by condition? {LABELS[metric]} ({ctx.split})",
-           "Baseline error minus Ours error on the same conditions. Bar: 95% CI. Filled dot: the CI excludes zero. "
-           "Number at right: conditions Ours wins.")
+def fig_condition_bars(plt, ctx, metric: str = "mmd2") -> None:
+    """A few conditions, four bars each (one per method): the metric on that single condition. Replaces paired."""
+    keys = present(ctx, ["arm", "cellflow", "chemcpa", "adjacent"])  # ours first in every group
+    n = min(N_BARS, len(ctx.conds))
+    picks = ctx.conds.iloc[:n]  # the strongest measured responses (ctx.conds is sorted by response), where methods separate
+    per = ctx.rows.groupby(["method", "condition"])[metric].mean()
+    fig, ax = plt.subplots(figsize=(1.45 * n + 1.8, 4.0))
+    fig.subplots_adjust(left=0.13, right=0.97, top=0.78, bottom=0.34)
+    x = np.arange(n)
+    width = 0.80 / len(keys)
+    top = 0.0
+    for i, k in enumerate(keys):
+        vals = [per.get((k, c), np.nan) for c in picks.condition]
+        ax.bar(x + (i - (len(keys) - 1) / 2) * width, vals, width, color=COLORS[k], label=SHORT[k], zorder=3)
+        top = max(top, np.nanmax(vals))
+    ax.set_ylim(0, 1.26 * top)  # headroom so the legend clears the tallest bar
+    ax.set_xticks(x, [condition_text(r) for r in picks.itertuples()], rotation=18, ha="right", fontsize=8)
+    ax.set_ylabel(f"{LABELS[metric]}  (lower is better)")
+    ax.grid(axis="x", visible=False)
+    ax.legend(loc="upper left", fontsize=7.5, ncol=len(keys), handlelength=1.1, columnspacing=1.0, borderpad=0.3)
+    finish(plt, fig, report_dir(ctx) / f"bars_{metric}.png", f"{LABELS[metric]} on individual conditions ({ctx.split})",
+           f"Each group is one held-out condition, four bars one per method. The {n} strongest measured responses "
+           "(a rule, independent of result), strongest at left; this is where methods separate. Lower is better.")
+
+
+def fig_condition_hists(plt, ctx) -> None:
+    """One PC1 histogram per held-out condition: every method's cells against the measured cells, one axis each."""
+    out = report_dir(ctx) / "conditions"
+    out.mkdir(parents=True, exist_ok=True)
+    keys = present(ctx, ORDER)
+    for row in ctx.conds.itertuples():
+        c = row.condition
+        measured = profile(ctx, "measured", c, "pc1")[0]
+        pools = {k: np.concatenate(profile(ctx, k, c, "pc1")) for k in keys}
+        lo = min(np.percentile(v, 0.5) for v in [measured, *pools.values()])
+        hi = max(np.percentile(v, 99.5) for v in [measured, *pools.values()])
+        edges = np.linspace(lo, hi, 40)
+        fig, ax = plt.subplots(figsize=(5.2, 3.5))
+        fig.subplots_adjust(left=0.07, right=0.97, top=0.82, bottom=0.26)
+        top = ax.hist(measured, edges, density=True, color="#dcdbd4", edgecolor="none", label="Measured cells", zorder=1)[0].max()
+        for k in keys:
+            ax.hist(pools[k], edges, density=True, histtype="step", color=COLORS[k], lw=2.1 if k == "arm" else 1.3,
+                    ls=(0, (5, 2.5)) if k == "adjacent" else "-", label=SHORT[k], zorder=4 if k == "arm" else 3)
+        ax.set_ylim(0, 1.5 * max(top, 1e-9))
+        ax.set_yticks([])
+        ax.grid(False)
+        ax.set_xlabel("PC1 of all genes (vehicle = 0)")
+        ax.legend(loc="upper right", fontsize=7.5, handlelength=1.6)
+        finish(plt, fig, out / f"hist_{slug(c)}.png", f"PC1 distribution: {condition_text(row)} ({ctx.split})",
+               "Measured cells (filled) against each method (outlines), seeds pooled. Closer to the grey shape is better. "
+               "Adjacent mixture resamples real neighbouring-dose cells, so it is a reference, not a generator.")
 
 
 def fig_effect(plt, ctx) -> None:
@@ -328,7 +359,8 @@ def draw(arm: str, split: str, root: Path) -> None:
     ctx = load_context(root, arm, split)
     for metric in METRICS:
         fig_cmp(plt, ctx, metric)
-        fig_paired(plt, ctx, metric)
+    fig_condition_bars(plt, ctx, "mmd2")  # per-condition bars, in place of the paired figures
+    fig_condition_hists(plt, ctx)
     fig_effect(plt, ctx)
     fig_ecdf(plt, ctx)
     fig_gene_change(plt, ctx)
