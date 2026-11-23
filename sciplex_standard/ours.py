@@ -59,7 +59,7 @@ def latent_basis(data: StdData, spec: dict, mean_dirs: int) -> tuple[np.ndarray,
     return U.astype(np.float32), spec["pca_mean"].astype(np.float32)
 
 
-def model_data(data: StdData, spec: dict, cfg: dict, root: Path, mol_path: str):
+def model_data(data: StdData, spec: dict, cfg: dict, root: Path, mol_path: str, teacher: str = "std_autodec.npz"):
     import anndata as ad
     rows = data.train_rows()
     o = data.obs.iloc[rows]
@@ -77,7 +77,7 @@ def model_data(data: StdData, spec: dict, cfg: dict, root: Path, mol_path: str):
     a.uns["drug_embeddings"] = {d: E[names.index(d)] for d in data.drugs}
     a.uns["drug_embeddings"]["control"] = np.zeros(E.shape[1], dtype=np.float32)
     a.uns["cell_type_embeddings"] = {c: np.eye(len(data.cell_types), dtype=np.float32)[i] for i, c in enumerate(data.cell_types)}
-    t = np.load(Path(root) / "teacher" / "std_autodec.npz")
+    t = np.load(Path(root) / "teacher" / teacher)
     a.uns["teacher_embeddings"] = {str(k): (c / t["scale"]).astype(np.float32) for k, c in zip(t["keys"], t["coef"])}
     a.uns["teacher_embeddings"]["control"] = np.zeros(t["coef"].shape[1], dtype=np.float32)
     U, centre = latent_basis(data, spec, int(cfg["latent"]["mean_dirs"]))
@@ -161,11 +161,11 @@ def val_mmd(data: StdData, spec: dict, cells: dict) -> float:
     return float(np.mean(vals))
 
 
-def train(seed: int, root: Path, path: str, mol_path: str) -> None:
+def train(seed: int, root: Path, path: str, mol_path: str, tag: str = "ours", teacher: str = "std_autodec.npz") -> None:
     import jax
 
     cfg = json.loads(CONFIG.read_text())
-    out = root / "runs" / "ours" / f"seed_{seed}"
+    out = root / "runs" / tag / f"seed_{seed}"
     done = out / "training_complete.json"
     if done.exists():
         print(f"seed {seed}: already trained")
@@ -177,7 +177,7 @@ def train(seed: int, root: Path, path: str, mol_path: str) -> None:
     if not any(d.platform == "gpu" for d in jax.devices()):
         raise SystemExit(f"no GPU visible to JAX: {jax.devices()}")
     data, spec = StdData(path), load_spec()
-    train_ad = model_data(data, spec, cfg, root, mol_path)
+    train_ad = model_data(data, spec, cfg, root, mol_path, teacher)
     cf, schedule = build(train_ad, cfg, seed)
     sampler = make_sampler(cf, cfg["batch_size"])
     K = int(cfg["conditions_per_batch"])
@@ -214,17 +214,18 @@ def train(seed: int, root: Path, path: str, mol_path: str) -> None:
     print("TRAINING_COMPLETE", seed, flush=True)
 
 
-def generate_all(seed: int, root: Path, path: str, mol_path: str, offset: int = 0) -> None:
+def generate_all(seed: int, root: Path, path: str, mol_path: str, offset: int = 0, tag: str = "ours",
+                 teacher: str = "std_autodec.npz") -> None:
     import anndata as ad
 
-    run = root / "runs" / "ours" / f"seed_{seed}"
+    run = root / "runs" / tag / f"seed_{seed}"
     if not (run / "training_complete.json").exists():
         raise SystemExit(f"{run} has not finished training")
     cfg = json.loads((run / "config.json").read_text())
     data, spec = StdData(path), load_spec()
-    train_ad = model_data(data, spec, cfg, root, mol_path)
+    train_ad = model_data(data, spec, cfg, root, mol_path, teacher)
     cf, _ = build(train_ad, cfg, seed)
-    for method, params in (("ours", "best_params.msgpack"), ("ours_final", "final_params.msgpack")):
+    for method, params in ((tag, "best_params.msgpack"), (f"{tag}_final", "final_params.msgpack")):
         todo = [s for s in SPLITS if not (root / "preds" / method / f"seed_{seed}" / f"{s}.h5ad").exists()]
         if not todo:
             continue
@@ -250,11 +251,13 @@ def main(argv=None):
     p.add_argument("--molecules", default=str(ROOT / "unimol_embed.npz"))
     p.add_argument("--file", default=DEFAULT_FILE)
     p.add_argument("--root", default=str(ROOT))
+    p.add_argument("--tag", default="ours", help="run and prediction directory name")
+    p.add_argument("--teacher", default="std_autodec.npz", help="condition response embedding file under <root>/teacher")
     a = p.parse_args(argv)
     if a.stage == "train":
-        train(a.seed, Path(a.root), a.file, a.molecules)
+        train(a.seed, Path(a.root), a.file, a.molecules, a.tag, a.teacher)
     else:
-        generate_all(a.seed, Path(a.root), a.file, a.molecules)
+        generate_all(a.seed, Path(a.root), a.file, a.molecules, tag=a.tag, teacher=a.teacher)
 
 
 if __name__ == "__main__":
